@@ -1,0 +1,232 @@
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+async function main() {
+  console.log('Seeding database...')
+
+  // 1. Clean existing records
+  await prisma.notification.deleteMany()
+  await prisma.review.deleteMany()
+  await prisma.payout.deleteMany()
+  await prisma.transaction.deleteMany()
+  await prisma.subscription.deleteMany()
+  await prisma.submission.deleteMany()
+  await prisma.assignment.deleteMany()
+  await prisma.lessonMaterial.deleteMany()
+  await prisma.booking.deleteMany()
+  await prisma.student.deleteMany()
+  await prisma.tutorProfile.deleteMany()
+  await prisma.profile.deleteMany()
+  await prisma.paymentPlan.deleteMany()
+
+  console.log('Cleared old database records.')
+
+  // 2. Create Payment Plans
+  await prisma.paymentPlan.create({
+    data: {
+      name: 'Monthly 4-Session Plan',
+      description: '4 sessions per month, ideal for midterm support.',
+      amount: 52000,
+      billingInterval: 'monthly',
+      sessionCount: 4
+    }
+  })
+
+  await prisma.paymentPlan.create({
+    data: {
+      name: 'Monthly 8-Session Plan',
+      description: '8 sessions per month, standard learning support.',
+      amount: 96000,
+      billingInterval: 'monthly',
+      sessionCount: 8
+    }
+  })
+
+  await prisma.paymentPlan.create({
+    data: {
+      name: 'Termly 24-Session Package',
+      description: '24 sessions per term, full semester backup.',
+      amount: 270000,
+      billingInterval: 'term',
+      sessionCount: 24
+    }
+  })
+
+  console.log('Seeded Payment Plans.')
+
+  // 3. Create Profiles
+  // Tutor: Mark Okafor (CEO)
+  const profileMark = await prisma.profile.create({
+    data: {
+      clerkId: 'user_tutor_mark',
+      role: 'tutor',
+      firstName: 'Mark',
+      lastName: 'Okafor',
+      email: 'mark@mokafor.com',
+      phone: '+2348030000001',
+      avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80',
+      tutorProfile: {
+        create: {
+          bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.',
+          subjects: ['Mathematics'],
+          levels: ['Junior Secondary', 'Senior Secondary'],
+          curricula: ['WAEC', 'IGCSE', 'JAMB'],
+          hourlyRate: 15000,
+          verified: true,
+          status: 'active',
+          rating: 5.0,
+          totalReviews: 12
+        }
+      }
+    }
+  })
+
+  // Tutor: Jane Adebayo
+  await prisma.profile.create({
+    data: {
+      clerkId: 'user_tutor_jane',
+      role: 'tutor',
+      firstName: 'Jane',
+      lastName: 'Adebayo',
+      email: 'jane.adebayo@mokafor.com',
+      phone: '+2348030000002',
+      avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+      tutorProfile: {
+        create: {
+          bio: 'Ph.D. in Applied Mathematics. 10+ years experience preparing students for A-Levels & IGCSE.',
+          subjects: ['Mathematics', 'Physics'],
+          levels: ['Senior Secondary'],
+          curricula: ['IGCSE', 'A Levels'],
+          hourlyRate: 12500,
+          verified: true,
+          status: 'active',
+          rating: 4.9,
+          totalReviews: 8
+        }
+      }
+    }
+  })
+
+  // Tutor: Sarah Jenkins
+  await prisma.profile.create({
+    data: {
+      clerkId: 'user_tutor_sarah',
+      role: 'tutor',
+      firstName: 'Sarah',
+      lastName: 'Jenkins',
+      email: 'sarah.jenkins@mokafor.com',
+      phone: '+2348030000003',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      tutorProfile: {
+        create: {
+          bio: 'Experienced English Literature teacher. Specializes in IELTS, TOEFL & SAT prep.',
+          subjects: ['English Language', 'Literature'],
+          levels: ['Senior Secondary'],
+          curricula: ['SAT', 'IELTS'],
+          hourlyRate: 10000,
+          verified: true,
+          status: 'active',
+          rating: 4.8,
+          totalReviews: 6
+        }
+      }
+    }
+  })
+
+  // Parent: Mrs. Amadi Adebayo
+  const parentProfile = await prisma.profile.create({
+    data: {
+      clerkId: 'user_parent_amadi',
+      role: 'parent',
+      firstName: 'Amadi',
+      lastName: 'Adebayo',
+      email: 'amadi.adebayo@gmail.com',
+      phone: '+2348030000004'
+    }
+  })
+
+  console.log('Seeded Profiles & Tutors.')
+
+  // 4. Create Student
+  const student = await prisma.student.create({
+    data: {
+      parentId: parentProfile.id,
+      firstName: 'Toby',
+      lastName: 'Adebayo',
+      gradeLevel: 'JSS3',
+      curriculum: 'WAEC',
+      learningGoals: ['Pass Junior WAEC Math with distinction', 'Improve algebraic problem-solving speed']
+    }
+  })
+
+  console.log('Seeded Student.')
+
+  // 5. Create Active Booking
+  const booking = await prisma.booking.create({
+    data: {
+      studentId: student.id,
+      tutorId: profileMark.id, // Mark Okafor (uses Mark profile ID directly since it matches tutor profile ID)
+      subject: 'Mathematics',
+      lessonType: 'one_on_one',
+      status: 'scheduled',
+      scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+      durationMinutes: 90,
+      meetingLink: 'https://meet.google.com/mock-mokafor-lesson',
+      notes: 'Focus on Quadratic Equations sheet review.'
+    }
+  })
+
+  // 6. Create Assignment
+  await prisma.assignment.create({
+    data: {
+      bookingId: booking.id,
+      title: 'Quadratic Equations Homework Sheet 3',
+      description: 'Solve problems 1 to 10. Show all workings clearly.',
+      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+      maxScore: 100
+    }
+  })
+
+  console.log('Seeded Bookings & Assignments.')
+
+  // 7. Seed Transactions
+  await prisma.transaction.create({
+    data: {
+      parentId: parentProfile.id,
+      studentId: student.id,
+      amount: 96000,
+      paystackReference: 'MOK-7788229911',
+      paystackStatus: 'success',
+      type: 'subscription',
+      description: 'Payment for Monthly 8-Session Plan'
+    }
+  })
+
+  // 8. Seed Progress Report
+  await prisma.progressReport.create({
+    data: {
+      studentId: student.id,
+      tutorId: profileMark.id,
+      periodStart: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      periodEnd: new Date(),
+      attendanceRate: 94.0,
+      overallScore: 85,
+      strengths: ['Factoring quadratics', 'Linear graphs plotting'],
+      areasForImprovement: ['Word problems setup', 'Indices rules speed'],
+      tutorNotes: 'Exceptional aptitude. Ready for WAEC trials.'
+    }
+  })
+
+  console.log('Seeded Transactions & Progress Reports.')
+  console.log('Database Seeding Complete!')
+}
+
+main()
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

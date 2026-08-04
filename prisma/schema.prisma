@@ -1,0 +1,227 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Profile {
+  id          String    @id @default(uuid())
+  clerkId     String    @unique
+  role        String    // 'parent', 'student', 'tutor', 'admin'
+  firstName   String
+  lastName    String
+  email       String    @unique
+  phone       String?
+  avatarUrl   String?
+  country     String    @default("NG")
+  timezone    String    @default("Africa/Lagos")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tutorProfile    TutorProfile?
+  students        Student[]       @relation("ParentStudents")
+  lessonMaterials LessonMaterial[]
+  transactions    Transaction[]
+  notifications   Notification[]
+  subscriptions   Subscription[]
+}
+
+model TutorProfile {
+  id                    String    @id @default(uuid())
+  profile               Profile   @relation(fields: [id], references: [id], onDelete: Cascade)
+  bio                   String?
+  qualifications        Json?     // List of qualifications: [{degree, institution, year}]
+  subjects              String[]  // E.g., ['Mathematics', 'Physics']
+  levels                String[]  // E.g., ['Primary', 'Senior Secondary']
+  curricula             String[]  // E.g., ['WAEC', 'IGCSE', 'SAT']
+  hourlyRate            Int       // In kobo or standard units (e.g. Naira)
+  availability          Json?     // E.g., {monday: [{start: '09:00', end: '12:00'}]}
+  rating                Float     @default(0.0)
+  totalReviews          Int       @default(0)
+  verified              Boolean   @default(false)
+  status                String    @default("pending") // 'pending', 'active', 'suspended'
+  paystackRecipientCode String?
+
+  bookings              Booking[]
+  progressReports       ProgressReport[]
+  payouts               Payout[]
+  reviews               Review[]
+}
+
+model Student {
+  id              String           @id @default(uuid())
+  parentId        String
+  parent          Profile          @relation("ParentStudents", fields: [parentId], references: [id], onDelete: Cascade)
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime?
+  gradeLevel      String
+  school          String?
+  curriculum      String?
+  learningGoals   String[]
+  createdAt       DateTime         @default(now())
+
+  bookings        Booking[]
+  submissions     Submission[]
+  progressReports ProgressReport[]
+  transactions    Transaction[]
+  subscriptions   Subscription[]
+}
+
+model Booking {
+  id              String          @id @default(uuid())
+  studentId       String
+  student         Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tutorId         String
+  tutor           TutorProfile    @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  subject         String
+  lessonType      String          // 'one_on_one', 'group', 'improvement'
+  status          String          @default("scheduled") // 'scheduled', 'completed', 'cancelled', 'no_show'
+  scheduledAt     DateTime
+  durationMinutes Int             @default(60)
+  meetingLink     String?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  lessonMaterials LessonMaterial[]
+  assignments     Assignment[]
+  reviews         Review[]
+}
+
+model LessonMaterial {
+  id          String   @id @default(uuid())
+  bookingId   String?
+  booking     Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  fileUrl     String
+  fileType    String?
+  createdById String
+  createdBy   Profile  @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Assignment {
+  id          String       @id @default(uuid())
+  bookingId   String?
+  booking     Booking?     @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  dueDate     DateTime?
+  maxScore    Int          @default(100)
+  createdAt   DateTime     @default(now())
+  submissions Submission[]
+}
+
+model Submission {
+  id           String     @id @default(uuid())
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  fileUrl      String?
+  notes        String?
+  score        Int?
+  feedback     String?
+  submittedAt  DateTime   @default(now())
+  gradedAt     DateTime?
+}
+
+model ProgressReport {
+  id                  String       @id @default(uuid())
+  studentId           String
+  student             Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tutorId             String
+  tutor               TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  periodStart         DateTime
+  periodEnd           DateTime
+  attendanceRate      Float?
+  overallScore        Int?
+  strengths           String[]
+  areasForImprovement String[]
+  tutorNotes          String?
+  createdAt           DateTime     @default(now())
+}
+
+model PaymentPlan {
+  id              String         @id @default(uuid())
+  name            String
+  description     String?
+  amount          Int            // In Naira/Kobo
+  billingInterval String         // 'weekly', 'monthly', 'term', 'one_time'
+  sessionCount    Int?
+  isActive        Boolean        @default(true)
+  subscriptions   Subscription[]
+}
+
+model Subscription {
+  id                        String      @id @default(uuid())
+  parentId                  String
+  parent                    Profile     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  studentId                 String
+  student                   Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  planId                    String
+  plan                      PaymentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  paystackSubscriptionCode  String?
+  paystackEmailToken        String?
+  status                    String      @default("active") // 'active', 'cancelled', 'expired'
+  startedAt                 DateTime    @default(now())
+  expiresAt                 DateTime?
+  cancelledAt               DateTime?
+}
+
+model Transaction {
+  id                String   @id @default(uuid())
+  parentId          String
+  parent            Profile  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  studentId         String?
+  student           Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  amount            Int
+  currency          String   @default("NGN")
+  paystackReference String   @unique
+  paystackStatus    String?
+  type              String   // 'subscription', 'one_time', 'refund'
+  description       String?
+  metadata          Json?
+  createdAt         DateTime @default(now())
+}
+
+model Payout {
+  id                        String       @id @default(uuid())
+  tutorId                   String
+  tutor                     TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  amount                    Int
+  paystackTransferReference String?
+  status                    String       @default("pending") // 'pending', 'processing', 'completed', 'failed'
+  periodStart               DateTime
+  periodEnd                 DateTime
+  createdAt                 DateTime     @default(now())
+}
+
+model Review {
+  id        String       @id @default(uuid())
+  bookingId String?
+  booking   Booking?     @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  studentId String
+  tutorId   String
+  tutor     TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime     @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // 'booking_reminder', 'payment_success', 'new_message'
+  title     String
+  body      String?
+  read      Boolean  @default(false)
+  data      Json?
+  createdAt DateTime @default(now())
+}
