@@ -94,8 +94,8 @@ const PROGRAMS = [
     desc: 'An intensive preparation program for pupils seeking admission into Loyola Jesuit College and other top secondary schools. Covers Mathematics, English, Verbal Reasoning, Quantitative Reasoning, and interview preparation.',
     schedule: 'Flexible Weekly Sessions',
     duration: 'Monthly Intensive Track',
-    fee: '₦50,000 per month',
-    rawPrice: '₦50,000',
+    fee: '₦100,000 per month',
+    rawPrice: '₦100,000',
     popular: true,
     highlights: ['Mathematics & English', 'Verbal & Quantitative Reasoning', 'Mock Interview Prep']
   },
@@ -107,8 +107,8 @@ const PROGRAMS = [
     desc: 'Focused coaching that helps students master the examination syllabus, solve past questions, improve speed and accuracy, and maximize their scores.',
     schedule: 'Flexible Weekly Classes',
     duration: 'Monthly Intensive Track',
-    fee: '₦50,000 per month',
-    rawPrice: '₦50,000',
+    fee: '₦100,000 per month',
+    rawPrice: '₦100,000',
     popular: false,
     highlights: ['Syllabus Mastery', 'Past Question Drills', 'Timed Exam Strategies']
   },
@@ -710,7 +710,7 @@ Thank you for choosing Mokafor Global Education!
                   <div>
                     <span className="text-[9px] uppercase tracking-widest font-extrabold text-indigo-500 bg-indigo-500/10 px-3.5 py-1 rounded-full">Exam Bootcamps</span>
                     <h3 className="text-xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">Loyola, WAEC & JAMB Prep</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Intensive entrance & terminal examination coaching. Covers verbal/quantitative reasoning, syllabus drills, and mock tests from ₦50,000/mo.</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Intensive entrance & terminal examination coaching. Covers verbal/quantitative reasoning, syllabus drills, and mock tests from ₦100,000/mo.</p>
                   </div>
                   <button onClick={() => { setProgramCategory('Exam Prep'); setActiveTab('programs'); }} className="text-emerald-500 font-bold text-xs mt-6 inline-flex items-center gap-1 hover:underline">View Exam Prep <ChevronRight size={14} /></button>
                 </div>
