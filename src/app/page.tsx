@@ -194,7 +194,7 @@ const PROGRAMS = [
 
 const TUTORS = [
   { id: '1', name: 'Dr. Jane Adebayo', subject: 'Mathematics', grade: 'Senior Secondary', curriculum: 'IGCSE', availability: 'Weekdays', language: 'English', rating: 4.9, rate: '₦12,500/hr', bio: 'Ph.D. in Applied Mathematics. 10+ years experience preparing students for A-Levels & IGCSE.', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80' },
-  { id: '2', name: 'Mark Okafor', subject: 'Mathematics', grade: 'Junior Secondary', curriculum: 'WAEC', availability: 'Weekends', language: 'English', rating: 5.0, rate: '₦15,000/hr', bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80' },
+  { id: '2', name: 'Mark Okafor', subject: 'Mathematics', grade: 'Junior Secondary', curriculum: 'WAEC', availability: 'Weekends', language: 'English', rating: 5.0, rate: '₦15,000/hr', bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.', avatar: '/founder.jpg' },
   { id: '3', name: 'Sarah Jenkins', subject: 'English Language', grade: 'Senior Secondary', curriculum: 'SAT', availability: 'Weekdays', language: 'English', rating: 4.8, rate: '₦10,000/hr', bio: 'Experienced English Literature teacher. Specializes in IELTS, TOEFL & SAT prep.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
   { id: '4', name: 'Chinedu Eze', subject: 'Physics', grade: 'Senior Secondary', curriculum: 'JAMB', availability: 'Weekends', language: 'English', rating: 4.9, rate: '₦8,500/hr', bio: 'M.Sc. in Physics. Expert tutor for JAMB, WAEC & NECO exam preparations.', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80' }
 ]
@@ -849,7 +849,7 @@ Thank you for choosing Mokafor Global Education!
             <div className="glow-card border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-[36px] p-8 md:p-12 space-y-8 shadow-2xl" onMouseMove={handleMouseMove}>
               <div className="flex flex-col md:flex-row gap-8 items-center border-b border-slate-100 dark:border-slate-800 pb-8">
                 <div className="w-36 h-36 rounded-full overflow-hidden flex-shrink-0 border-4 border-emerald-500 shadow-2xl">
-                  <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&auto=format&fit=crop&q=80" alt="Mark Okafor" className="w-full h-full object-cover" />
+                  <img src="/founder.jpg" alt="Mark Okafor" className="w-full h-full object-cover object-top" />
                 </div>
                 <div className="space-y-2 text-center md:text-left">
                   <span className="text-[10px] uppercase font-black tracking-widest text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full border border-emerald-500/20">Executive Leadership</span>
