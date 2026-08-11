@@ -781,12 +781,22 @@ Thank you for choosing Mokafor Global Education!
 
         {/* ==================== PAGE: ABOUT US ==================== */}
         {activeTab === 'about' && (
-          <section className="space-y-16 page-container">
-            <div className="text-center max-w-2xl mx-auto space-y-3">
-              <h2 className="text-4xl md:text-5xl font-extrabold">About Us</h2>
-              <p className="text-slate-500">Discover our core story, mission guidelines, and founder details.</p>
+          <section className="space-y-20 page-container">
+            {/* Header */}
+            <div className="text-center max-w-3xl mx-auto space-y-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs border border-emerald-500/20">
+                <Sparkles size={12} /> World-Class Education Company
+              </div>
+              <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight">About Mokafor Global Education</h2>
+              <p className="text-emerald-600 dark:text-emerald-400 font-bold text-base md:text-lg">
+                Empowering learners. Transforming futures.
+              </p>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed max-w-2xl mx-auto">
+                Dedicated to delivering world-class learning experiences, personalized tutoring, and internationally recognized academic programs for learners across the globe.
+              </p>
             </div>
 
+            {/* Core Overview & Stats */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white">Who We Are</h3>
@@ -797,55 +807,181 @@ Thank you for choosing Mokafor Global Education!
                   Our services include personalized tutoring, improvement classes, exam preparation, online learning, teacher development, educational consulting, and academic support for learners of all ages and abilities.
                 </p>
                 
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-200 dark:border-slate-800">
                   <div>
-                    <h4 className="text-3xl font-black text-emerald-500">10k+</h4>
+                    <h4 className="text-3xl md:text-4xl font-black text-emerald-500">10k+</h4>
                     <p className="text-[10px] text-slate-500 uppercase font-bold mt-1">Pupils Vetted</p>
                   </div>
                   <div>
-                    <h4 className="text-3xl font-black text-emerald-500">99.4%</h4>
+                    <h4 className="text-3xl md:text-4xl font-black text-emerald-500">99.4%</h4>
                     <p className="text-[10px] text-slate-500 uppercase font-bold mt-1">Exams Cleared</p>
                   </div>
                   <div>
-                    <h4 className="text-3xl font-black text-emerald-500">250+</h4>
-                    <p className="text-[10px] text-slate-500 uppercase font-bold mt-1">Tutors Active</p>
+                    <h4 className="text-3xl md:text-4xl font-black text-emerald-500">250+</h4>
+                    <p className="text-[10px] text-slate-500 uppercase font-bold mt-1">Educators Active</p>
                   </div>
                 </div>
               </div>
 
-              {/* Bento styled values block */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[28px] space-y-6 shadow-sm">
-                <h4 className="text-base font-bold text-emerald-500 flex items-center gap-2"><ShieldCheck /> Core Principles</h4>
-                <div className="space-y-4 text-xs">
-                  <div>
-                    <h5 className="font-bold text-slate-900 dark:text-white">Excellence</h5>
-                    <p className="text-slate-500 mt-1">We pursue the highest standards in teaching, learning, and service delivery.</p>
+              {/* Core Principles Bento Card */}
+              <div className="glow-card p-8 rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md space-y-6 shadow-xl" onMouseMove={handleMouseMove}>
+                <h4 className="text-lg font-extrabold text-emerald-500 flex items-center gap-2">
+                  <ShieldCheck size={22} /> Core Values & Principles
+                </h4>
+                <div className="space-y-5 text-xs">
+                  <div className="space-y-1">
+                    <h5 className="font-bold text-sm text-slate-900 dark:text-white">Excellence</h5>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">We pursue the highest standards in teaching, learning, and service delivery.</p>
                   </div>
-                  <div>
-                    <h5 className="font-bold text-slate-900 dark:text-white">Integrity</h5>
-                    <p className="text-slate-500 mt-1">We act with honesty, professionalism, accountability, and transparency.</p>
+                  <div className="space-y-1">
+                    <h5 className="font-bold text-sm text-slate-900 dark:text-white">Integrity</h5>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">We act with honesty, professionalism, accountability, and transparency.</p>
                   </div>
-                  <div>
-                    <h5 className="font-bold text-slate-900 dark:text-white">Student-Centred Learning</h5>
-                    <p className="text-slate-500 mt-1">Every learner is unique. We tailor our approach to meet individual needs.</p>
+                  <div className="space-y-1">
+                    <h5 className="font-bold text-sm text-slate-900 dark:text-white">Student-Centred Learning</h5>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">Every learner is unique. We tailor our approach to meet individual needs and learning speeds.</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Meet the Founder */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[32px] p-8 flex flex-col md:flex-row gap-8 items-center">
-              <div className="w-32 h-32 rounded-full overflow-hidden flex-shrink-0 border-4 border-emerald-500 shadow-lg">
-                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80" alt="Mark Okafor" className="w-full h-full object-cover" />
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Mark Okafor</h3>
-                  <p className="text-xs uppercase font-extrabold tracking-wider text-emerald-500 mt-1">Founder & Chief Executive Officer</p>
+            {/* Meet the Founder & CEO - Mark Okafor */}
+            <div className="glow-card border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-[36px] p-8 md:p-12 space-y-8 shadow-2xl" onMouseMove={handleMouseMove}>
+              <div className="flex flex-col md:flex-row gap-8 items-center border-b border-slate-100 dark:border-slate-800 pb-8">
+                <div className="w-36 h-36 rounded-full overflow-hidden flex-shrink-0 border-4 border-emerald-500 shadow-2xl">
+                  <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&auto=format&fit=crop&q=80" alt="Mark Okafor" className="w-full h-full object-cover" />
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Mark Okafor is an accomplished educator, mathematics specialist, educational consultant, and visionary leader committed to transforming education through innovation and excellence. Driven by a passion for helping learners unlock their full potential, he founded Mokafor Global Education to connect students around the world with exceptional teachers.
+                <div className="space-y-2 text-center md:text-left">
+                  <span className="text-[10px] uppercase font-black tracking-widest text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full border border-emerald-500/20">Executive Leadership</span>
+                  <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mt-2">Mark Okafor</h3>
+                  <p className="text-xs uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400">Founder & Chief Executive Officer</p>
+                </div>
+              </div>
+
+              {/* Bio Paragraphs */}
+              <div className="grid md:grid-cols-2 gap-8 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <div className="space-y-4">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                    Mark Okafor is an accomplished educator, mathematics specialist, educational consultant, and visionary leader committed to transforming education through innovation and excellence.
+                  </p>
+                  <p>
+                    Driven by a passion for helping learners unlock their full potential, he founded Mokafor Global Education to provide students around the world with access to exceptional teachers, personalized learning, and internationally recognised academic programmes.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <p>
+                    Under his leadership, Mokafor Global Education continues to expand its impact by delivering high-quality education, supporting families, empowering teachers, and preparing learners for success in an increasingly interconnected world.
+                  </p>
+                  <p className="italic border-l-2 border-emerald-500 pl-4 py-1 text-slate-700 dark:text-slate-200 font-medium">
+                    "His vision is to build a globally respected education company that inspires excellence, develops future leaders, and makes quality education accessible to every learner, everywhere."
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Mokafor Global Improvement Programme (MGIP) Showcase */}
+            <div className="glow-card border border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 via-slate-900/5 to-indigo-500/5 rounded-[36px] p-8 md:p-12 space-y-8 shadow-xl" onMouseMove={handleMouseMove}>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="space-y-2 max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black text-[11px] border border-emerald-500/30 uppercase tracking-wider">
+                    <Sparkles size={12} /> Flagship Support Programme
+                  </div>
+                  <h3 className="text-2xl md:text-4xl font-extrabold text-slate-900 dark:text-white">Mokafor Global Improvement Programme (MGIP)</h3>
+                  <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">
+                    Helping Every Child Reach Their Full Academic Potential
+                  </p>
+                </div>
+                <button onClick={() => setActiveTab('assessment')} className="btn btn-accent font-bold text-xs shadow-lg">
+                  Book Placement Consultation <ArrowRight size={14} />
+                </button>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8 text-xs text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-200/60 dark:border-slate-800/80 pt-6">
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <BookOpen size={16} className="text-emerald-500" /> Programme Overview
+                  </h4>
+                  <p>
+                    The Mokafor Global Improvement Programme (MGIP) is a personalized online academic support programme designed for students around the world who want to improve their performance, build confidence, close learning gaps, and achieve excellence in school and examinations.
+                  </p>
+                  <p>
+                    Whether your child is struggling in a particular subject, needs enrichment beyond the classroom, or is preparing for an important examination, our experienced teachers provide structured, engaging, and results-driven instruction tailored to each learner’s needs.
+                  </p>
+                </div>
+
+                <div className="space-y-3 bg-white/60 dark:bg-slate-900/60 p-6 rounded-2xl border border-slate-200/50 dark:border-slate-800">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-2">Core MGIP Benefits</h4>
+                  <div className="flex items-start gap-2.5">
+                    <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">Close Learning Gaps:</span> Targeted remediation in core foundational topics.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">Build Academic Confidence:</span> Interactive guidance that motivates independent learning.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">Results-Driven Exam Readiness:</span> Past question mastery and test speed strategies.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Our Team Section */}
+            <div className="space-y-10">
+              <div className="text-center max-w-2xl mx-auto space-y-3">
+                <span className="text-[10px] uppercase font-black tracking-widest text-indigo-500 bg-indigo-500/10 px-3.5 py-1 rounded-full">Our Team</span>
+                <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white">Our Greatest Strength is Our People</h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  Powered by a diverse team of highly qualified, experienced, and passionate educators committed to helping every learner succeed.
                 </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="glow-card p-8 rounded-[28px] border space-y-4" onMouseMove={handleMouseMove}>
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                    <Award size={26} />
+                  </div>
+                  <h4 className="font-bold text-base text-slate-900 dark:text-white">Carefully Vetted Teachers</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Our teachers are carefully selected for their subject expertise, professionalism, communication skills, and dedication to student achievement.
+                  </p>
+                </div>
+
+                <div className="glow-card p-8 rounded-[28px] border space-y-4" onMouseMove={handleMouseMove}>
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                    <Layers size={26} />
+                  </div>
+                  <h4 className="font-bold text-base text-slate-900 dark:text-white">Multi-Curricula Mastery</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Together, they bring experience across multiple curricula, grade levels, and examination systems, ensuring outstanding academic support.
+                  </p>
+                </div>
+
+                <div className="glow-card p-8 rounded-[28px] border space-y-4" onMouseMove={handleMouseMove}>
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                    <Users size={26} />
+                  </div>
+                  <h4 className="font-bold text-base text-slate-900 dark:text-white">Multidisciplinary Support</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Beyond teaching, our academic advisors, curriculum specialists, technology professionals, and support staff work together for a seamless experience.
+                  </p>
+                </div>
+              </div>
+
+              {/* Motto Banner */}
+              <div className="bg-slate-900 text-white rounded-[32px] p-8 md:p-12 text-center space-y-4 border border-slate-800 shadow-2xl relative overflow-hidden">
+                <div className="mesh-bg"></div>
+                <p className="text-xs uppercase font-extrabold tracking-widest text-emerald-400">United by One Purpose</p>
+                <h3 className="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400">
+                  Empowering learners. Transforming futures.
+                </h3>
               </div>
             </div>
           </section>
