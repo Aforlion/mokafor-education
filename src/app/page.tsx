@@ -60,12 +60,136 @@ const EXAM_PREPS = [
 ]
 
 const PROGRAMS = [
-  { id: 'improvement', title: 'Improvement Classes', desc: 'Targeted support to boost grades and fill foundational gaps.' },
-  { id: 'tutoring', title: 'One-on-One Tutoring', desc: 'Personalized private attention tailored to individual learning styles.' },
-  { id: 'group', title: 'Group Classes', desc: 'Interactive group sessions fostering collaborative learning.' },
-  { id: 'holiday', title: 'Holiday Programmes', desc: 'Summer and winter bootcamps to keep students ahead of their peers.' },
-  { id: 'homeschool', title: 'Homeschool Support', desc: 'Comprehensive curriculum coverage for homeschooled children.' },
-  { id: 'adult', title: 'Adult Learning', desc: 'Professional development, language courses, and literacy support.' }
+  {
+    id: 'math-mastery',
+    title: 'Mathematics Mastery Program',
+    category: 'Subject Mastery',
+    badge: 'Weekly Live Class',
+    desc: 'A weekly live Mathematics program designed to help students build a strong foundation, strengthen problem-solving skills, and develop confidence in Mathematics. Suitable for Primary, Junior Secondary, and Senior Secondary students, and prepares learners for school examinations and competitive entrance exams.',
+    schedule: 'Every Saturday',
+    duration: '2 Hours per Class',
+    fee: '₦10,000 per student',
+    rawPrice: '₦10,000',
+    popular: true,
+    highlights: ['Primary, Junior & Senior Secondary', 'Problem-Solving Focus', 'Entrance & Exam Prep']
+  },
+  {
+    id: 'english-mastery',
+    title: 'English Mastery Program',
+    category: 'Subject Mastery',
+    badge: 'Weekly Live Class',
+    desc: 'A weekly live English program designed to help students develop strong communication, reading, writing, grammar, vocabulary, and comprehension skills. Equips learners with the confidence and language proficiency needed to excel in school examinations and competitive entrance exams.',
+    schedule: 'Every Saturday',
+    duration: '2 Hours per Class',
+    fee: '₦10,000 per student',
+    rawPrice: '₦10,000',
+    popular: false,
+    highlights: ['Grammar & Composition', 'Vocabulary & Comprehension', 'Live Interactive Practice']
+  },
+  {
+    id: 'common-entrance-loyola',
+    title: 'Common Entrance & Loyola Preparation',
+    category: 'Exam Prep',
+    badge: 'Intensive Entrance Bootcamp',
+    desc: 'An intensive preparation program for pupils seeking admission into Loyola Jesuit College and other top secondary schools. Covers Mathematics, English, Verbal Reasoning, Quantitative Reasoning, and interview preparation.',
+    schedule: 'Flexible Weekly Sessions',
+    duration: 'Monthly Intensive Track',
+    fee: '₦50,000 per month',
+    rawPrice: '₦50,000',
+    popular: true,
+    highlights: ['Mathematics & English', 'Verbal & Quantitative Reasoning', 'Mock Interview Prep']
+  },
+  {
+    id: 'waec-neco-jamb',
+    title: 'WAEC, NECO & JAMB Preparation',
+    category: 'Exam Prep',
+    badge: 'National Examination Coaching',
+    desc: 'Focused coaching that helps students master the examination syllabus, solve past questions, improve speed and accuracy, and maximize their scores.',
+    schedule: 'Flexible Weekly Classes',
+    duration: 'Monthly Intensive Track',
+    fee: '₦50,000 per month',
+    rawPrice: '₦50,000',
+    popular: false,
+    highlights: ['Syllabus Mastery', 'Past Question Drills', 'Timed Exam Strategies']
+  },
+  {
+    id: 'sat-math-prep',
+    title: 'SAT Mathematics Preparation',
+    category: 'International',
+    badge: 'International Standards',
+    desc: 'A specialized program that prepares students for the SAT Mathematics section using international standards, test strategies, and extensive practice.',
+    schedule: 'Bi-Weekly / Weekend Sessions',
+    duration: 'Monthly Preparation',
+    fee: '₦70,000 per month',
+    rawPrice: '₦70,000',
+    popular: true,
+    highlights: ['SAT Test Strategies', 'Algebra & Advanced Math', 'Full-Length Mock Practice']
+  },
+  {
+    id: 'ielts-prep',
+    title: 'IELTS Preparation',
+    category: 'International',
+    badge: 'Language Proficiency',
+    desc: 'Professional coaching for the IELTS examination, covering Listening, Reading, Writing, and Speaking with practical exercises and mock tests.',
+    schedule: 'Flexible Timetable',
+    duration: 'Monthly Coaching',
+    fee: 'Starting from ₦70,000 per month',
+    rawPrice: '₦70,000',
+    popular: false,
+    highlights: ['Listening & Reading Mastery', 'Writing & Essay Feedback', 'Live Speaking Sessions']
+  },
+  {
+    id: 'one-on-one-tutoring',
+    title: 'One-on-One Home & Online Tutoring',
+    category: '1-on-1 & Bootcamps',
+    badge: 'Personalized Tuition',
+    desc: 'Personalized lessons tailored to each student’s learning needs, pace, and academic goals. Available both online and at home.',
+    schedule: 'Customized Schedule',
+    duration: 'Tailored Duration',
+    fee: 'Available on request',
+    rawPrice: 'Available on request',
+    popular: false,
+    highlights: ['Dedicated Vetted Educator', 'Home & Virtual Learning', 'Custom Pace & Materials']
+  },
+  {
+    id: 'holiday-intensive',
+    title: 'Holiday Intensive Program',
+    category: '1-on-1 & Bootcamps',
+    badge: 'Seasonal Bootcamp',
+    desc: 'An engaging holiday learning program that strengthens students’ understanding of core subjects while preparing them for the next academic session.',
+    schedule: 'Summer & Winter Breaks',
+    duration: 'Full Session Bootcamp',
+    fee: '₦50,000',
+    rawPrice: '₦50,000',
+    popular: false,
+    highlights: ['Core Subject Reinforcement', 'Next Academic Term Prep', 'Interactive Projects']
+  },
+  {
+    id: 'teacher-training',
+    title: 'Teacher Training & Professional Development',
+    category: 'Institutional',
+    badge: 'Professional Development',
+    desc: 'Training workshops for teachers on modern teaching strategies, classroom management, effective mathematics instruction, and educational technology.',
+    schedule: 'Scheduled Workshops',
+    duration: 'Module-based Training',
+    fee: 'Available on request',
+    rawPrice: 'Available on request',
+    popular: false,
+    highlights: ['Modern Pedagogy', 'Classroom Management', 'EdTech Tool Mastery']
+  },
+  {
+    id: 'educational-consulting',
+    title: 'Educational Consulting',
+    category: 'Institutional',
+    badge: 'Strategic Advisory',
+    desc: 'Expert consulting services for parents, schools, and educational organizations on curriculum planning, academic improvement, staff development, and learning solutions.',
+    schedule: 'By Appointment',
+    duration: 'Consulting Engagement',
+    fee: 'Available on request',
+    rawPrice: 'Available on request',
+    popular: false,
+    highlights: ['Curriculum Design', 'Academic Performance Audit', 'Staff Development']
+  }
 ]
 
 const TUTORS = [
@@ -131,6 +255,9 @@ export default function MokaforPlatform() {
   const [searchSubject, setSearchSubject] = useState('')
   const [searchGrade, setSearchGrade] = useState('')
   const [searchCurriculum, setSearchCurriculum] = useState('')
+
+  // Program Category Filter
+  const [programCategory, setProgramCategory] = useState('All')
 
   // Course State
   const [selectedCourse, setSelectedCourse] = useState(COURSES[0])
@@ -569,38 +696,41 @@ Thank you for choosing Mokafor Global Education!
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bento-card md:col-span-2 flex flex-col justify-between">
                   <div>
-                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full">Private Tuition</span>
-                    <h3 className="text-2xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">One-on-One Personalized Tutoring</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Match with specialized educators online or in-person. We customize study guides, speed, and homework to ensure deep understanding.</p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-[9px] uppercase tracking-widest font-extrabold text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full">Subject Mastery</span>
+                      <span className="text-[9px] uppercase font-bold text-slate-500">Every Saturday</span>
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Mathematics & English Mastery</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Weekly live Saturday classes (2 hours per class) designed to build strong foundations, strengthen problem-solving, and boost academic confidence. Just ₦10,000 per student.</p>
                   </div>
-                  <button onClick={() => setActiveTab('tutors')} className="btn btn-outline btn-sm self-start mt-6">View Vetted Tutors <ChevronRight size={14} /></button>
+                  <button onClick={() => { setProgramCategory('Subject Mastery'); setActiveTab('programs'); }} className="btn btn-outline btn-sm self-start mt-6">Explore Mastery Programs <ChevronRight size={14} /></button>
                 </div>
 
                 <div className="bento-card flex flex-col justify-between">
                   <div>
-                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-indigo-500 bg-indigo-500/10 px-3.5 py-1 rounded-full">Intensive Support</span>
-                    <h3 className="text-xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">Improvement Classes</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Perfect for catching up on class work, review past test questions, and strengthening fundamentals.</p>
+                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-indigo-500 bg-indigo-500/10 px-3.5 py-1 rounded-full">Exam Bootcamps</span>
+                    <h3 className="text-xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">Loyola, WAEC & JAMB Prep</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Intensive entrance & terminal examination coaching. Covers verbal/quantitative reasoning, syllabus drills, and mock tests from ₦50,000/mo.</p>
                   </div>
-                  <button onClick={() => setActiveTab('programs')} className="text-emerald-500 font-bold text-xs mt-6 inline-flex items-center gap-1 hover:underline">Read details <ChevronRight size={14} /></button>
+                  <button onClick={() => { setProgramCategory('Exam Prep'); setActiveTab('programs'); }} className="text-emerald-500 font-bold text-xs mt-6 inline-flex items-center gap-1 hover:underline">View Exam Prep <ChevronRight size={14} /></button>
                 </div>
 
                 <div className="bento-card flex flex-col justify-between">
                   <div>
-                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full">Bootcamps</span>
-                    <h3 className="text-xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">Holiday Programmes</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Engaging bootcamps keeping students focused and prepared during semester breaks.</p>
+                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full">International</span>
+                    <h3 className="text-xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">SAT & IELTS Preparation</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Specialized coaching aligned with global standards, covering SAT Math strategies and IELTS Listening, Reading, Writing & Speaking from ₦70,000/mo.</p>
                   </div>
-                  <button onClick={() => setActiveTab('programs')} className="text-emerald-500 font-bold text-xs mt-6 inline-flex items-center gap-1 hover:underline">Read details <ChevronRight size={14} /></button>
+                  <button onClick={() => { setProgramCategory('International'); setActiveTab('programs'); }} className="text-emerald-500 font-bold text-xs mt-6 inline-flex items-center gap-1 hover:underline">View International Prep <ChevronRight size={14} /></button>
                 </div>
 
                 <div className="bento-card md:col-span-2 flex flex-col justify-between">
                   <div>
-                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-indigo-500 bg-indigo-500/10 px-3.5 py-1 rounded-full">Full Scope</span>
-                    <h3 className="text-2xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">Homeschool & Adult Education</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Comprehensive syllabus guidance for homeschooled candidates and customized professional training packages for adult learners.</p>
+                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-indigo-500 bg-indigo-500/10 px-3.5 py-1 rounded-full">Personalized & Institutional</span>
+                    <h3 className="text-2xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">1-on-1 Tutoring & Educational Consulting</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Tailored home/online private tutoring for individual learners, plus professional teacher training workshops and institutional consulting for schools and parents.</p>
                   </div>
-                  <button onClick={() => setActiveTab('programs')} className="btn btn-outline btn-sm self-start mt-6">Explore Programs <ChevronRight size={14} /></button>
+                  <button onClick={() => { setProgramCategory('All'); setActiveTab('programs'); }} className="btn btn-outline btn-sm self-start mt-6">View All 10 Programs <ChevronRight size={14} /></button>
                 </div>
               </div>
             </div>
@@ -724,25 +854,110 @@ Thank you for choosing Mokafor Global Education!
         {/* ==================== PAGE: PROGRAMMES ==================== */}
         {activeTab === 'programs' && (
           <section className="space-y-12 page-container">
-            <div className="text-center max-w-xl mx-auto space-y-2">
-              <h2 className="text-3xl md:text-4xl font-extrabold">Our Programmes</h2>
-              <p className="text-sm text-slate-500">Explore comprehensive learning environments tailored for every learner.</p>
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs border border-emerald-500/20">
+                Official Curriculum & Pricing
+              </div>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white">Programs & Pricing</h2>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                Explore our official learning programs designed for primary, secondary, examination candidates, teachers, and institutions.
+              </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              {PROGRAMS.map(p => (
-                <div key={p.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[28px] shadow-sm flex flex-col justify-between hover:border-emerald-500/30 transition-colors">
-                  <div className="space-y-3">
-                    <span className="text-[9px] uppercase font-bold text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full">Certified Curriculum</span>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-2">{p.title}</h3>
-                    <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">{p.desc}</p>
-                  </div>
-                  <div className="flex gap-4 pt-6 border-t border-slate-100 dark:border-slate-800/80 mt-6">
-                    <button onClick={() => setActiveTab('assessment')} className="btn btn-accent btn-sm flex-1 font-bold">Book Assessment</button>
-                    <button onClick={() => setActiveTab('tutors')} className="btn btn-outline btn-sm flex-1 font-bold">View Tutors</button>
-                  </div>
-                </div>
+            {/* Category Filter Tabs */}
+            <div className="flex flex-wrap items-center justify-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+              {['All', 'Subject Mastery', 'Exam Prep', 'International', '1-on-1 & Bootcamps', 'Institutional'].map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setProgramCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${programCategory === cat ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
+                >
+                  {cat}
+                </button>
               ))}
+            </div>
+
+            {/* Program Cards Grid */}
+            <div className="grid md:grid-cols-2 gap-8">
+              {PROGRAMS
+                .filter(p => programCategory === 'All' || p.category === programCategory)
+                .map(p => (
+                  <div 
+                    key={p.id} 
+                    className="glow-card p-8 rounded-[32px] border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md shadow-lg flex flex-col justify-between hover:border-emerald-500/40 transition-all space-y-6"
+                    onMouseMove={handleMouseMove}
+                  >
+                    <div className="space-y-4">
+                      {/* Top Badges & Pricing Tag */}
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase font-black tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                            {p.badge}
+                          </span>
+                          {p.popular && (
+                            <span className="text-[10px] uppercase font-black tracking-wider text-amber-600 dark:text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 flex items-center gap-1">
+                              <Sparkles size={10} /> Popular Choice
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <span className="text-base md:text-lg font-black text-emerald-500">{p.fee}</span>
+                        </div>
+                      </div>
+
+                      {/* Title & Description */}
+                      <div>
+                        <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">{p.title}</h3>
+                        <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed mt-2">{p.desc}</p>
+                      </div>
+
+                      {/* Metadata Schedule & Duration */}
+                      <div className="grid sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+                          <Calendar size={13} className="text-emerald-500 shrink-0" />
+                          <span>{p.schedule}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+                          <Clock size={13} className="text-emerald-500 shrink-0" />
+                          <span>{p.duration}</span>
+                        </div>
+                      </div>
+
+                      {/* Highlights Checklist */}
+                      <div className="space-y-1.5 pt-2">
+                        {p.highlights.map((h, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 font-semibold">
+                            <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
+                            <span>{h}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Action Triggers */}
+                    <div className="flex flex-wrap gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+                      <button 
+                        onClick={() => {
+                          setPaymentPlan(p.id)
+                          setBillingDetails(prev => ({ ...prev, amount: p.rawPrice === 'Available on request' ? '₦50,000' : p.rawPrice }))
+                          setActiveTab('payments')
+                        }} 
+                        className="btn btn-accent btn-sm flex-1 font-bold shadow-md"
+                      >
+                        Enroll Now
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setAssessmentForm(prev => ({ ...prev, curriculum: p.title }))
+                          setActiveTab('assessment')
+                        }} 
+                        className="btn btn-outline btn-sm flex-1 font-bold"
+                      >
+                        Book Consultation
+                      </button>
+                    </div>
+                  </div>
+                ))}
             </div>
           </section>
         )}
