@@ -1441,7 +1441,7 @@ Thank you for choosing Mokafor Global Education!
             <div className="bg-slate-100 dark:bg-slate-900 p-8 rounded-3xl text-center space-y-4 border border-slate-200/50 dark:border-slate-800/80 animate-pulse">
               <h4 className="font-bold text-base">Have more questions?</h4>
               <p className="text-xs text-slate-500">Our customer support advisors are available on WhatsApp to assist you.</p>
-              <a href="https://wa.me/2348030000000" target="_blank" className="btn btn-accent btn-sm px-6">Chat on WhatsApp</a>
+              <a href="https://wa.me/2349078013408" target="_blank" rel="noopener noreferrer" className="btn btn-accent btn-sm px-6">Chat on WhatsApp</a>
             </div>
           </section>
         )}
@@ -1830,12 +1830,26 @@ Thank you for choosing Mokafor Global Education!
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white mb-4">Contact Info</h4>
-            <ul className="space-y-2 text-xs">
-              <li>📍 Lagos Office: Lekki Phase 1, Lagos, Nigeria</li>
-              <li>📧 Email: support@mokafor.com</li>
-              <li>📞 WhatsApp: +234 803 000 0000</li>
-              <li>⏰ Hours: Mon - Sat: 8:00 AM - 6:00 PM</li>
+            <h4 className="text-sm font-bold text-white mb-4">Contact & Location</h4>
+            <ul className="space-y-2.5 text-xs">
+              <li className="flex items-start gap-2">
+                <MapPin size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                <span>3, Compassion road, Dagbana Estate, Jikwoyi, Abuja</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Phone size={14} className="text-emerald-500 shrink-0" />
+                <a href="https://wa.me/2349078013408" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-500 font-bold transition-colors">
+                  WhatsApp: +234 907 801 3408
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Mail size={14} className="text-emerald-500 shrink-0" />
+                <span>support@mokafor.com</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Clock size={14} className="text-emerald-500 shrink-0" />
+                <span>Mon - Sat: 8:00 AM - 6:00 PM</span>
+              </li>
             </ul>
           </div>
         </div>
