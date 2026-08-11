@@ -47,7 +47,8 @@ import {
 
 const EXAM_PREPS = [
   { name: 'Common Entrance', desc: 'Primary to secondary transition entry validation.' },
-  { name: 'BECE', desc: 'Junior Secondary terminal state assessments.' },
+  { name: 'Junior WAEC / BECE', desc: 'Junior Secondary terminal state examinations.' },
+  { name: 'LOYOLA Exam Prep', desc: 'Loyola Jesuit College & top secondary entrance bootcamps.' },
   { name: 'WAEC', desc: 'West African Senior School certification.' },
   { name: 'NECO', desc: 'National Examinations Council senior tests.' },
   { name: 'JAMB', desc: 'Joint Admissions tertiary matriculation entry.' },
@@ -364,29 +365,70 @@ Thank you for choosing Mokafor Global Education!
             <Lock size={13} className="text-emerald-500" /> Portal
           </button>
           {/* Hamburger Toggle */}
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-colors">
-            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+            aria-expanded={isMobileMenuOpen}
+            aria-label="Toggle navigation menu"
+            className="md:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all flex items-center justify-center"
+          >
+            {isMobileMenuOpen ? <X size={20} className="text-emerald-500" /> : <Menu size={20} className="text-slate-800 dark:text-slate-200" />}
           </button>
         </div>
       </header>
 
       {/* Mobile Drawer Dropdown Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden glass w-full py-6 px-8 flex flex-col gap-4 border-b border-white/5 animate-fade-in shadow-xl relative z-45">
-          <button className={`text-left py-2 font-bold ${activeTab === 'home' ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-250'}`} onClick={() => { setActiveTab('home'); setIsMobileMenuOpen(false); }}>Home</button>
-          <button className={`text-left py-2 font-bold ${activeTab === 'about' ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-250'}`} onClick={() => { setActiveTab('about'); setIsMobileMenuOpen(false); }}>About Us</button>
-          <button className={`text-left py-2 font-bold ${activeTab === 'programs' ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-250'}`} onClick={() => { setActiveTab('programs'); setIsMobileMenuOpen(false); }}>Programmes</button>
-          <button className={`text-left py-2 font-bold ${activeTab === 'tutors' ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-250'}`} onClick={() => { setActiveTab('tutors'); setIsMobileMenuOpen(false); }}>Find a Tutor</button>
-          <button className={`text-left py-2 font-bold ${activeTab === 'courses' ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-250'}`} onClick={() => { setActiveTab('courses'); setIsMobileMenuOpen(false); }}>Courses</button>
-          <button className={`text-left py-2 font-bold ${activeTab === 'payments' ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-250'}`} onClick={() => { setActiveTab('payments'); setIsMobileMenuOpen(false); }}>Payments</button>
-          <button className={`text-left py-2 font-bold ${activeTab === 'faq' ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-250'}`} onClick={() => { setActiveTab('faq'); setIsMobileMenuOpen(false); }}>FAQ</button>
-          <div className="border-t border-slate-200 dark:border-slate-800 pt-4 flex flex-col gap-3">
-            <button onClick={() => { setActiveTab('portals'); setIsMobileMenuOpen(false); }} className="btn btn-outline w-full justify-center gap-2 font-bold">
-              <Lock size={14} className="text-emerald-500" /> Portal Access
-            </button>
-            <button onClick={() => { setActiveTab('assessment'); setIsMobileMenuOpen(false); }} className="btn btn-accent w-full justify-center font-bold">
-              Book Assessment
-            </button>
+        <div className="md:hidden fixed inset-x-0 top-[73px] bottom-0 z-40 bg-slate-950/60 backdrop-blur-md transition-all animate-fade-in flex flex-col justify-start" onClick={() => setIsMobileMenuOpen(false)}>
+          <div 
+            className="glass w-full max-h-[85vh] overflow-y-auto py-6 px-8 flex flex-col gap-3 border-b border-emerald-500/20 shadow-2xl bg-white/95 dark:bg-slate-900/95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <span className="text-xs uppercase tracking-widest font-black text-emerald-500">Navigation Menu</span>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <X size={18} />
+              </button>
+            </div>
+
+            <nav className="flex flex-col gap-1 py-2">
+              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'home' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('home'); setIsMobileMenuOpen(false); }}>
+                <span>Home</span>
+                <ChevronRight size={16} className={activeTab === 'home' ? 'opacity-100' : 'opacity-40'} />
+              </button>
+              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'about' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('about'); setIsMobileMenuOpen(false); }}>
+                <span>About Us</span>
+                <ChevronRight size={16} className={activeTab === 'about' ? 'opacity-100' : 'opacity-40'} />
+              </button>
+              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'programs' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('programs'); setIsMobileMenuOpen(false); }}>
+                <span>Programmes</span>
+                <ChevronRight size={16} className={activeTab === 'programs' ? 'opacity-100' : 'opacity-40'} />
+              </button>
+              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'tutors' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('tutors'); setIsMobileMenuOpen(false); }}>
+                <span>Find a Tutor</span>
+                <ChevronRight size={16} className={activeTab === 'tutors' ? 'opacity-100' : 'opacity-40'} />
+              </button>
+              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'courses' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('courses'); setIsMobileMenuOpen(false); }}>
+                <span>Courses</span>
+                <ChevronRight size={16} className={activeTab === 'courses' ? 'opacity-100' : 'opacity-40'} />
+              </button>
+              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'payments' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('payments'); setIsMobileMenuOpen(false); }}>
+                <span>Payments</span>
+                <ChevronRight size={16} className={activeTab === 'payments' ? 'opacity-100' : 'opacity-40'} />
+              </button>
+              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'faq' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('faq'); setIsMobileMenuOpen(false); }}>
+                <span>FAQ</span>
+                <ChevronRight size={16} className={activeTab === 'faq' ? 'opacity-100' : 'opacity-40'} />
+              </button>
+            </nav>
+
+            <div className="border-t border-slate-200 dark:border-slate-800 pt-4 flex flex-col gap-3">
+              <button onClick={() => { setActiveTab('portals'); setIsMobileMenuOpen(false); }} className="btn btn-outline w-full justify-center gap-2 font-bold py-3">
+                <Lock size={14} className="text-emerald-500" /> Student & Parent Portal
+              </button>
+              <button onClick={() => { setActiveTab('assessment'); setIsMobileMenuOpen(false); }} className="btn btn-accent w-full justify-center font-bold py-3 shadow-lg">
+                Book Placement Consultation
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -405,9 +447,9 @@ Thank you for choosing Mokafor Global Education!
                   <Sparkles size={12} className="animate-spin-slow" /> Global Education Specialists
                 </div>
                 
-                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-none text-slate-900 dark:text-white">
-                  Empowering <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500">Learners.</span>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-slate-900 dark:text-white">
+                  Building Strong <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500">Foundations.</span><br />
+                  Creating Exceptional <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500">Learners.</span>
                 </h1>
                 
                 <p className="text-slate-600 dark:text-slate-300 text-base leading-relaxed">
@@ -428,23 +470,31 @@ Thank you for choosing Mokafor Global Education!
               <div className="w-full lg:w-96 flex-shrink-0 animate-float">
                 <div className="glow-card p-6 md:p-8 space-y-6 border border-slate-200/50 dark:border-slate-800 bg-white/40 dark:bg-slate-900/60 backdrop-blur-md rounded-[32px] shadow-2xl" onMouseMove={handleMouseMove}>
                   <div className="flex items-center gap-3">
-                    <div className="bg-emerald-500/10 text-emerald-500 w-12 h-12 rounded-2xl flex items-center justify-center">
+                    <div className="bg-emerald-500/10 text-emerald-500 w-12 h-12 rounded-2xl flex items-center justify-center shrink-0">
                       <GraduationCap size={28} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-base">Academic Excellence</h4>
-                      <p className="text-[10px] text-slate-500 uppercase font-extrabold tracking-wider">Mokafor Academy</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-widest">MOKAFOR ACADEMY</p>
+                      <h4 className="font-extrabold text-base md:text-lg text-slate-900 dark:text-white">Academic Excellence</h4>
                     </div>
                   </div>
 
-                  <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <div className="space-y-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500">WAEC / JAMB Pass Rate</span>
+                      <span className="text-slate-600 dark:text-slate-300 font-medium">WAEC / JAMB Pass Rate</span>
                       <span className="font-extrabold text-emerald-500">99.4%</span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500">British IGCSE Scoring A*</span>
+                      <span className="text-slate-600 dark:text-slate-300 font-medium">British IGCSE Scoring A*</span>
                       <span className="font-extrabold text-emerald-500">94.2%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-600 dark:text-slate-300 font-medium">Junior WAEC / BECE Pass Rate</span>
+                      <span className="font-extrabold text-emerald-500">98.8%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-600 dark:text-slate-300 font-medium">LOYOLA Exam Prep Success</span>
+                      <span className="font-extrabold text-emerald-500">96.5%</span>
                     </div>
                   </div>
 

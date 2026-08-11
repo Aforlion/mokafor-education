@@ -14,6 +14,7 @@
 }
 
 :root {
+  color-scheme: light;
   --bg-primary: hsl(220, 25%, 97%);
   --bg-secondary: hsl(0, 0%, 100%);
   --text-primary: hsl(224, 60%, 10%);
@@ -38,6 +39,7 @@
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
   --bg-primary: hsl(224, 80%, 4%);
   --bg-secondary: hsl(224, 76%, 8%);
   --text-primary: hsl(0, 0%, 98%);
@@ -63,6 +65,12 @@ body {
   min-height: 100vh;
 }
 
+/* Chrome Cross-Browser Gradient Text Fix */
+.bg-clip-text {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
 /* Futuristic Mesh Background Glow Spots */
 .mesh-bg {
   position: fixed;
@@ -80,29 +88,29 @@ body {
   height: 50vw;
   border-radius: var(--radius-full);
   filter: blur(120px);
-  opacity: 0.15;
+  opacity: 0.20;
   transition: opacity 0.5s ease;
 }
 
 .mesh-bg::before {
   top: -10%;
   right: -5%;
-  background: radial-gradient(circle, hsl(162, 84%, 38%) 0%, transparent 80%);
+  background: radial-gradient(circle, hsl(162, 84%, 38%) 0%, hsla(162, 84%, 38%, 0) 80%);
 }
 
 .mesh-bg::after {
   bottom: -10%;
   left: -5%;
-  background: radial-gradient(circle, hsl(224, 76%, 60%) 0%, transparent 80%);
+  background: radial-gradient(circle, hsl(224, 76%, 60%) 0%, hsla(224, 76%, 60%, 0) 80%);
 }
 
 [data-theme='dark'] .mesh-bg::before {
-  opacity: 0.25;
-  background: radial-gradient(circle, hsl(162, 84%, 45%) 0%, transparent 80%);
+  opacity: 0.30;
+  background: radial-gradient(circle, hsl(162, 84%, 45%) 0%, hsla(162, 84%, 45%, 0) 80%);
 }
 [data-theme='dark'] .mesh-bg::after {
-  opacity: 0.25;
-  background: radial-gradient(circle, hsl(224, 80%, 45%) 0%, transparent 80%);
+  opacity: 0.30;
+  background: radial-gradient(circle, hsl(224, 80%, 45%) 0%, hsla(224, 80%, 45%, 0) 80%);
 }
 
 /* Custom Interactive Cursor tracking Card Glows */
@@ -125,8 +133,8 @@ body {
   height: 100%;
   background: radial-gradient(
     300px circle at var(--mouse-x, 0) var(--mouse-y, 0),
-    rgba(16, 185, 129, 0.12),
-    transparent 80%
+    rgba(16, 185, 129, 0.15),
+    rgba(16, 185, 129, 0) 80%
   );
   z-index: 1;
   pointer-events: none;
@@ -141,14 +149,14 @@ body {
 .glow-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 /* Glassmorphism styling overrides */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
 }
 
