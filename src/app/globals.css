@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 @source "../../src/**/*.{js,ts,jsx,tsx,mdx}";
 
 @theme {
@@ -38,7 +39,8 @@
   --shadow-lg: 0 32px 64px -12px rgba(9, 21, 64, 0.1), 0 8px 24px -4px rgba(9, 21, 64, 0.03);
 }
 
-[data-theme='dark'] {
+[data-theme='dark'], .dark {
+  color-scheme: dark;
   color-scheme: dark;
   --bg-primary: hsl(224, 80%, 4%);
   --bg-secondary: hsl(224, 76%, 8%);
