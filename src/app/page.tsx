@@ -120,8 +120,8 @@ const PROGRAMS = [
     desc: 'A specialized program that prepares students for the SAT Mathematics section using international standards, test strategies, and extensive practice.',
     schedule: 'Bi-Weekly / Weekend Sessions',
     duration: 'Monthly Preparation',
-    fee: '₦70,000 per month',
-    rawPrice: '₦70,000',
+    fee: '₦100,000 per month',
+    rawPrice: '₦100,000',
     popular: true,
     highlights: ['SAT Test Strategies', 'Algebra & Advanced Math', 'Full-Length Mock Practice']
   },
@@ -133,8 +133,8 @@ const PROGRAMS = [
     desc: 'Professional coaching for the IELTS examination, covering Listening, Reading, Writing, and Speaking with practical exercises and mock tests.',
     schedule: 'Flexible Timetable',
     duration: 'Monthly Coaching',
-    fee: 'Starting from ₦70,000 per month',
-    rawPrice: '₦70,000',
+    fee: 'Starting from ₦100,000 per month',
+    rawPrice: '₦100,000',
     popular: false,
     highlights: ['Listening & Reading Mastery', 'Writing & Essay Feedback', 'Live Speaking Sessions']
   },
@@ -159,8 +159,8 @@ const PROGRAMS = [
     desc: 'An engaging holiday learning program that strengthens students’ understanding of core subjects while preparing them for the next academic session.',
     schedule: 'Summer & Winter Breaks',
     duration: 'Full Session Bootcamp',
-    fee: '₦50,000',
-    rawPrice: '₦50,000',
+    fee: '₦100,000',
+    rawPrice: '₦100,000',
     popular: false,
     highlights: ['Core Subject Reinforcement', 'Next Academic Term Prep', 'Interactive Projects']
   },
@@ -719,7 +719,7 @@ Thank you for choosing Mokafor Global Education!
                   <div>
                     <span className="text-[9px] uppercase tracking-widest font-extrabold text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full">International</span>
                     <h3 className="text-xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">SAT & IELTS Preparation</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Specialized coaching aligned with global standards, covering SAT Math strategies and IELTS Listening, Reading, Writing & Speaking from ₦70,000/mo.</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Specialized coaching aligned with global standards, covering SAT Math strategies and IELTS Listening, Reading, Writing & Speaking from ₦100,000/mo.</p>
                   </div>
                   <button onClick={() => { setProgramCategory('International'); setActiveTab('programs'); }} className="text-emerald-500 font-bold text-xs mt-6 inline-flex items-center gap-1 hover:underline">View International Prep <ChevronRight size={14} /></button>
                 </div>
