@@ -61,32 +61,6 @@ const EXAM_PREPS = [
 
 const PROGRAMS = [
   {
-    id: 'math-mastery',
-    title: 'Mathematics Mastery Program',
-    category: 'Subject Mastery',
-    badge: 'Weekly Live Class',
-    desc: 'A weekly live Mathematics program designed to help students build a strong foundation, strengthen problem-solving skills, and develop confidence in Mathematics. Suitable for Primary, Junior Secondary, and Senior Secondary students, and prepares learners for school examinations and competitive entrance exams.',
-    schedule: 'Every Saturday',
-    duration: '2 Hours per Class',
-    fee: '₦10,000 per student',
-    rawPrice: '₦10,000',
-    popular: true,
-    highlights: ['Primary, Junior & Senior Secondary', 'Problem-Solving Focus', 'Entrance & Exam Prep']
-  },
-  {
-    id: 'english-mastery',
-    title: 'English Mastery Program',
-    category: 'Subject Mastery',
-    badge: 'Weekly Live Class',
-    desc: 'A weekly live English program designed to help students develop strong communication, reading, writing, grammar, vocabulary, and comprehension skills. Equips learners with the confidence and language proficiency needed to excel in school examinations and competitive entrance exams.',
-    schedule: 'Every Saturday',
-    duration: '2 Hours per Class',
-    fee: '₦10,000 per student',
-    rawPrice: '₦10,000',
-    popular: false,
-    highlights: ['Grammar & Composition', 'Vocabulary & Comprehension', 'Live Interactive Practice']
-  },
-  {
     id: 'common-entrance-loyola',
     title: 'Common Entrance & Loyola Preparation',
     category: 'Exam Prep',
@@ -111,6 +85,32 @@ const PROGRAMS = [
     rawPrice: '₦100,000',
     popular: false,
     highlights: ['Syllabus Mastery', 'Past Question Drills', 'Timed Exam Strategies']
+  },
+  {
+    id: 'math-mastery',
+    title: 'Mathematics Mastery Program',
+    category: 'Subject Mastery',
+    badge: 'Weekly Live Class',
+    desc: 'A weekly live Mathematics program designed to help students build a strong foundation, strengthen problem-solving skills, and develop confidence in Mathematics. Suitable for Primary, Junior Secondary, and Senior Secondary students, and prepares learners for school examinations and competitive entrance exams.',
+    schedule: 'Every Saturday',
+    duration: '2 Hours per Class',
+    fee: '₦10,000 per student',
+    rawPrice: '₦10,000',
+    popular: true,
+    highlights: ['Primary, Junior & Senior Secondary', 'Problem-Solving Focus', 'Entrance & Exam Prep']
+  },
+  {
+    id: 'english-mastery',
+    title: 'English Mastery Program',
+    category: 'Subject Mastery',
+    badge: 'Weekly Live Class',
+    desc: 'A weekly live English program designed to help students develop strong communication, reading, writing, grammar, vocabulary, and comprehension skills. Equips learners with the confidence and language proficiency needed to excel in school examinations and competitive entrance exams.',
+    schedule: 'Every Saturday',
+    duration: '2 Hours per Class',
+    fee: '₦10,000 per student',
+    rawPrice: '₦10,000',
+    popular: false,
+    highlights: ['Grammar & Composition', 'Vocabulary & Comprehension', 'Live Interactive Practice']
   },
   {
     id: 'sat-math-prep',
@@ -585,12 +585,12 @@ Thank you for choosing Mokafor Global Education!
                 </h1>
                 
                 <p className="text-slate-600 dark:text-slate-300 text-base leading-relaxed">
-                  Unlock your full potential with verified private tutors, specialized examination preparation bootcamps, and structured self-paced courses mapped to British, American, and National curricula.
+                  Give your child the knowledge, confidence, and skills to thrive. Join structured live learning programmes and access expertly designed courses for academic excellence, competitive examinations, and lifelong learning.
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-2">
-                  <button onClick={() => setActiveTab('tutors')} className="btn btn-primary gap-2 text-sm font-bold shadow-lg">
-                    Find Your Tutor <ArrowRight size={16} />
+                  <button onClick={() => setActiveTab('programs')} className="btn btn-primary gap-2 text-sm font-bold shadow-lg">
+                    Join our Live Classes <ArrowRight size={16} />
                   </button>
                   <button onClick={() => setActiveTab('assessment')} className="btn btn-outline text-sm font-bold border-slate-300 dark:border-slate-800">
                     Book Placement Consultation
@@ -702,22 +702,22 @@ Thank you for choosing Mokafor Global Education!
                 <div className="bento-card md:col-span-2 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-[9px] uppercase tracking-widest font-extrabold text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full">Subject Mastery</span>
-                      <span className="text-[9px] uppercase font-bold text-slate-500">Every Saturday</span>
+                      <span className="text-[9px] uppercase tracking-widest font-extrabold text-indigo-500 bg-indigo-500/10 px-3.5 py-1 rounded-full">Exam Bootcamps</span>
+                      <span className="text-[9px] uppercase font-bold text-slate-500">Intensive Coaching</span>
                     </div>
-                    <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Mathematics & English Mastery</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Weekly live Saturday classes (2 hours per class) designed to build strong foundations, strengthen problem-solving, and boost academic confidence. Just ₦10,000 per student.</p>
+                    <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Common Entrance, Loyola, WAEC & JAMB Prep</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Intensive entrance & terminal examination coaching. Covers verbal/quantitative reasoning, syllabus drills, past questions, and mock tests from ₦100,000/mo.</p>
                   </div>
-                  <button onClick={() => { setProgramCategory('Subject Mastery'); setActiveTab('programs'); }} className="btn btn-outline btn-sm self-start mt-6">Explore Mastery Programs <ChevronRight size={14} /></button>
+                  <button onClick={() => { setProgramCategory('Exam Prep'); setActiveTab('programs'); }} className="btn btn-outline btn-sm self-start mt-6">View Exam Prep <ChevronRight size={14} /></button>
                 </div>
 
                 <div className="bento-card flex flex-col justify-between">
                   <div>
-                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-indigo-500 bg-indigo-500/10 px-3.5 py-1 rounded-full">Exam Bootcamps</span>
-                    <h3 className="text-xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">Loyola, WAEC & JAMB Prep</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Intensive entrance & terminal examination coaching. Covers verbal/quantitative reasoning, syllabus drills, and mock tests from ₦100,000/mo.</p>
+                    <span className="text-[9px] uppercase tracking-widest font-extrabold text-emerald-500 bg-emerald-500/10 px-3.5 py-1 rounded-full">Subject Mastery</span>
+                    <h3 className="text-xl font-bold mt-4 mb-2 text-slate-900 dark:text-white">Mathematics & English Mastery</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Weekly live Saturday classes (2 hours per class) designed to build strong foundations and problem-solving skills for ₦10,000/student.</p>
                   </div>
-                  <button onClick={() => { setProgramCategory('Exam Prep'); setActiveTab('programs'); }} className="text-emerald-500 font-bold text-xs mt-6 inline-flex items-center gap-1 hover:underline">View Exam Prep <ChevronRight size={14} /></button>
+                  <button onClick={() => { setProgramCategory('Subject Mastery'); setActiveTab('programs'); }} className="text-emerald-500 font-bold text-xs mt-6 inline-flex items-center gap-1 hover:underline">Explore Mastery Programs <ChevronRight size={14} /></button>
                 </div>
 
                 <div className="bento-card flex flex-col justify-between">
