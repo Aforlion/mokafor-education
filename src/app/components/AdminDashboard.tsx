@@ -122,6 +122,14 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState<AdminStats | null>(null)
   
+  // Superadmin Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [adminUser, setAdminUser] = useState<any>(null)
+  const [loginEmail, setLoginEmail] = useState<string>('aforlion007@gmail.com')
+  const [loginPassword, setLoginPassword] = useState<string>('Aforlion123!@#')
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [authenticating, setAuthenticating] = useState<boolean>(false)
+
   // Datasets
   const [programs, setPrograms] = useState<ProgramItem[]>([])
   const [tutors, setTutors] = useState<TutorItem[]>([])
@@ -201,8 +209,55 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
   }
 
   useEffect(() => {
+    // Check existing session
+    const saved = localStorage.getItem('mokafor_admin_session')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        if (parsed.email) {
+          setIsAuthenticated(true)
+          setAdminUser(parsed)
+        }
+      } catch (e) {}
+    }
     fetchDashboardData()
   }, [])
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthenticating(true)
+    setLoginError(null)
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword })
+      })
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setIsAuthenticated(true)
+        setAdminUser(data.user)
+        localStorage.setItem('mokafor_admin_session', JSON.stringify(data.user))
+        triggerToast('Welcome back, Superadmin!')
+        fetchDashboardData()
+      } else {
+        setLoginError(data.error || 'Invalid credentials. Please verify your email and password.')
+      }
+    } catch (err) {
+      setLoginError('Failed to connect to authentication server.')
+    } finally {
+      setAuthenticating(false)
+    }
+  }
+
+  const handleAdminLogout = () => {
+    setIsAuthenticated(false)
+    setAdminUser(null)
+    localStorage.removeItem('mokafor_admin_session')
+    triggerToast('Logged out of Superadmin session.')
+  }
 
   // Program Handlers
   const handleSaveProgram = async (e: React.FormEvent) => {
@@ -342,52 +397,139 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
         </div>
       )}
 
-      {/* Admin Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-indigo-950 p-6 md:p-8 rounded-[32px] border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="mesh-bg opacity-30"></div>
-        <div className="space-y-2 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-extrabold text-xs border border-emerald-500/20">
-            <Lock size={12} /> Live Admin Command Center
-          </div>
-          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3">
-            Mokafor Global Executive Portal
-          </h1>
-          <p className="text-slate-400 text-xs md:text-sm max-w-xl">
-            Real-time control center for educational programs, vetted tutors, diagnostic placement consultations, Paystack transactions, and platform users.
-          </p>
-        </div>
+      {/* SUPERADMIN LOGIN MODAL SCREEN */}
+      {!isAuthenticated && (
+        <div className="max-w-md mx-auto py-8">
+          <div className="glow-card p-8 md:p-10 rounded-[32px] border border-slate-800 bg-slate-900/90 backdrop-blur-xl shadow-2xl space-y-6 relative overflow-hidden">
+            <div className="mesh-bg opacity-30"></div>
 
-        <div className="flex items-center gap-3 relative z-10">
-          <button 
-            onClick={fetchDashboardData} 
-            disabled={loading}
-            className="btn btn-outline btn-sm border-slate-700 text-slate-300 hover:bg-slate-800 gap-2 font-bold"
-          >
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Database
-          </button>
-          <button 
-            onClick={() => {
-              setEditingProgram(null)
-              setProgramForm({
-                title: '',
-                category: 'Exam Prep',
-                badge: 'Intensive Bootcamp',
-                desc: '',
-                schedule: 'Flexible Weekly Classes',
-                duration: 'Monthly Intensive Track',
-                fee: '₦100,000 per month',
-                rawPrice: '₦100,000',
-                popular: false,
-                highlights: 'Syllabus Mastery, Past Question Drills, Timed Exam Strategies'
-              })
-              setShowProgramModal(true)
-            }}
-            className="btn btn-primary btn-sm gap-2 font-bold shadow-lg"
-          >
-            <Plus size={14} /> New Programme
-          </button>
+            <div className="text-center space-y-3 relative z-10">
+              <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mx-auto flex items-center justify-center shadow-lg">
+                <ShieldCheck size={36} />
+              </div>
+              <h2 className="text-2xl font-black text-white tracking-tight">Superadmin Authentication</h2>
+              <p className="text-xs text-slate-400">Enter your credentials to access the Mokafor Executive Portal.</p>
+            </div>
+
+            {loginError && (
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-2 relative z-10">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAdminLogin} className="space-y-4 text-xs relative z-10">
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-slate-300 uppercase text-[10px]">Superadmin Email</label>
+                <input
+                  type="email"
+                  required
+                  value={loginEmail}
+                  onChange={e => setLoginEmail(e.target.value)}
+                  placeholder="aforlion007@gmail.com"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none font-medium"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-slate-300 uppercase text-[10px]">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={loginPassword}
+                  onChange={e => setLoginPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none font-medium"
+                />
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-800/40 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-black text-emerald-400">Created Credentials</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginEmail('aforlion007@gmail.com')
+                      setLoginPassword('Aforlion123!@#')
+                    }}
+                    className="text-[10px] font-bold text-emerald-400 hover:underline"
+                  >
+                    Quick Fill Credentials
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-400 font-mono">
+                  Email: <span className="text-white font-bold">aforlion007@gmail.com</span><br />
+                  Pass: <span className="text-white font-bold">Aforlion123!@#</span>
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={authenticating}
+                className="btn btn-primary w-full py-3.5 font-extrabold text-sm justify-center shadow-lg gap-2"
+              >
+                {authenticating ? 'Verifying Credentials...' : 'Sign In as Superadmin'} <ChevronRight size={16} />
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* DYNAMIC DASHBOARD WHEN AUTHENTICATED */}
+      {isAuthenticated && (
+        <>
+          {/* Admin Header Banner */}
+          <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-indigo-950 p-6 md:p-8 rounded-[32px] border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="mesh-bg opacity-30"></div>
+            <div className="space-y-2 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-extrabold text-xs border border-emerald-500/20">
+                <ShieldCheck size={13} /> Authenticated: {adminUser?.name || 'Super Admin'} ({adminUser?.email || 'aforlion007@gmail.com'})
+              </div>
+              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                Mokafor Global Executive Portal
+              </h1>
+              <p className="text-slate-400 text-xs md:text-sm max-w-xl">
+                Real-time control center for educational programs, vetted tutors, diagnostic placement consultations, Paystack transactions, and platform users.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 relative z-10">
+              <button 
+                onClick={fetchDashboardData} 
+                disabled={loading}
+                className="btn btn-outline btn-sm border-slate-700 text-slate-300 hover:bg-slate-800 gap-2 font-bold"
+              >
+                <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Database
+              </button>
+              <button 
+                onClick={handleAdminLogout}
+                className="btn btn-outline btn-sm border-rose-900/60 text-rose-400 hover:bg-rose-950/40 gap-1.5 font-bold"
+              >
+                Sign Out
+              </button>
+              <button 
+                onClick={() => {
+                  setEditingProgram(null)
+                  setProgramForm({
+                    title: '',
+                    category: 'Exam Prep',
+                    badge: 'Intensive Bootcamp',
+                    desc: '',
+                    schedule: 'Flexible Weekly Classes',
+                    duration: 'Monthly Intensive Track',
+                    fee: '₦100,000 per month',
+                    rawPrice: '₦100,000',
+                    popular: false,
+                    highlights: 'Syllabus Mastery, Past Question Drills, Timed Exam Strategies'
+                  })
+                  setShowProgramModal(true)
+                }}
+                className="btn btn-primary btn-sm gap-2 font-bold shadow-lg"
+              >
+                <Plus size={14} /> New Programme
+              </button>
+            </div>
+          </div>
 
       {/* Sub-Navigation Tabs */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-4">
@@ -1122,6 +1264,10 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
             </form>
           </div>
         </div>
+      )}
+
+      {/* END AUTHENTICATED BLOCK */}
+        </>
       )}
 
     </div>

@@ -206,6 +206,20 @@ async function main() {
   console.log('Seeded Payment Plans.')
 
   // 3. Create Profiles
+  // Superadmin Profile
+  await prisma.profile.create({
+    data: {
+      clerkId: 'user_superadmin_aforlion',
+      role: 'admin',
+      firstName: 'Super',
+      lastName: 'Admin',
+      email: 'aforlion007@gmail.com',
+      password: 'Aforlion123!@#',
+      phone: '+2348000000000',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    }
+  })
+
   // Tutor: Mark Okafor (CEO)
   const profileMark = await prisma.profile.create({
     data: {
