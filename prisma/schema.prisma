@@ -225,3 +225,22 @@ model Notification {
   data      Json?
   createdAt DateTime @default(now())
 }
+
+model Program {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  category    String   // 'Exam Prep', 'Subject Mastery', 'International', '1-on-1 & Bootcamps', 'Institutional'
+  badge       String
+  desc        String
+  schedule    String
+  duration    String
+  fee         String
+  rawPrice    String
+  popular     Boolean  @default(false)
+  highlights  String[]
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

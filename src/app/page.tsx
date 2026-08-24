@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import AdminDashboard from '@/app/components/AdminDashboard'
 import { 
   BookOpen, 
   Users, 
@@ -247,6 +248,7 @@ export default function MokaforPlatform() {
 
   // Dynamic API Database States
   const [dbTutors, setDbTutors] = useState<any[]>([])
+  const [dbPrograms, setDbPrograms] = useState<any[]>([])
   const [portalData, setPortalData] = useState<any>(null)
   const [loadingTutors, setLoadingTutors] = useState(false)
   const [loadingPortal, setLoadingPortal] = useState(false)
@@ -308,6 +310,22 @@ export default function MokaforPlatform() {
     }
     loadTutors()
   }, [searchSubject, searchGrade, searchCurriculum])
+
+  // Fetch Programs from DB API
+  useEffect(() => {
+    async function loadPrograms() {
+      try {
+        const res = await fetch('/api/admin/programs')
+        const data = await res.json()
+        if (Array.isArray(data) && data.length > 0) {
+          setDbPrograms(data)
+        }
+      } catch (err) {
+        console.error('Failed to load dynamic programs:', err)
+      }
+    }
+    loadPrograms()
+  }, [])
 
   // Fetch Portal Metrics from DB
   useEffect(() => {
@@ -496,6 +514,9 @@ Thank you for choosing Mokafor Global Education!
           <button onClick={() => setActiveTab('portals')} className="hidden sm:inline-flex btn btn-outline btn-sm hover:border-emerald-500 gap-2 font-bold">
             <Lock size={13} className="text-emerald-500" /> Portal
           </button>
+          <button onClick={() => setActiveTab('admin')} className="hidden sm:inline-flex btn btn-accent btn-sm gap-2 font-bold shadow-sm">
+            <ShieldCheck size={13} /> Admin
+          </button>
           {/* Hamburger Toggle */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
@@ -550,6 +571,10 @@ Thank you for choosing Mokafor Global Education!
               <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'faq' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('faq'); setIsMobileMenuOpen(false); }}>
                 <span>FAQ</span>
                 <ChevronRight size={16} className={activeTab === 'faq' ? 'opacity-100' : 'opacity-40'} />
+              </button>
+              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'admin' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('admin'); setIsMobileMenuOpen(false); }}>
+                <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-emerald-500" /> Admin Portal</span>
+                <ChevronRight size={16} className={activeTab === 'admin' ? 'opacity-100' : 'opacity-40'} />
               </button>
             </nav>
 
@@ -1020,7 +1045,7 @@ Thank you for choosing Mokafor Global Education!
 
             {/* Program Cards Grid */}
             <div className="grid md:grid-cols-2 gap-8">
-              {PROGRAMS
+              {(dbPrograms.length > 0 ? dbPrograms : PROGRAMS)
                 .filter(p => programCategory === 'All' || p.category === programCategory)
                 .map(p => (
                   <div 
@@ -1066,7 +1091,7 @@ Thank you for choosing Mokafor Global Education!
 
                       {/* Highlights Checklist */}
                       <div className="space-y-1.5 pt-2">
-                        {p.highlights.map((h, idx) => (
+                        {p.highlights.map((h: string, idx: number) => (
                           <div key={idx} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 font-semibold">
                             <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
                             <span>{h}</span>
@@ -1797,6 +1822,13 @@ Thank you for choosing Mokafor Global Education!
             </div>
           </section>
         )}
+        {/* ==================== PAGE: ADMIN DASHBOARD ==================== */}
+        {activeTab === 'admin' && (
+          <section className="page-container">
+            <AdminDashboard onNavigate={(t) => setActiveTab(t)} />
+          </section>
+        )}
+
       </main>
 
       {/* ==================== FOOTER ==================== */}
