@@ -125,8 +125,8 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
   // Superadmin Auth State
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [adminUser, setAdminUser] = useState<any>(null)
-  const [loginEmail, setLoginEmail] = useState<string>('aforlion007@gmail.com')
-  const [loginPassword, setLoginPassword] = useState<string>('Aforlion123!@#')
+  const [loginEmail, setLoginEmail] = useState<string>('')
+  const [loginPassword, setLoginPassword] = useState<string>('')
   const [loginError, setLoginError] = useState<string | null>(null)
   const [authenticating, setAuthenticating] = useState<boolean>(false)
 
@@ -387,7 +387,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
   }
 
   return (
-    <div className="space-y-8 animate-fade-in text-slate-100">
+    <div className="space-y-8 animate-fade-in text-slate-900 dark:text-slate-100">
       
       {/* Toast Notification Banner */}
       {toastMessage && (
@@ -400,73 +400,53 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
       {/* SUPERADMIN LOGIN MODAL SCREEN */}
       {!isAuthenticated && (
         <div className="max-w-md mx-auto py-8">
-          <div className="glow-card p-8 md:p-10 rounded-[32px] border border-slate-800 bg-slate-900/90 backdrop-blur-xl shadow-2xl space-y-6 relative overflow-hidden">
-            <div className="mesh-bg opacity-30"></div>
+          <div className="glow-card p-8 md:p-10 rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 backdrop-blur-xl shadow-2xl space-y-6 relative overflow-hidden">
+            <div className="mesh-bg opacity-20"></div>
 
             <div className="text-center space-y-3 relative z-10">
-              <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mx-auto flex items-center justify-center shadow-lg">
+              <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mx-auto flex items-center justify-center shadow-md">
                 <ShieldCheck size={36} />
               </div>
-              <h2 className="text-2xl font-black text-white tracking-tight">Superadmin Authentication</h2>
-              <p className="text-xs text-slate-400">Enter your credentials to access the Mokafor Executive Portal.</p>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Superadmin Authentication</h2>
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Enter your credentials to access the Mokafor Executive Portal.</p>
             </div>
 
             {loginError && (
-              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-2 relative z-10">
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-2 relative z-10">
                 <AlertCircle size={16} className="shrink-0" />
                 <span>{loginError}</span>
               </div>
             )}
 
-            <form onSubmit={handleAdminLogin} className="space-y-4 text-xs relative z-10">
+            <form onSubmit={handleAdminLogin} className="space-y-5 text-xs relative z-10">
               <div className="space-y-1.5">
-                <label className="font-extrabold text-slate-300 uppercase text-[10px]">Superadmin Email</label>
+                <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Superadmin Email</label>
                 <input
                   type="email"
                   required
                   value={loginEmail}
                   onChange={e => setLoginEmail(e.target.value)}
-                  placeholder="aforlion007@gmail.com"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none font-medium"
+                  placeholder="Enter admin email..."
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-extrabold text-slate-300 uppercase text-[10px]">Password</label>
+                <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Password</label>
                 <input
                   type="password"
                   required
                   value={loginPassword}
                   onChange={e => setLoginPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none font-medium"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
                 />
-              </div>
-
-              <div className="p-3 rounded-2xl bg-slate-800/40 border border-slate-800 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-black text-emerald-400">Created Credentials</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginEmail('aforlion007@gmail.com')
-                      setLoginPassword('Aforlion123!@#')
-                    }}
-                    className="text-[10px] font-bold text-emerald-400 hover:underline"
-                  >
-                    Quick Fill Credentials
-                  </button>
-                </div>
-                <p className="text-[11px] text-slate-400 font-mono">
-                  Email: <span className="text-white font-bold">aforlion007@gmail.com</span><br />
-                  Pass: <span className="text-white font-bold">Aforlion123!@#</span>
-                </p>
               </div>
 
               <button
                 type="submit"
                 disabled={authenticating}
-                className="btn btn-primary w-full py-3.5 font-extrabold text-sm justify-center shadow-lg gap-2"
+                className="btn bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white w-full py-3.5 font-extrabold text-sm justify-center shadow-lg shadow-emerald-500/20 gap-2 rounded-xl border-none transition-all"
               >
                 {authenticating ? 'Verifying Credentials...' : 'Sign In as Superadmin'} <ChevronRight size={16} />
               </button>
@@ -532,7 +512,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
           </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-4">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
         {[
           { id: 'overview', label: '📊 Overview & KPIs' },
           { id: 'programs', label: '📚 Programmes (' + programs.length + ')' },
@@ -544,7 +524,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-900/60 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800'}`}
           >
             {tab.label}
           </button>
