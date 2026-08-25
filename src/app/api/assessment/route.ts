@@ -6,12 +6,12 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { parentName, parentEmail: inputEmail, parentPhone, studentName, grade, curriculum, date, time } = body
 
-    if (!parentName || !studentName || !grade || !curriculum || !date || !time) {
+    if (!parentName || !studentName || !grade || !curriculum) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
     }
 
     // 1. Create or Find Parent Profile
-    const parentEmail = inputEmail || `${parentName.toLowerCase().replace(/\s+/g, '')}@example.com`
+    const parentEmail = inputEmail || `${parentName.toLowerCase().replace(/\s+/g, '')}@mokafor.com`
     let parent = await db.profile.findUnique({
       where: { email: parentEmail }
     })
@@ -42,15 +42,51 @@ export async function POST(request: Request) {
       }
     })
 
-    // 3. Find default tutor (e.g. Mark Okafor CEO)
-    const defaultTutor = await db.tutorProfile.findFirst()
+    // 3. Find or Create default tutor (e.g. Mark Okafor CEO)
+    let defaultTutor = await db.tutorProfile.findFirst()
 
     if (!defaultTutor) {
-      return NextResponse.json({ error: 'No active tutor available to book consultation' }, { status: 400 })
+      // Find or create admin profile
+      let adminProf = await db.profile.findFirst({ where: { role: 'admin' } })
+      if (!adminProf) {
+        adminProf = await db.profile.create({
+          data: {
+            clerkId: `clerk_master_admin`,
+            role: 'admin',
+            firstName: 'Mark',
+            lastName: 'Okafor',
+            email: 'aforlion007@gmail.com'
+          }
+        })
+      }
+      defaultTutor = await db.tutorProfile.create({
+        data: {
+          id: adminProf.id,
+          bio: 'Lead Education Specialist & Chief Executive Officer',
+          subjects: ['Mathematics', 'Physics', 'Exam Prep'],
+          levels: ['Primary', 'Junior Secondary', 'Senior Secondary'],
+          curricula: ['WAEC', 'NECO', 'JAMB', 'British / IGCSE'],
+          hourlyRate: 25000,
+          rating: 5.0,
+          verified: true,
+          status: 'active'
+        }
+      })
     }
 
-    // 4. Create Booking entry
-    const bookingDate = new Date(`${date}T${time}`)
+    // 4. Safely Parse Booking Date
+    let bookingDate = new Date()
+    try {
+      if (date) {
+        const dateStr = time ? `${date}T${time}` : date
+        const parsed = new Date(dateStr)
+        if (!isNaN(parsed.getTime())) {
+          bookingDate = parsed
+        }
+      }
+    } catch (e) {}
+
+    // 5. Create Booking entry
     const booking = await db.booking.create({
       data: {
         studentId: student.id,
@@ -59,7 +95,7 @@ export async function POST(request: Request) {
         lessonType: 'improvement',
         scheduledAt: bookingDate,
         meetingLink: 'https://meet.google.com/mock-mokafor-consultation',
-        notes: `Diagnostic placement requested by parent ${parentName} for student ${studentName}`
+        notes: `Placement consultation requested by parent ${parentName} for student ${studentName}`
       }
     })
 

@@ -8,9 +8,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
 
-    const whereClause: any = {
-      subject: 'Placement Assessment'
-    }
+    const whereClause: any = {}
     if (status && status !== 'All') {
       whereClause.status = status
     }

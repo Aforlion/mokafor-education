@@ -469,7 +469,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                 Mokafor Global Executive Portal
               </h1>
               <p className="text-slate-400 text-xs md:text-sm max-w-xl">
-                Real-time control center for educational programs, vetted tutors, diagnostic placement consultations, Paystack transactions, and platform users.
+                Real-time control center for educational programs, vetted tutors, academic placement consultations, Paystack transactions, and platform users.
               </p>
             </div>
 

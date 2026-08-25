@@ -534,12 +534,6 @@ export default function MokaforPlatform() {
           <button onClick={toggleTheme} className="p-2.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800/80 transition-colors">
             {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
           </button>
-          <button onClick={() => setActiveTab('portals')} className="hidden sm:inline-flex btn btn-outline btn-sm hover:border-emerald-500 gap-2 font-bold">
-            <Lock size={13} className="text-emerald-500" /> Portal
-          </button>
-          <button onClick={() => setActiveTab('admin')} className="hidden sm:inline-flex btn btn-accent btn-sm gap-2 font-bold shadow-sm">
-            <ShieldCheck size={13} /> Admin
-          </button>
           {/* Hamburger Toggle */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
@@ -591,16 +585,9 @@ export default function MokaforPlatform() {
                 <span>FAQ</span>
                 <ChevronRight size={16} className={activeTab === 'faq' ? 'opacity-100' : 'opacity-40'} />
               </button>
-              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'admin' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('admin'); setIsMobileMenuOpen(false); }}>
-                <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-emerald-500" /> Admin Portal</span>
-                <ChevronRight size={16} className={activeTab === 'admin' ? 'opacity-100' : 'opacity-40'} />
-              </button>
             </nav>
 
             <div className="border-t border-slate-200 dark:border-slate-800 pt-4 flex flex-col gap-3">
-              <button onClick={() => { setActiveTab('portals'); setIsMobileMenuOpen(false); }} className="btn btn-outline w-full justify-center gap-2 font-bold py-3">
-                <Lock size={14} className="text-emerald-500" /> Student & Parent Portal
-              </button>
               <button onClick={() => { openConsultationModal(); setIsMobileMenuOpen(false); }} className="btn btn-accent w-full justify-center font-bold py-3 shadow-lg">
                 Book Placement Consultation
               </button>
@@ -693,7 +680,7 @@ export default function MokaforPlatform() {
             <div className="space-y-12 py-6">
               <div className="text-center max-w-xl mx-auto space-y-2">
                 <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Your Pathway to Mastery</h2>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Our structured funnel is designed to take students from diagnostic testing to complete academic success.</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Our structured funnel is designed to take students from initial assessment to complete academic success.</p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-8">
@@ -1619,12 +1606,7 @@ export default function MokaforPlatform() {
             </div>
           </section>
         )}
-        {/* ==================== PAGE: ADMIN DASHBOARD ==================== */}
-        {activeTab === 'admin' && (
-          <section className="page-container">
-            <AdminDashboard onNavigate={(t) => setActiveTab(t)} />
-          </section>
-        )}
+
 
         {/* ==================== DYNAMIC POP-UP MODAL: BOOK PLACEMENT CONSULTATION ==================== */}
         {showConsultationModal && (
@@ -1637,7 +1619,7 @@ export default function MokaforPlatform() {
                   </div>
                   <div>
                     <h3 className="font-extrabold text-lg text-slate-900 dark:text-white leading-tight">Book Placement Consultation</h3>
-                    <p className="text-[11px] text-slate-500">Free diagnostic placement & academic assessment</p>
+                    <p className="text-[11px] text-slate-500">Free academic placement & curriculum assessment</p>
                   </div>
                 </div>
                 <button onClick={() => setShowConsultationModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -1761,7 +1743,7 @@ export default function MokaforPlatform() {
                       disabled={submittingConsultation}
                       className="btn bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white w-full py-3.5 font-extrabold text-xs justify-center shadow-lg shadow-emerald-500/20 rounded-xl border-none gap-2"
                     >
-                      {submittingConsultation ? 'Scheduling Consultation...' : 'Confirm Free Diagnostic Booking'} <Calendar size={15} />
+                      {submittingConsultation ? 'Scheduling Consultation...' : 'Confirm Free Placement Booking'} <Calendar size={15} />
                     </button>
                   </div>
                 </form>
@@ -1781,7 +1763,7 @@ export default function MokaforPlatform() {
                     <p><strong className="text-slate-700 dark:text-slate-300">Target Track:</strong> {consultationForm.curriculum}</p>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    A confirmation email & diagnostic consultation link have been logged in PostgreSQL database and dispatched to the Executive Admin Dashboard for tutor matching.
+                    A confirmation email & consultation link have been logged in PostgreSQL database and dispatched to the Executive Admin Dashboard for tutor matching.
                   </p>
                   <button onClick={() => setShowConsultationModal(false)} className="btn btn-outline btn-sm w-full font-bold mt-2 py-2.5">
                     Close & Return to Home
