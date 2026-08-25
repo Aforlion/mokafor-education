@@ -4,14 +4,14 @@ import { db } from '@/lib/db'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { parentName, studentName, grade, curriculum, date, time } = body
+    const { parentName, parentEmail: inputEmail, parentPhone, studentName, grade, curriculum, date, time } = body
 
     if (!parentName || !studentName || !grade || !curriculum || !date || !time) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
     }
 
     // 1. Create or Find Parent Profile
-    const parentEmail = `${parentName.toLowerCase().replace(/\s+/g, '')}@example.com`
+    const parentEmail = inputEmail || `${parentName.toLowerCase().replace(/\s+/g, '')}@example.com`
     let parent = await db.profile.findUnique({
       where: { email: parentEmail }
     })
@@ -24,7 +24,8 @@ export async function POST(request: Request) {
           role: 'parent',
           firstName: splitName[0] || parentName,
           lastName: splitName.slice(1).join(' ') || 'Parent',
-          email: parentEmail
+          email: parentEmail,
+          phone: parentPhone || null
         }
       })
     }

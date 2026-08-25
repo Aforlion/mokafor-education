@@ -268,15 +268,110 @@ export default function MokaforPlatform() {
   const [quizSubmitted, setQuizSubmitted] = useState(false)
   const [quizPassed, setQuizPassed] = useState(false)
 
-  // Payment State
-  const [paymentPlan, setPaymentPlan] = useState('monthly-8')
-  const [billingDetails, setBillingDetails] = useState({ name: '', email: '', amount: '₦96,000' })
-  const [paymentSuccess, setPaymentSuccess] = useState(false)
-  const [receiptNumber, setReceiptNumber] = useState('')
+  // Dynamic Modal Pop-up States
+  const [showConsultationModal, setShowConsultationModal] = useState(false)
+  const [consultationSuccess, setConsultationSuccess] = useState(false)
+  const [consultationRef, setConsultationRef] = useState('')
+  const [submittingConsultation, setSubmittingConsultation] = useState(false)
+  const [consultationForm, setConsultationForm] = useState({
+    parentName: '',
+    parentEmail: '',
+    parentPhone: '',
+    studentName: '',
+    grade: 'JSS 3 (BECE)',
+    curriculum: 'Common Entrance & Loyola Prep',
+    date: new Date().toISOString().split('T')[0],
+    time: '12:00'
+  })
 
-  // Free Assessment State
-  const [assessmentForm, setAssessmentForm] = useState({ parentName: '', studentName: '', grade: '', curriculum: '', date: '', time: '' })
-  const [assessmentBooked, setAssessmentBooked] = useState(false)
+  const [showEnrollModal, setShowEnrollModal] = useState(false)
+  const [enrollSuccess, setEnrollSuccess] = useState(false)
+  const [enrollRef, setEnrollRef] = useState('')
+  const [submittingEnroll, setSubmittingEnroll] = useState(false)
+  const [enrollForm, setEnrollForm] = useState({
+    programTitle: 'Common Entrance & Loyola Preparation',
+    fee: '₦100,000 per month',
+    rawPrice: '₦100,000',
+    category: 'Exam Prep',
+    parentName: '',
+    parentEmail: '',
+    parentPhone: '',
+    studentName: '',
+    grade: 'JSS 3'
+  })
+
+  const openConsultationModal = (curriculumChoice?: string) => {
+    if (curriculumChoice) {
+      setConsultationForm(prev => ({ ...prev, curriculum: curriculumChoice }))
+    }
+    setConsultationSuccess(false)
+    setShowConsultationModal(true)
+  }
+
+  const openEnrollModal = (prog: any) => {
+    setEnrollForm({
+      programTitle: prog.title || 'Educational Programme',
+      fee: prog.fee || '₦100,000 per month',
+      rawPrice: prog.rawPrice || '₦100,000',
+      category: prog.category || 'Exam Prep',
+      parentName: '',
+      parentEmail: '',
+      parentPhone: '',
+      studentName: '',
+      grade: 'JSS 3'
+    })
+    setEnrollSuccess(false)
+    setShowEnrollModal(true)
+  }
+
+  const handleConsultationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmittingConsultation(true)
+    try {
+      const res = await fetch('/api/assessment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(consultationForm)
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setConsultationRef(data.bookingId || 'BOOK-MOK-' + Math.floor(1000 + Math.random() * 9000))
+        setConsultationSuccess(true)
+      }
+    } catch (err) {
+      console.error('Consultation submit failed:', err)
+    } finally {
+      setSubmittingConsultation(false)
+    }
+  }
+
+  const handleEnrollSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmittingEnroll(true)
+    try {
+      const res = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: enrollForm.parentName,
+          email: enrollForm.parentEmail,
+          amount: enrollForm.fee,
+          plan: enrollForm.programTitle,
+          studentName: enrollForm.studentName,
+          grade: enrollForm.grade
+        })
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setEnrollRef(data.reference)
+        setEnrollSuccess(true)
+      }
+    } catch (err) {
+      console.error('Enrollment submit failed:', err)
+    } finally {
+      setSubmittingEnroll(false)
+    }
+  }
 
   // Become Tutor State
   const [tutorForm, setTutorForm] = useState({ name: '', email: '', subject: '', experience: '', cvUploaded: false })
@@ -385,47 +480,6 @@ export default function MokaforPlatform() {
     }
   }
 
-  const handleCheckout = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!billingDetails.name || !billingDetails.email) return
-    try {
-      const res = await fetch('/api/payments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: billingDetails.name,
-          email: billingDetails.email,
-          amount: billingDetails.amount,
-          plan: paymentPlan
-        })
-      })
-      const data = await res.json()
-      if (data.success) {
-        setReceiptNumber(data.reference)
-        setPaymentSuccess(true)
-      }
-    } catch (err) {
-      console.error('Checkout failed:', err)
-    }
-  }
-
-  const handleAssessmentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      const res = await fetch('/api/assessment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(assessmentForm)
-      })
-      const data = await res.json()
-      if (data.success) {
-        setAssessmentBooked(true)
-      }
-    } catch (err) {
-      console.error('Assessment scheduling failed:', err)
-    }
-  }
-
   const handleHomeworkSubmit = async () => {
     if (!uploadedFile || !portalData?.assignment?.id) return
     try {
@@ -444,36 +498,6 @@ export default function MokaforPlatform() {
     } catch (err) {
       console.error('Homework upload failed:', err)
     }
-  }
-
-  const handlePlanChange = (plan: string) => {
-    setPaymentPlan(plan)
-    let price = '₦96,000'
-    if (plan === 'monthly-4') price = '₦52,000'
-    if (plan === 'termly') price = '₦270,000'
-    setBillingDetails(prev => ({ ...prev, amount: price }))
-  }
-
-  const downloadReceipt = () => {
-    const content = `
-Mokafor Global Education Receipt
----------------------------------------
-Receipt Number: ${receiptNumber}
-Date: ${new Date().toLocaleDateString()}
-Client Name: ${billingDetails.name}
-Email: ${billingDetails.email}
-Plan Purchased: ${paymentPlan.toUpperCase()}
-Amount Paid: ${billingDetails.amount}
-Status: SUCCESSFUL (Processed via Paystack Mock)
----------------------------------------
-Thank you for choosing Mokafor Global Education!
-    `
-    const blob = new Blob([content], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `receipt_${receiptNumber}.txt`
-    a.click()
   }
 
   return (
@@ -502,7 +526,6 @@ Thank you for choosing Mokafor Global Education!
           <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'programs' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('programs')}>Programmes</button>
           <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'tutors' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('tutors')}>Find a Tutor</button>
           <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'courses' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('courses')}>Courses</button>
-          <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'payments' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('payments')}>Payments</button>
           <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'faq' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('faq')}>FAQ</button>
         </nav>
 
@@ -564,10 +587,6 @@ Thank you for choosing Mokafor Global Education!
                 <span>Courses</span>
                 <ChevronRight size={16} className={activeTab === 'courses' ? 'opacity-100' : 'opacity-40'} />
               </button>
-              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'payments' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('payments'); setIsMobileMenuOpen(false); }}>
-                <span>Payments</span>
-                <ChevronRight size={16} className={activeTab === 'payments' ? 'opacity-100' : 'opacity-40'} />
-              </button>
               <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'faq' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('faq'); setIsMobileMenuOpen(false); }}>
                 <span>FAQ</span>
                 <ChevronRight size={16} className={activeTab === 'faq' ? 'opacity-100' : 'opacity-40'} />
@@ -582,7 +601,7 @@ Thank you for choosing Mokafor Global Education!
               <button onClick={() => { setActiveTab('portals'); setIsMobileMenuOpen(false); }} className="btn btn-outline w-full justify-center gap-2 font-bold py-3">
                 <Lock size={14} className="text-emerald-500" /> Student & Parent Portal
               </button>
-              <button onClick={() => { setActiveTab('assessment'); setIsMobileMenuOpen(false); }} className="btn btn-accent w-full justify-center font-bold py-3 shadow-lg">
+              <button onClick={() => { openConsultationModal(); setIsMobileMenuOpen(false); }} className="btn btn-accent w-full justify-center font-bold py-3 shadow-lg">
                 Book Placement Consultation
               </button>
             </div>
@@ -617,7 +636,7 @@ Thank you for choosing Mokafor Global Education!
                   <button onClick={() => setActiveTab('programs')} className="btn btn-primary gap-2 text-sm font-bold shadow-lg">
                     Join our Live Classes <ArrowRight size={16} />
                   </button>
-                  <button onClick={() => setActiveTab('assessment')} className="btn btn-outline text-sm font-bold border-slate-300 dark:border-slate-800">
+                  <button onClick={() => openConsultationModal()} className="btn btn-outline text-sm font-bold border-slate-300 dark:border-slate-800">
                     Book Placement Consultation
                   </button>
                 </div>
@@ -1103,20 +1122,13 @@ Thank you for choosing Mokafor Global Education!
                     {/* Action Triggers */}
                     <div className="flex flex-wrap gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
                       <button 
-                        onClick={() => {
-                          setPaymentPlan(p.id)
-                          setBillingDetails(prev => ({ ...prev, amount: p.rawPrice === 'Available on request' ? '₦50,000' : p.rawPrice }))
-                          setActiveTab('payments')
-                        }} 
+                        onClick={() => openEnrollModal(p)} 
                         className="btn btn-accent btn-sm flex-1 font-bold shadow-md"
                       >
                         Enroll Now
                       </button>
                       <button 
-                        onClick={() => {
-                          setAssessmentForm(prev => ({ ...prev, curriculum: p.title }))
-                          setActiveTab('assessment')
-                        }} 
+                        onClick={() => openConsultationModal(p.title)} 
                         className="btn btn-outline btn-sm flex-1 font-bold"
                       >
                         Book Consultation
@@ -1204,8 +1216,8 @@ Thank you for choosing Mokafor Global Education!
                       <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/85">
                         <span className="text-sm font-black text-emerald-500">{t.rate}</span>
                         <div className="flex gap-2">
-                          <button onClick={() => { setActiveTab('assessment'); setAssessmentForm(prev => ({ ...prev, tutorName: t.name } as any)) }} className="btn btn-outline btn-sm font-bold">Book Free Session</button>
-                          <button onClick={() => { setActiveTab('payments'); setBillingDetails(prev => ({ ...prev, name: 'Parent Student', amount: t.rate.split('/')[0] })) }} className="btn btn-primary btn-sm font-bold">Pay Tuition</button>
+                          <button onClick={() => openConsultationModal(t.name + ' - Private Session')} className="btn btn-outline btn-sm font-bold">Book Free Session</button>
+                          <button onClick={() => openEnrollModal({ title: t.name + ' - Private Tuition', fee: t.rate.split('/')[0], rawPrice: t.rate.split('/')[0], category: '1-on-1' })} className="btn btn-primary btn-sm font-bold">Pay Tuition</button>
                         </div>
                       </div>
                     </div>
@@ -1339,118 +1351,6 @@ Thank you for choosing Mokafor Global Education!
           </section>
         )}
 
-        {/* ==================== PAGE: PAYMENTS ==================== */}
-        {activeTab === 'payments' && (
-          <section className="space-y-8 page-container">
-            <div className="text-center max-w-xl mx-auto space-y-2">
-              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Tuition Payments</h2>
-              <p className="text-sm text-slate-500">Securely register, select pricing tiers, and process mock transactions via Paystack checkout.</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-12 items-start">
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl space-y-6 shadow-sm">
-                <h3 className="text-xl font-bold flex items-center gap-2"><DollarSign className="text-emerald-500" /> Checkout Details</h3>
-                
-                {!paymentSuccess ? (
-                  <form onSubmit={handleCheckout} className="space-y-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Select Programme Plan</label>
-                      <select 
-                        value={paymentPlan}
-                        onChange={(e) => handlePlanChange(e.target.value)}
-                        className="form-input"
-                      >
-                        <option value="monthly-4">Monthly Plan (4 sessions) - ₦52,000</option>
-                        <option value="monthly-8">Monthly Plan (8 sessions) - ₦96,000</option>
-                        <option value="termly">Termly Package (24 sessions) - ₦270,000</option>
-                      </select>
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Full Name</label>
-                      <input 
-                        type="text" 
-                        required
-                        placeholder="e.g. John Doe"
-                        value={billingDetails.name}
-                        onChange={(e) => setBillingDetails(prev => ({ ...prev, name: e.target.value }))}
-                        className="form-input"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Email Address</label>
-                      <input 
-                        type="email" 
-                        required
-                        placeholder="e.g. johndoe@gmail.com"
-                        value={billingDetails.email}
-                        onChange={(e) => setBillingDetails(prev => ({ ...prev, email: e.target.value }))}
-                        className="form-input"
-                      />
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl flex justify-between items-center border border-slate-100 dark:border-slate-800">
-                      <span className="text-xs font-bold text-slate-400">Total Price:</span>
-                      <span className="text-xl font-black text-emerald-500">{billingDetails.amount}</span>
-                    </div>
-
-                    <button type="submit" className="btn btn-primary w-full py-3.5 font-bold gap-2">
-                      Initialize Paystack Mock Checkout <ArrowRight size={18} />
-                    </button>
-                  </form>
-                ) : (
-                  <div className="text-center py-6 space-y-6 animate-fade-in">
-                    <CheckCircle size={56} className="mx-auto text-emerald-500" />
-                    <div>
-                      <h4 className="font-bold text-xl">Payment Confirmed</h4>
-                      <p className="text-xs text-slate-400 mt-1">Ref ID: {receiptNumber}</p>
-                    </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-sm mx-auto">
-                      Your payment of <strong>{billingDetails.amount}</strong> was successfully captured via Paystack mock framework.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                      <button onClick={downloadReceipt} className="btn btn-accent btn-sm flex-1 gap-2">
-                        Download Receipt
-                      </button>
-                      <button onClick={() => { setPaymentSuccess(false); setBillingDetails({ name: '', email: '', amount: '₦96,000' }) }} className="btn btn-outline btn-sm flex-1">
-                        New Transaction
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Pricing Cards */}
-              <div className="space-y-6">
-                <h3 className="font-extrabold text-[10px] uppercase text-slate-400">Pricing Packages</h3>
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl flex justify-between items-center shadow-sm">
-                  <div>
-                    <h4 className="font-bold text-sm">4-Session Plan</h4>
-                    <p className="text-xs text-slate-500">Best for midterm test prep.</p>
-                  </div>
-                  <span className="text-lg font-black text-slate-900 dark:text-white">₦52,000/mo</span>
-                </div>
-                <div className="bg-white dark:bg-slate-900 border-2 border-emerald-500 p-6 rounded-2xl flex justify-between items-center shadow-md relative">
-                  <span className="absolute -top-3.5 left-6 bg-emerald-500 text-white text-[8px] uppercase tracking-widest font-extrabold px-3 py-1 rounded-full">Recommended</span>
-                  <div>
-                    <h4 className="font-bold text-sm">8-Session Plan</h4>
-                    <p className="text-xs text-slate-500">Standard regular tutor mapping.</p>
-                  </div>
-                  <span className="text-lg font-black text-emerald-500">₦96,000/mo</span>
-                </div>
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl flex justify-between items-center shadow-sm">
-                  <div>
-                    <h4 className="font-bold text-sm">Termly Plan (24 sessions)</h4>
-                    <p className="text-xs text-slate-500">Complete semester protection with 15% discount.</p>
-                  </div>
-                  <span className="text-lg font-black text-slate-900 dark:text-white">₦270,000/term</span>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
         {/* ==================== PAGE: FAQ ==================== */}
         {activeTab === 'faq' && (
           <section className="space-y-8 max-w-3xl mx-auto page-container">
@@ -1472,109 +1372,6 @@ Thank you for choosing Mokafor Global Education!
               <h4 className="font-bold text-base">Have more questions?</h4>
               <p className="text-xs text-slate-500">Our customer support advisors are available on WhatsApp to assist you.</p>
               <a href="https://wa.me/2349078013408" target="_blank" rel="noopener noreferrer" className="btn btn-accent btn-sm px-6">Chat on WhatsApp</a>
-            </div>
-          </section>
-        )}
-
-        {/* ==================== PAGE: BOOK FREE ASSESSMENT ==================== */}
-        {activeTab === 'assessment' && (
-          <section className="max-w-xl mx-auto space-y-8 page-container">
-            <div className="text-center space-y-2">
-              <h2 className="text-3xl font-extrabold">Book Diagnostic</h2>
-              <p className="text-sm text-slate-500">Schedule a placement and academic assessment consultation online.</p>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm">
-              {!assessmentBooked ? (
-                <form onSubmit={handleAssessmentSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Parent Name</label>
-                      <input 
-                        type="text" 
-                        required
-                        placeholder="Parent Name"
-                        value={assessmentForm.parentName}
-                        onChange={(e) => setAssessmentForm(prev => ({ ...prev, parentName: e.target.value }))}
-                        className="form-input"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Student Name</label>
-                      <input 
-                        type="text" 
-                        required
-                        placeholder="Student Name"
-                        value={assessmentForm.studentName}
-                        onChange={(e) => setAssessmentForm(prev => ({ ...prev, studentName: e.target.value }))}
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Grade Level</label>
-                      <input 
-                        type="text" 
-                        required
-                        placeholder="e.g. Primary 5, JSS2"
-                        value={assessmentForm.grade}
-                        onChange={(e) => setAssessmentForm(prev => ({ ...prev, grade: e.target.value }))}
-                        className="form-input"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Curriculum</label>
-                      <input 
-                        type="text" 
-                        required
-                        placeholder="e.g. British, WAEC"
-                        value={assessmentForm.curriculum}
-                        onChange={(e) => setAssessmentForm(prev => ({ ...prev, curriculum: e.target.value }))}
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Date</label>
-                      <input 
-                        type="date" 
-                        required
-                        value={assessmentForm.date}
-                        onChange={(e) => setAssessmentForm(prev => ({ ...prev, date: e.target.value }))}
-                        className="form-input"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Time</label>
-                      <input 
-                        type="time" 
-                        required
-                        value={assessmentForm.time}
-                        onChange={(e) => setAssessmentForm(prev => ({ ...prev, time: e.target.value }))}
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-
-                  <button type="submit" className="btn btn-primary w-full py-3.5 font-bold gap-2">Book Free Consultation <Calendar size={16} /></button>
-                </form>
-              ) : (
-                <div className="text-center py-8 space-y-4 animate-fade-in">
-                  <CheckCircle size={56} className="mx-auto text-emerald-500" />
-                  <div>
-                    <h3 className="font-bold text-lg">Consultation Scheduled</h3>
-                    <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider mt-1">Calendar Invite Sent</p>
-                  </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-sm mx-auto">
-                    A diagnostic link has been dispatched to assess <strong>{assessmentForm.studentName}</strong> on <strong>{assessmentForm.date}</strong> at <strong>{assessmentForm.time}</strong>.
-                  </p>
-                  <button onClick={() => { setAssessmentBooked(false); setAssessmentForm({ parentName: '', studentName: '', grade: '', curriculum: '', date: '', time: '' }) }} className="btn btn-outline btn-sm px-6">Book Another</button>
-                </div>
-              )}
             </div>
           </section>
         )}
@@ -1755,7 +1552,7 @@ Thank you for choosing Mokafor Global Education!
                             <p className="text-slate-400">No payment logs recorded.</p>
                           )}
                         </div>
-                        <button onClick={() => { setActiveTab('payments'); setPaymentSuccess(false) }} className="btn btn-outline btn-sm w-full text-xs mt-2">Modify Pricing / Pay Invoice</button>
+                        <button onClick={() => openEnrollModal({ title: 'Tuition Payment', fee: '₦96,000 per month', rawPrice: '₦96,000', category: 'Tuition' })} className="btn btn-outline btn-sm w-full text-xs mt-2">Pay Tuition Invoice</button>
                       </div>
                     </div>
                   )}
@@ -1827,6 +1624,304 @@ Thank you for choosing Mokafor Global Education!
           <section className="page-container">
             <AdminDashboard onNavigate={(t) => setActiveTab(t)} />
           </section>
+        )}
+
+        {/* ==================== DYNAMIC POP-UP MODAL: BOOK PLACEMENT CONSULTATION ==================== */}
+        {showConsultationModal && (
+          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-[32px] p-6 md:p-8 max-w-lg w-full shadow-2xl relative space-y-6 animate-scale-up my-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold shrink-0">
+                    <Calendar size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-lg text-slate-900 dark:text-white leading-tight">Book Placement Consultation</h3>
+                    <p className="text-[11px] text-slate-500">Free diagnostic placement & academic assessment</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowConsultationModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <X size={20} />
+                </button>
+              </div>
+
+              {!consultationSuccess ? (
+                <form onSubmit={handleConsultationSubmit} className="space-y-4 text-xs">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Parent Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Parent Full Name"
+                        value={consultationForm.parentName}
+                        onChange={e => setConsultationForm({ ...consultationForm, parentName: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Student Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Student Full Name"
+                        value={consultationForm.studentName}
+                        onChange={e => setConsultationForm({ ...consultationForm, studentName: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="parent@example.com"
+                        value={consultationForm.parentEmail}
+                        onChange={e => setConsultationForm({ ...consultationForm, parentEmail: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Phone Number</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+234 800 000 0000"
+                        value={consultationForm.parentPhone}
+                        onChange={e => setConsultationForm({ ...consultationForm, parentPhone: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Grade Level</label>
+                      <select
+                        value={consultationForm.grade}
+                        onChange={e => setConsultationForm({ ...consultationForm, grade: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      >
+                        <option value="Primary 1-6">Primary 1 - 6</option>
+                        <option value="JSS 1">JSS 1</option>
+                        <option value="JSS 2">JSS 2</option>
+                        <option value="JSS 3 (BECE)">JSS 3 (Junior WAEC/BECE)</option>
+                        <option value="SSS 1">SSS 1</option>
+                        <option value="SSS 2">SSS 2</option>
+                        <option value="SSS 3 (WAEC/JAMB)">SSS 3 (WAEC / JAMB)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Target Track</label>
+                      <select
+                        value={consultationForm.curriculum}
+                        onChange={e => setConsultationForm({ ...consultationForm, curriculum: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      >
+                        <option value="Common Entrance & Loyola Prep">Common Entrance & Loyola Prep</option>
+                        <option value="WAEC, NECO & JAMB Preparation">WAEC, NECO & JAMB Prep</option>
+                        <option value="Mathematics Mastery Program">Mathematics Mastery Program</option>
+                        <option value="English Mastery Program">English Mastery Program</option>
+                        <option value="SAT Mathematics Preparation">SAT Mathematics Preparation</option>
+                        <option value="IELTS Preparation">IELTS Preparation</option>
+                        <option value="British / IGCSE Curriculum">British / IGCSE Curriculum</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Preferred Date</label>
+                      <input
+                        type="date"
+                        required
+                        value={consultationForm.date}
+                        onChange={e => setConsultationForm({ ...consultationForm, date: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Preferred Time</label>
+                      <input
+                        type="time"
+                        required
+                        value={consultationForm.time}
+                        onChange={e => setConsultationForm({ ...consultationForm, time: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={submittingConsultation}
+                      className="btn bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white w-full py-3.5 font-extrabold text-xs justify-center shadow-lg shadow-emerald-500/20 rounded-xl border-none gap-2"
+                    >
+                      {submittingConsultation ? 'Scheduling Consultation...' : 'Confirm Free Diagnostic Booking'} <Calendar size={15} />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="text-center py-6 space-y-4 animate-scale-up">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 mx-auto flex items-center justify-center shadow-md">
+                    <CheckCircle size={36} />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-xl text-slate-900 dark:text-white">Consultation Confirmed!</h4>
+                    <p className="text-xs text-slate-500 mt-1">Booking Ref: <span className="font-mono font-bold text-emerald-500">{consultationRef}</span></p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs text-left space-y-2">
+                    <p><strong className="text-slate-700 dark:text-slate-300">Parent:</strong> {consultationForm.parentName}</p>
+                    <p><strong className="text-slate-700 dark:text-slate-300">Student:</strong> {consultationForm.studentName} ({consultationForm.grade})</p>
+                    <p><strong className="text-slate-700 dark:text-slate-300">Scheduled:</strong> {consultationForm.date} at {consultationForm.time}</p>
+                    <p><strong className="text-slate-700 dark:text-slate-300">Target Track:</strong> {consultationForm.curriculum}</p>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    A confirmation email & diagnostic consultation link have been logged in PostgreSQL database and dispatched to the Executive Admin Dashboard for tutor matching.
+                  </p>
+                  <button onClick={() => setShowConsultationModal(false)} className="btn btn-outline btn-sm w-full font-bold mt-2 py-2.5">
+                    Close & Return to Home
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ==================== DYNAMIC POP-UP MODAL: ENROLL NOW ==================== */}
+        {showEnrollModal && (
+          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-[32px] p-6 md:p-8 max-w-lg w-full shadow-2xl relative space-y-6 animate-scale-up my-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-bold shrink-0">
+                    <DollarSign size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-lg text-slate-900 dark:text-white leading-tight">Enroll in Programme</h3>
+                    <p className="text-[11px] text-slate-500 font-medium">{enrollForm.programTitle}</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowEnrollModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <X size={20} />
+                </button>
+              </div>
+
+              {!enrollSuccess ? (
+                <form onSubmit={handleEnrollSubmit} className="space-y-4 text-xs">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] uppercase font-black text-emerald-600 dark:text-emerald-400">Selected Track</span>
+                      <h4 className="font-bold text-sm text-slate-900 dark:text-white">{enrollForm.programTitle}</h4>
+                    </div>
+                    <span className="text-lg font-black text-emerald-500">{enrollForm.fee}</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Parent Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Parent Name"
+                        value={enrollForm.parentName}
+                        onChange={e => setEnrollForm({ ...enrollForm, parentName: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Parent Email</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="parent@gmail.com"
+                        value={enrollForm.parentEmail}
+                        onChange={e => setEnrollForm({ ...enrollForm, parentEmail: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Phone Number</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+234 800 000 0000"
+                        value={enrollForm.parentPhone}
+                        onChange={e => setEnrollForm({ ...enrollForm, parentPhone: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">Student Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Student Full Name"
+                        value={enrollForm.studentName}
+                        onChange={e => setEnrollForm({ ...enrollForm, studentName: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={submittingEnroll}
+                      className="btn bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white w-full py-3.5 font-extrabold text-xs justify-center shadow-lg shadow-emerald-500/20 rounded-xl border-none gap-2"
+                    >
+                      {submittingEnroll ? 'Processing Paystack Checkout...' : 'Pay & Complete Enrollment'} <ArrowRight size={15} />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="text-center py-6 space-y-4 animate-scale-up">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 mx-auto flex items-center justify-center shadow-md">
+                    <CheckCircle size={36} />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-xl text-slate-900 dark:text-white">Enrollment Successful!</h4>
+                    <p className="text-xs text-slate-500 mt-1">Paystack Ref: <span className="font-mono font-bold text-emerald-500">{enrollRef}</span></p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs text-left space-y-2">
+                    <p><strong className="text-slate-700 dark:text-slate-300">Enrolled Track:</strong> {enrollForm.programTitle}</p>
+                    <p><strong className="text-slate-700 dark:text-slate-300">Amount Captured:</strong> {enrollForm.fee}</p>
+                    <p><strong className="text-slate-700 dark:text-slate-300">Parent Customer:</strong> {enrollForm.parentName}</p>
+                    <p><strong className="text-slate-700 dark:text-slate-300">Student Learner:</strong> {enrollForm.studentName}</p>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Transaction recorded in PostgreSQL DB ledger and synced to the Executive Admin Dashboard.
+                  </p>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={() => {
+                        const content = `MOKAFOR GLOBAL EDUCATION - TUITION RECEIPT\nRef: ${enrollRef}\nProgram: ${enrollForm.programTitle}\nParent: ${enrollForm.parentName}\nAmount: ${enrollForm.fee}\nDate: ${new Date().toLocaleDateString()}\nStatus: Success`
+                        const blob = new Blob([content], { type: 'text/plain' })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = `receipt_${enrollRef}.txt`
+                        a.click()
+                      }}
+                      className="btn btn-accent btn-sm flex-1 font-bold py-2.5"
+                    >
+                      Download Receipt
+                    </button>
+                    <button onClick={() => setShowEnrollModal(false)} className="btn btn-outline btn-sm flex-1 font-bold py-2.5">
+                      Done
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
       </main>
