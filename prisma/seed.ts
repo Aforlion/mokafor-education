@@ -206,6 +206,20 @@ async function main() {
   console.log('Seeded Payment Plans.')
 
   // 3. Create Profiles
+  // Owner Admin Profile
+  await prisma.profile.create({
+    data: {
+      clerkId: 'user_superadmin_owner',
+      role: 'admin',
+      firstName: 'ID Consulting',
+      lastName: 'Owner',
+      email: 'idconsultingltd@gmail.com',
+      password: 'Brotherjohn77@',
+      phone: '+2349078013408',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    }
+  })
+
   // Superadmin Profile
   await prisma.profile.create({
     data: {

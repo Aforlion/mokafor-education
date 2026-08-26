@@ -363,6 +363,10 @@ export default function MokaforPlatform() {
       })
       const data = await res.json()
       if (res.ok && data.success) {
+        if (data.paystackUrl) {
+          window.location.href = data.paystackUrl
+          return
+        }
         setEnrollRef(data.reference)
         setEnrollSuccess(true)
       }

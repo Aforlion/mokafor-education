@@ -15,6 +15,18 @@ export async function POST(request: Request) {
     // Check default Superadmin credentials fallback or DB Profile
     const normalizedEmail = email.toLowerCase().trim()
 
+    if (normalizedEmail === 'idconsultingltd@gmail.com' && password === 'Brotherjohn77@') {
+      return NextResponse.json({
+        success: true,
+        user: {
+          name: 'Executive Owner (ID Consulting)',
+          email: 'idconsultingltd@gmail.com',
+          role: 'superadmin',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+        }
+      })
+    }
+
     if (normalizedEmail === 'aforlion007@gmail.com' && password === 'Aforlion123!@#') {
       return NextResponse.json({
         success: true,
