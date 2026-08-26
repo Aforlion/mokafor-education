@@ -136,8 +136,21 @@ const PROGRAMS = [
     duration: 'Monthly Coaching',
     fee: 'Starting from ₦100,000 per month',
     rawPrice: '₦100,000',
-    popular: false,
     highlights: ['Listening & Reading Mastery', 'Writing & Essay Feedback', 'Live Speaking Sessions']
+  },
+  {
+    id: 'int-scholarship-placement',
+    title: 'International Scholarship & University Placement Programme',
+    category: 'International',
+    badge: 'Global University & Financial Aid',
+    desc: 'Turning Academic Potential into Global Opportunities. We help ambitious students discover international university opportunities, compete for scholarships & financial aid, prepare for required examinations, and successfully navigate the application process across Europe, North America, the UK, Asia, and other global destinations. We don’t simply search for scholarships — we build students for global opportunities.',
+    schedule: 'Personalized Application Timetable',
+    duration: 'Full Placement & Scholarship Coaching Track',
+    fee: 'Available on request',
+    rawPrice: 'Available on request',
+    popular: true,
+    highlights: ['Global Scholarship & Financial Aid Search', 'Exam Prep (SAT, IELTS, GRE)', 'Application & SOP Review', 'Visa & Interview Advisory'],
+    customCta: 'APPLY FOR SCHOLARSHIP ASSESSMENT'
   },
   {
     id: 'one-on-one-tutoring',
@@ -1112,18 +1125,29 @@ export default function MokaforPlatform() {
 
                     {/* Action Triggers */}
                     <div className="flex flex-wrap gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
-                      <button 
-                        onClick={() => openEnrollModal(p)} 
-                        className="btn btn-accent btn-sm flex-1 font-bold shadow-md"
-                      >
-                        Enroll Now
-                      </button>
-                      <button 
-                        onClick={() => openConsultationModal(p.title)} 
-                        className="btn btn-outline btn-sm flex-1 font-bold"
-                      >
-                        Book Consultation
-                      </button>
+                      {p.customCta ? (
+                        <button 
+                          onClick={() => openConsultationModal(p.title)} 
+                          className="btn bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white btn-sm w-full font-extrabold shadow-lg shadow-emerald-500/20 border-none py-2.5"
+                        >
+                          {p.customCta}
+                        </button>
+                      ) : (
+                        <>
+                          <button 
+                            onClick={() => openEnrollModal(p)} 
+                            className="btn btn-accent btn-sm flex-1 font-bold shadow-md"
+                          >
+                            Enroll Now
+                          </button>
+                          <button 
+                            onClick={() => openConsultationModal(p.title)} 
+                            className="btn btn-outline btn-sm flex-1 font-bold"
+                          >
+                            Book Consultation
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}

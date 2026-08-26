@@ -110,6 +110,20 @@ async function main() {
       order: 6
     },
     {
+      slug: 'international-scholarship-placement',
+      title: 'International Scholarship & University Placement Programme',
+      category: 'International',
+      badge: 'Global University & Financial Aid',
+      desc: 'Turning Academic Potential into Global Opportunities. We help ambitious students discover international university opportunities, compete for scholarships & financial aid, prepare for required examinations, and successfully navigate the application process across Europe, North America, the UK, Asia, and other global destinations. We don’t simply search for scholarships — we build students for global opportunities.',
+      schedule: 'Personalized Application Timetable',
+      duration: 'Full Placement & Scholarship Coaching Track',
+      fee: 'Available on request',
+      rawPrice: 'Available on request',
+      popular: true,
+      highlights: ['Global Scholarship & Financial Aid Search', 'Exam Prep (SAT, IELTS, GRE)', 'Application & SOP Review', 'Visa & Interview Advisory'],
+      order: 7
+    },
+    {
       slug: 'one-on-one-tutoring',
       title: 'One-on-One Home & Online Tutoring',
       category: '1-on-1 & Bootcamps',
