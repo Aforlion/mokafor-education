@@ -350,9 +350,12 @@ export default function MokaforPlatform() {
       if (res.ok && data.success) {
         setConsultationRef(data.bookingId || 'BOOK-MOK-' + Math.floor(1000 + Math.random() * 9000))
         setConsultationSuccess(true)
+      } else {
+        alert(data.error || 'Failed to schedule consultation. Please try again.')
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Consultation submit failed:', err)
+      alert(err.message || 'Network error submitting consultation')
     } finally {
       setSubmittingConsultation(false)
     }
@@ -382,9 +385,12 @@ export default function MokaforPlatform() {
         }
         setEnrollRef(data.reference)
         setEnrollSuccess(true)
+      } else {
+        alert(data.error || 'Failed to process enrollment. Please try again.')
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Enrollment submit failed:', err)
+      alert(err.message || 'Network error submitting payment')
     } finally {
       setSubmittingEnroll(false)
     }
