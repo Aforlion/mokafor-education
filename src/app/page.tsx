@@ -1797,7 +1797,7 @@ export default function MokaforPlatform() {
                     <p><strong className="text-slate-700 dark:text-slate-300">Target Track:</strong> {consultationForm.curriculum}</p>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    A confirmation email & consultation link have been logged in PostgreSQL database and dispatched to the Executive Admin Dashboard for tutor matching.
+                    A confirmation email & consultation details have been sent to your email address. Our lead education team will contact you shortly to confirm tutor assignment.
                   </p>
                   <button onClick={() => setShowConsultationModal(false)} className="btn btn-outline btn-sm w-full font-bold mt-2 py-2.5">
                     Close & Return to Home

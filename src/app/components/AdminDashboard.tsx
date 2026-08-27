@@ -92,6 +92,7 @@ interface AssessmentItem {
 interface TransactionItem {
   id: string
   reference: string
+  paystackReference?: string
   parentName: string
   parentEmail: string
   studentName: string
@@ -100,6 +101,7 @@ interface TransactionItem {
   type: string
   description: string
   status: string
+  paystackStatus?: string
   createdAt: string
 }
 
@@ -143,6 +145,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
   const [assessmentStatusFilter, setAssessmentStatusFilter] = useState('All')
   const [txSearchQuery, setTxSearchQuery] = useState('')
   const [userRoleFilter, setUserRoleFilter] = useState('All')
+  const [userSearchQuery, setUserSearchQuery] = useState('')
 
   // Modals & Forms State
   const [showProgramModal, setShowProgramModal] = useState(false)
@@ -515,16 +518,16 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
         {[
           { id: 'overview', label: '📊 Overview & KPIs' },
-          { id: 'programs', label: '📚 Programmes (' + programs.length + ')' },
-          { id: 'tutors', label: '👨‍🏫 Tutor Network (' + tutors.length + ')' },
-          { id: 'assessments', label: '📅 Consultations (' + assessments.length + ')' },
-          { id: 'transactions', label: '💳 Revenue Ledger (' + transactions.length + ')' },
-          { id: 'users', label: '👥 User Directory (' + users.length + ')' }
+          { id: 'programs', label: '📚 Programmes (' + (programs || []).length + ')' },
+          { id: 'tutors', label: '👨‍🏫 Tutor Network (' + (tutors || []).length + ')' },
+          { id: 'assessments', label: '📅 Consultations (' + (assessments || []).length + ')' },
+          { id: 'transactions', label: '💳 Revenue Ledger (' + (transactions || []).length + ')' },
+          { id: 'users', label: '👥 User Directory (' + (users || []).length + ')' }
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-emerald-600 text-white shadow-md' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'}`}
           >
             {tab.label}
           </button>
@@ -921,10 +924,10 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
             </div>
           </div>
 
-          <div className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md overflow-x-auto">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider text-[10px]">
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase font-black tracking-wider text-[10px]">
                   <th className="pb-3">Paystack Ref</th>
                   <th className="pb-3">Customer</th>
                   <th className="pb-3">Description</th>
@@ -933,26 +936,30 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                   <th className="pb-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {transactions
-                  .filter(tx => 
-                    tx.reference.toLowerCase().includes(txSearchQuery.toLowerCase()) ||
-                    tx.parentName.toLowerCase().includes(txSearchQuery.toLowerCase()) ||
-                    tx.parentEmail.toLowerCase().includes(txSearchQuery.toLowerCase())
-                  )
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {(transactions || [])
+                  .filter(tx => {
+                    const q = (txSearchQuery || '').toLowerCase()
+                    const ref = (tx?.reference || tx?.paystackReference || tx?.id || '').toLowerCase()
+                    const parent = (tx?.parentName || '').toLowerCase()
+                    const email = (tx?.parentEmail || '').toLowerCase()
+                    return ref.includes(q) || parent.includes(q) || email.includes(q)
+                  })
                   .map(tx => (
-                    <tr key={tx.id} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="py-4 font-mono font-bold text-slate-300">{tx.reference}</td>
+                    <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="py-4 font-mono font-bold text-slate-900 dark:text-slate-200">{tx.reference || tx.paystackReference || tx.id}</td>
                       <td className="py-4">
-                        <p className="font-bold text-white">{tx.parentName}</p>
-                        <p className="text-[10px] text-slate-400">{tx.parentEmail}</p>
+                        <p className="font-bold text-slate-900 dark:text-white">{tx.parentName || 'Parent'}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">{tx.parentEmail || 'N/A'}</p>
                       </td>
-                      <td className="py-4 text-slate-300 font-medium">{tx.description}</td>
-                      <td className="py-4 font-extrabold text-emerald-400">{tx.amount}</td>
-                      <td className="py-4 text-slate-400 font-mono">{new Date(tx.createdAt).toLocaleDateString()}</td>
+                      <td className="py-4 text-slate-700 dark:text-slate-300 font-medium">{tx.description}</td>
+                      <td className="py-4 font-extrabold text-emerald-600 dark:text-emerald-400">
+                        {typeof (tx.amount as any) === 'number' ? `₦${(tx.amount as any).toLocaleString()}` : tx.amount}
+                      </td>
+                      <td className="py-4 text-slate-500 dark:text-slate-400 font-mono">{tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : 'Today'}</td>
                       <td className="py-4">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          {tx.status}
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          {tx.status || tx.paystackStatus || 'success'}
                         </span>
                       </td>
                     </tr>
@@ -978,10 +985,10 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
             ))}
           </div>
 
-          <div className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md overflow-x-auto">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider text-[10px]">
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase font-black tracking-wider text-[10px]">
                   <th className="pb-3">User Profile</th>
                   <th className="pb-3">Contact</th>
                   <th className="pb-3">Role</th>
@@ -989,25 +996,31 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                   <th className="pb-3">Total Spend</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {users
-                  .filter(u => userRoleFilter === 'All' || u.role === userRoleFilter)
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {(users || [])
+                  .filter(u => userRoleFilter === 'All' || u?.role === userRoleFilter)
+                  .filter(u => {
+                    const q = (userSearchQuery || '').toLowerCase()
+                    const name = (u?.name || '').toLowerCase()
+                    const email = (u?.email || '').toLowerCase()
+                    return name.includes(q) || email.includes(q)
+                  })
                   .map(u => (
-                    <tr key={u.id} className="hover:bg-slate-800/30 transition-colors">
+                    <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="py-4 flex items-center gap-3">
                         <img src={u.avatar} alt={u.name} className="w-9 h-9 rounded-xl object-cover" />
-                        <span className="font-bold text-white">{u.name}</span>
+                        <span className="font-bold text-slate-900 dark:text-white">{u.name}</span>
                       </td>
-                      <td className="py-4 text-slate-300">
-                        <p>{u.email}</p>
-                        <p className="text-[10px] text-slate-400">{u.phone}</p>
+                      <td className="py-4 text-slate-700 dark:text-slate-300">
+                        <p className="font-medium">{u.email}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">{u.phone}</p>
                       </td>
-                      <td className="py-4 font-bold capitalize text-indigo-400">{u.role}</td>
-                      <td className="py-4 font-medium text-slate-300">
-                        {u.role === 'parent' ? `${u.wardCount} Ward(s)` : u.tutorStatus}
+                      <td className="py-4 font-bold capitalize text-indigo-600 dark:text-indigo-400">{u.role}</td>
+                      <td className="py-4 font-medium text-slate-700 dark:text-slate-300">
+                        {u.role === 'parent' ? `${u.wardCount || 0} Ward(s)` : (u.tutorStatus || 'Active')}
                       </td>
-                      <td className="py-4 font-extrabold text-emerald-400">
-                        ₦{u.totalSpent.toLocaleString()}
+                      <td className="py-4 font-extrabold text-emerald-600 dark:text-emerald-400">
+                        ₦{(u.totalSpent || 0).toLocaleString()}
                       </td>
                     </tr>
                   ))}
