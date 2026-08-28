@@ -47,7 +47,7 @@ function getEmailTemplateWrapper(title: string, bodyContent: string): string {
         </div>
         <div class="footer">
           <p>© ${new Date().getFullYear()} Mokafor Global Education. All rights reserved.</p>
-          <p>Victoria Island, Lagos, Nigeria • <a href="https://www.mokafor.com">www.mokafor.com</a></p>
+          <p>3, Compassion road, Dagbana Estate, Karu Abuja • <a href="https://www.mokafor.com">www.mokafor.com</a></p>
         </div>
       </div>
     </body>

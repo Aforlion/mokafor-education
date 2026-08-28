@@ -39,7 +39,12 @@ import {
   CheckCircle2,
   FileCheck,
   Menu,
-  X
+  X,
+  Youtube,
+  Instagram,
+  Twitter,
+  Facebook,
+  Linkedin
 } from 'lucide-react'
 
 // ==========================================
@@ -1982,7 +1987,7 @@ export default function MokaforPlatform() {
             <ul className="space-y-2.5 text-xs">
               <li className="flex items-start gap-2">
                 <MapPin size={14} className="text-emerald-500 shrink-0 mt-0.5" />
-                <span>3, Compassion road, Dagbana Estate, Jikwoyi, Abuja</span>
+                <span>3, Compassion road, Dagbana Estate, Karu Abuja</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone size={14} className="text-emerald-500 shrink-0" />
@@ -1999,6 +2004,27 @@ export default function MokaforPlatform() {
                 <span>Mon - Sat: 8:00 AM - 6:00 PM</span>
               </li>
             </ul>
+
+            <div className="pt-2">
+              <p className="text-[11px] font-bold text-slate-300 mb-2">Connect With Us</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <a href="https://www.youtube.com/@mokaforglobaleducation" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-red-600 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+                  <Youtube size={15} />
+                </a>
+                <a href="https://www.instagram.com/markokafor/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-pink-600 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+                  <Instagram size={15} />
+                </a>
+                <a href="https://twitter.com/MarkOkafor1" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-sky-500 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+                  <Twitter size={15} />
+                </a>
+                <a href="https://www.facebook.com/Mokaforeducation" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-blue-600 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+                  <Facebook size={15} />
+                </a>
+                <a href="https://www.linkedin.com/in/mark-okafor/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-blue-700 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+                  <Linkedin size={15} />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
