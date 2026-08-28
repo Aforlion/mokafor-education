@@ -23,6 +23,37 @@ export async function POST(request: Request) {
       time: time || '10:00'
     })
 
+    // Async Email Dispatch
+    try {
+      const { sendConsultationConfirmationEmail, sendAdminConsultationAlertEmail } = await import('@/lib/email')
+      const targetParentEmail = parentEmail || `${parentName.toLowerCase().replace(/\s+/g, '')}@mokafor.com`
+      
+      sendConsultationConfirmationEmail({
+        parentName,
+        parentEmail: targetParentEmail,
+        studentName,
+        grade,
+        curriculum,
+        date: date || 'Upcoming Date',
+        time: time || '10:00 AM',
+        bookingRef: result.bookingId
+      })
+
+      sendAdminConsultationAlertEmail({
+        parentName,
+        parentEmail: targetParentEmail,
+        parentPhone: parentPhone || 'N/A',
+        studentName,
+        grade,
+        curriculum,
+        date: date || 'Upcoming Date',
+        time: time || '10:00 AM',
+        bookingRef: result.bookingId
+      })
+    } catch (emailErr) {
+      console.warn('Email notification dispatch warning:', emailErr)
+    }
+
     return NextResponse.json(result)
   } catch (error: any) {
     console.error('Error handling assessment booking POST:', error)

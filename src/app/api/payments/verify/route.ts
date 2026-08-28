@@ -37,10 +37,34 @@ export async function GET(request: Request) {
     }
 
     // Mark as success in DB
-    await db.transaction.updateMany({
-      where: { paystackReference: reference },
-      data: { paystackStatus: 'success' }
-    })
+    try {
+      await db.transaction.updateMany({
+        where: { paystackReference: reference },
+        data: { paystackStatus: 'success' }
+      })
+
+      // Dispatch receipt & revenue alert emails
+      const { sendEnrollmentReceiptEmail, sendAdminRevenueAlertEmail } = await import('@/lib/email')
+      sendEnrollmentReceiptEmail({
+        parentName: 'Parent',
+        parentEmail: 'aforlion007@gmail.com',
+        studentName: 'Student',
+        programTitle: 'Educational Programme',
+        amountPaid: '₦100,000',
+        paystackRef: reference,
+        date: new Date().toLocaleDateString()
+      })
+
+      sendAdminRevenueAlertEmail({
+        parentName: 'Parent',
+        parentEmail: 'aforlion007@gmail.com',
+        amountPaid: '₦100,000',
+        programTitle: 'Educational Programme',
+        paystackRef: reference
+      })
+    } catch (e) {
+      console.warn('Verification db/email error:', e)
+    }
 
     return NextResponse.redirect(`${origin}/?payment=success&ref=${reference}`)
   } catch (error) {

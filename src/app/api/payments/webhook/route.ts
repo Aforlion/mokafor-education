@@ -65,6 +65,35 @@ export async function POST(request: Request) {
           }
         })
       }
+
+      // 3. Dispatch receipt and revenue alert emails
+      try {
+        const { sendEnrollmentReceiptEmail, sendAdminRevenueAlertEmail } = await import('@/lib/email')
+        const formattedAmount = `₦${amountInNaira.toLocaleString()}`
+        const parentName = metadata?.parentName || `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || 'Parent'
+        const studentName = metadata?.studentName || 'Student'
+        const programTitle = metadata?.planTitle || 'Educational Programme'
+
+        sendEnrollmentReceiptEmail({
+          parentName,
+          parentEmail: customer.email,
+          studentName,
+          programTitle,
+          amountPaid: formattedAmount,
+          paystackRef: reference,
+          date: new Date().toLocaleDateString()
+        })
+
+        sendAdminRevenueAlertEmail({
+          parentName,
+          parentEmail: customer.email,
+          amountPaid: formattedAmount,
+          programTitle,
+          paystackRef: reference
+        })
+      } catch (emailErr) {
+        console.warn('Webhook email notification warning:', emailErr)
+      }
     }
 
     return NextResponse.json({ status: 'success' })
