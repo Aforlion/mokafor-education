@@ -135,7 +135,7 @@ async function main() {
       rawPrice: 'Available on request',
       popular: false,
       highlights: ['Dedicated Vetted Educator', 'Home & Virtual Learning', 'Custom Pace & Materials'],
-      order: 7
+      order: 8
     },
     {
       slug: 'holiday-intensive',
@@ -149,7 +149,7 @@ async function main() {
       rawPrice: '₦100,000',
       popular: false,
       highlights: ['Core Subject Reinforcement', 'Next Academic Term Prep', 'Interactive Projects'],
-      order: 8
+      order: 9
     },
     {
       slug: 'teacher-training',
@@ -163,7 +163,7 @@ async function main() {
       rawPrice: 'Available on request',
       popular: false,
       highlights: ['Modern Pedagogy', 'Classroom Management', 'EdTech Tool Mastery'],
-      order: 9
+      order: 10
     },
     {
       slug: 'educational-consulting',
@@ -177,7 +177,7 @@ async function main() {
       rawPrice: 'Available on request',
       popular: false,
       highlights: ['Curriculum Design', 'Academic Performance Audit', 'Staff Development'],
-      order: 10
+      order: 11
     }
   ]
 
@@ -271,6 +271,9 @@ async function main() {
           totalReviews: 12
         }
       }
+    },
+    include: {
+      tutorProfile: true
     }
   })
 
@@ -358,7 +361,7 @@ async function main() {
   const booking = await prisma.booking.create({
     data: {
       studentId: student.id,
-      tutorId: profileMark.id, // Mark Okafor (uses Mark profile ID directly since it matches tutor profile ID)
+      tutorId: profileMark.tutorProfile?.id || profileMark.id,
       subject: 'Mathematics',
       lessonType: 'one_on_one',
       status: 'scheduled',
@@ -399,7 +402,7 @@ async function main() {
   await prisma.progressReport.create({
     data: {
       studentId: student.id,
-      tutorId: profileMark.id,
+      tutorId: profileMark.tutorProfile?.id || profileMark.id,
       periodStart: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       periodEnd: new Date(),
       attendanceRate: 94.0,
