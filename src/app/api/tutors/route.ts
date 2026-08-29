@@ -13,35 +13,35 @@ const DEFAULT_TUTORS_LIST = [
     availability: 'Weekdays/Weekends',
     language: 'English',
     rating: 5.0,
-    rate: '₦15,000/hr',
-    bio: 'Founder & Chief Educator. Math Specialist passionate about simplifying complex equations.',
-    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80'
+    rate: '₦30,000/hr',
+    bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.',
+    avatar: '/founder.jpg'
   },
   {
     id: 'tutor-jane-2',
-    name: 'Jane Adebayo',
-    subject: 'Physics & Chemistry',
+    name: 'Jane Alabi',
+    subject: 'Mathematics',
     grade: 'Senior Secondary',
     curriculum: 'WAEC / A Levels',
     availability: 'Weekdays',
     language: 'English',
     rating: 4.9,
-    rate: '₦12,500/hr',
-    bio: 'Ph.D. in Applied Mathematics. 10+ years experience preparing students for A-Levels & IGCSE.',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+    rate: '₦20,000/hr',
+    bio: 'Experienced Mathematics teacher. Specializes in WAEC, IGCSE, A-Levels & Problem-Solving mastery.',
+    avatar: '/tutors/jane_alabi.png'
   },
   {
-    id: 'tutor-sarah-3',
-    name: 'Sarah Jenkins',
+    id: 'tutor-victor-3',
+    name: 'Victor Elendu',
     subject: 'English & Literature',
     grade: 'Senior Secondary',
     curriculum: 'SAT / IELTS',
     availability: 'Weekends',
     language: 'English',
     rating: 4.8,
-    rate: '₦10,000/hr',
-    bio: 'Experienced English Literature teacher. Specializes in IELTS, TOEFL & SAT prep.',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    rate: '₦20,000/hr',
+    bio: 'Experienced English Language & Literature teacher. Specializes in IELTS, TOEFL & SAT prep.',
+    avatar: '/tutors/victor_elendu.png'
   }
 ]
 

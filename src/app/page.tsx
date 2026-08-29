@@ -80,6 +80,24 @@ const PROGRAMS = [
     highlights: ['Mathematics & English', 'Verbal & Quantitative Reasoning', 'Mock Interview Prep']
   },
   {
+    id: 'junior-waec-bece-excellence',
+    title: 'Mokafor Junior WAEC (BECE) Excellence Programme',
+    category: 'Exam Prep',
+    badge: 'JSS1–JSS3 Pathway & Intensive Prep',
+    desc: 'A structured academic development programme designed for students in JSS1–JSS3, providing a clear pathway from foundational learning to intensive Junior WAEC preparation. Combines subject foundations, continuous assessment, problem-solving, analytical thinking, past-question practice, examination techniques, mock examinations and targeted revision to build confidence and achieve excellent results.',
+    schedule: 'Flexible Weekly Classes',
+    duration: 'Monthly Intensive Track (JSS1–JSS3)',
+    fee: '₦100,000 per month',
+    rawPrice: '₦100,000',
+    popular: true,
+    highlights: [
+      'JSS1 – Foundation: Build strong academic foundations & learning skills',
+      'JSS2 – Development: Deepen understanding & identify learning gaps',
+      'JSS3 – Junior WAEC Intensive: Past questions, mock exams & revision',
+      'Senior Secondary transition readiness & confidence building'
+    ]
+  },
+  {
     id: 'waec-neco-jamb',
     title: 'WAEC, NECO & JAMB Preparation',
     category: 'Exam Prep',
@@ -212,9 +230,9 @@ const PROGRAMS = [
 ]
 
 const TUTORS = [
-  { id: '1', name: 'Dr. Jane Adebayo', subject: 'Mathematics', grade: 'Senior Secondary', curriculum: 'IGCSE', availability: 'Weekdays', language: 'English', rating: 4.9, rate: '₦12,500/hr', bio: 'Ph.D. in Applied Mathematics. 10+ years experience preparing students for A-Levels & IGCSE.', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80' },
-  { id: '2', name: 'Mark Okafor', subject: 'Mathematics', grade: 'Junior Secondary', curriculum: 'WAEC', availability: 'Weekends', language: 'English', rating: 5.0, rate: '₦15,000/hr', bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.', avatar: '/founder.jpg' },
-  { id: '3', name: 'Sarah Jenkins', subject: 'English Language', grade: 'Senior Secondary', curriculum: 'SAT', availability: 'Weekdays', language: 'English', rating: 4.8, rate: '₦10,000/hr', bio: 'Experienced English Literature teacher. Specializes in IELTS, TOEFL & SAT prep.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
+  { id: '1', name: 'Jane Alabi', subject: 'Mathematics', grade: 'Senior Secondary', curriculum: 'IGCSE', availability: 'Weekdays', language: 'English', rating: 4.9, rate: '₦20,000/hr', bio: 'Experienced Mathematics teacher. Specializes in WAEC, IGCSE, A-Levels & Problem-Solving mastery.', avatar: '/tutors/jane_alabi.png' },
+  { id: '2', name: 'Mark Okafor', subject: 'Mathematics', grade: 'Junior Secondary', curriculum: 'WAEC', availability: 'Weekends', language: 'English', rating: 5.0, rate: '₦30,000/hr', bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.', avatar: '/founder.jpg' },
+  { id: '3', name: 'Victor Elendu', subject: 'English Language', grade: 'Senior Secondary', curriculum: 'SAT', availability: 'Weekdays', language: 'English', rating: 4.8, rate: '₦20,000/hr', bio: 'Experienced English Language & Literature teacher. Specializes in IELTS, TOEFL & SAT prep.', avatar: '/tutors/victor_elendu.png' },
   { id: '4', name: 'Chinedu Eze', subject: 'Physics', grade: 'Senior Secondary', curriculum: 'JAMB', availability: 'Weekends', language: 'English', rating: 4.9, rate: '₦8,500/hr', bio: 'M.Sc. in Physics. Expert tutor for JAMB, WAEC & NECO exam preparations.', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80' }
 ]
 
@@ -222,7 +240,7 @@ const COURSES = [
   { 
     id: 'math-foundation', 
     title: 'Algebra & Calculus Essentials', 
-    tutor: 'Dr. Jane Adebayo', 
+    tutor: 'Jane Alabi', 
     lessons: [
       { id: 'l1', title: 'Linear Equations & Graphs', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
       { id: 'l2', title: 'Introduction to Calculus & Derivatives', video: 'https://www.w3schools.com/html/movie.mp4' }
@@ -236,7 +254,7 @@ const COURSES = [
   { 
     id: 'sat-prep', 
     title: 'Mastering the SAT Reading & Writing', 
-    tutor: 'Sarah Jenkins', 
+    tutor: 'Victor Elendu', 
     lessons: [
       { id: 's1', title: 'Evidence-Based Reading Strategies', video: 'https://www.w3schools.com/html/mov_bbb.mp4' }
     ],
@@ -828,7 +846,7 @@ export default function MokaforPlatform() {
                     {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} className="fill-current" />)}
                   </div>
                   <p className="text-xs italic text-slate-600 dark:text-slate-350 leading-relaxed">
-                    "Preparing for my SAT reading and writing exam felt overwhelming, but working with Sarah Jenkins was a game-changer. I scored 1540 on my first trial!"
+                    "Preparing for my SAT reading and writing exam felt overwhelming, but working with Victor Elendu was a game-changer. I scored 1540 on my first trial!"
                   </p>
                   <div className="flex items-center gap-3 border-t border-slate-100 dark:border-slate-800 pt-4">
                     <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&auto=format&fit=crop&q=80" /></div>

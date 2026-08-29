@@ -20,6 +20,26 @@ const DEFAULT_PROGRAMS = [
     order: 1
   },
   {
+    id: 'junior-waec-bece-excellence',
+    slug: 'junior-waec-bece-excellence',
+    title: 'Mokafor Junior WAEC (BECE) Excellence Programme',
+    category: 'Exam Prep',
+    badge: 'JSS1–JSS3 Pathway & Intensive Prep',
+    desc: 'A structured academic development programme designed for students in JSS1–JSS3, providing a clear pathway from foundational learning to intensive Junior WAEC preparation. Combines subject foundations, continuous assessment, problem-solving, analytical thinking, past-question practice, examination techniques, mock examinations and targeted revision to build confidence and achieve excellent results.',
+    schedule: 'Flexible Weekly Classes',
+    duration: 'Monthly Intensive Track (JSS1–JSS3)',
+    fee: '₦100,000 per month',
+    rawPrice: '₦100,000',
+    popular: true,
+    highlights: [
+      'JSS1 – Foundation: Build strong academic foundations & learning skills',
+      'JSS2 – Development: Deepen understanding & identify learning gaps',
+      'JSS3 – Junior WAEC Intensive: Past questions, mock exams & revision',
+      'Senior Secondary transition readiness & confidence building'
+    ],
+    order: 2
+  },
+  {
     id: 'waec-neco-jamb',
     slug: 'waec-neco-jamb',
     title: 'WAEC, NECO & JAMB Preparation',

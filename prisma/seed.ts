@@ -40,6 +40,25 @@ async function main() {
       order: 1
     },
     {
+      slug: 'junior-waec-bece-excellence',
+      title: 'Mokafor Junior WAEC (BECE) Excellence Programme',
+      category: 'Exam Prep',
+      badge: 'JSS1–JSS3 Pathway & Intensive Prep',
+      desc: 'A structured academic development programme designed for students in JSS1–JSS3, providing a clear pathway from foundational learning to intensive Junior WAEC preparation. Combines subject foundations, continuous assessment, problem-solving, analytical thinking, past-question practice, examination techniques, mock examinations and targeted revision to help students build confidence and achieve excellent results.',
+      schedule: 'Flexible Weekly Classes',
+      duration: 'Monthly Intensive Track (JSS1–JSS3)',
+      fee: '₦100,000 per month',
+      rawPrice: '₦100,000',
+      popular: true,
+      highlights: [
+        'JSS1 – Foundation: Build strong academic foundations & learning skills',
+        'JSS2 – Development: Deepen understanding & identify learning gaps',
+        'JSS3 – Junior WAEC Intensive: Past questions, mock exams & revision',
+        'Senior Secondary transition readiness & confidence building'
+      ],
+      order: 2
+    },
+    {
       slug: 'waec-neco-jamb',
       title: 'WAEC, NECO & JAMB Preparation',
       category: 'Exam Prep',
@@ -257,14 +276,14 @@ async function main() {
       lastName: 'Okafor',
       email: 'mark@mokafor.com',
       phone: '+2348030000001',
-      avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80',
+      avatarUrl: '/founder.jpg',
       tutorProfile: {
         create: {
           bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.',
           subjects: ['Mathematics'],
           levels: ['Junior Secondary', 'Senior Secondary'],
           curricula: ['WAEC', 'IGCSE', 'JAMB'],
-          hourlyRate: 15000,
+          hourlyRate: 30000,
           verified: true,
           status: 'active',
           rating: 5.0,
@@ -277,23 +296,23 @@ async function main() {
     }
   })
 
-  // Tutor: Jane Adebayo
+  // Tutor: Jane Alabi
   await prisma.profile.create({
     data: {
       clerkId: 'user_tutor_jane',
       role: 'tutor',
       firstName: 'Jane',
-      lastName: 'Adebayo',
-      email: 'jane.adebayo@mokafor.com',
+      lastName: 'Alabi',
+      email: 'jane.alabi@mokafor.com',
       phone: '+2348030000002',
-      avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+      avatarUrl: '/tutors/jane_alabi.png',
       tutorProfile: {
         create: {
-          bio: 'Ph.D. in Applied Mathematics. 10+ years experience preparing students for A-Levels & IGCSE.',
+          bio: 'Experienced Mathematics teacher. Specializes in WAEC, IGCSE, A-Levels & Problem-Solving mastery.',
           subjects: ['Mathematics', 'Physics'],
           levels: ['Senior Secondary'],
-          curricula: ['IGCSE', 'A Levels'],
-          hourlyRate: 12500,
+          curricula: ['IGCSE', 'A Levels', 'WAEC'],
+          hourlyRate: 20000,
           verified: true,
           status: 'active',
           rating: 4.9,
@@ -303,23 +322,23 @@ async function main() {
     }
   })
 
-  // Tutor: Sarah Jenkins
+  // Tutor: Victor Elendu
   await prisma.profile.create({
     data: {
-      clerkId: 'user_tutor_sarah',
+      clerkId: 'user_tutor_victor',
       role: 'tutor',
-      firstName: 'Sarah',
-      lastName: 'Jenkins',
-      email: 'sarah.jenkins@mokafor.com',
+      firstName: 'Victor',
+      lastName: 'Elendu',
+      email: 'victor.elendu@mokafor.com',
       phone: '+2348030000003',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      avatarUrl: '/tutors/victor_elendu.png',
       tutorProfile: {
         create: {
-          bio: 'Experienced English Literature teacher. Specializes in IELTS, TOEFL & SAT prep.',
+          bio: 'Experienced English Language & Literature teacher. Specializes in IELTS, TOEFL & SAT prep.',
           subjects: ['English Language', 'Literature'],
           levels: ['Senior Secondary'],
-          curricula: ['SAT', 'IELTS'],
-          hourlyRate: 10000,
+          curricula: ['SAT', 'IELTS', 'WAEC'],
+          hourlyRate: 20000,
           verified: true,
           status: 'active',
           rating: 4.8,
