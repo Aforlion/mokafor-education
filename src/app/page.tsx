@@ -230,10 +230,62 @@ const PROGRAMS = [
 ]
 
 const TUTORS = [
-  { id: '1', name: 'Jane Alabi', subject: 'Mathematics', grade: 'Senior Secondary', curriculum: 'IGCSE', availability: 'Weekdays', language: 'English', rating: 4.9, rate: '₦20,000/hr', bio: 'Experienced Mathematics teacher. Specializes in WAEC, IGCSE, A-Levels & Problem-Solving mastery.', avatar: '/tutors/jane_alabi.png' },
-  { id: '2', name: 'Mark Okafor', subject: 'Mathematics', grade: 'Junior Secondary', curriculum: 'WAEC', availability: 'Weekends', language: 'English', rating: 5.0, rate: '₦30,000/hr', bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.', avatar: '/founder.jpg' },
-  { id: '3', name: 'Victor Elendu', subject: 'English Language', grade: 'Senior Secondary', curriculum: 'SAT', availability: 'Weekdays', language: 'English', rating: 4.8, rate: '₦20,000/hr', bio: 'Experienced English Language & Literature teacher. Specializes in IELTS, TOEFL & SAT prep.', avatar: '/tutors/victor_elendu.png' },
-  { id: '4', name: 'Chinedu Eze', subject: 'Physics', grade: 'Senior Secondary', curriculum: 'JAMB', availability: 'Weekends', language: 'English', rating: 4.9, rate: '₦8,500/hr', bio: 'M.Sc. in Physics. Expert tutor for JAMB, WAEC & NECO exam preparations.', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80' }
+  { 
+    id: '1', 
+    name: 'Jane Alabi', 
+    subject: 'Mathematics', 
+    specialty: 'Loyola Jesuit & Junior WAEC Specialist',
+    grade: 'Junior & Senior Secondary', 
+    curriculum: 'Loyola Jesuit / Junior WAEC / IGCSE', 
+    availability: 'Weekdays & Weekends', 
+    language: 'English', 
+    rating: 4.9, 
+    rate: '₦20,000/hr', 
+    bio: 'Loyola Jesuit Entrance & Junior WAEC (BECE) Specialist. 10+ years experience guiding students through Loyola Jesuit mock drills, Junior WAEC excellence, and IGCSE Mathematics mastery.', 
+    avatar: '/tutors/jane_alabi.png' 
+  },
+  { 
+    id: '2', 
+    name: 'Mark Okafor', 
+    subject: 'Mathematics', 
+    specialty: 'Founder & Chief Educator',
+    grade: 'Primary, Junior & Senior', 
+    curriculum: 'Loyola Jesuit / Junior WAEC / WAEC / SAT', 
+    availability: 'Weekends & Evening Sessions', 
+    language: 'English', 
+    rating: 5.0, 
+    rate: '₦30,000/hr', 
+    bio: 'Founder & Chief Educator. Loyola Jesuit & Junior WAEC Master Educator passionate about simplifying complex equations and guiding learners to top exam rankings.', 
+    avatar: '/founder.jpg' 
+  },
+  { 
+    id: '3', 
+    name: 'Victor Elendu', 
+    subject: 'English Language & Literature', 
+    specialty: 'Loyola Jesuit & Junior WAEC Specialist',
+    grade: 'Junior & Senior Secondary', 
+    curriculum: 'Loyola Jesuit / Junior WAEC / SAT / IELTS', 
+    availability: 'Weekdays & Weekends', 
+    language: 'English', 
+    rating: 4.8, 
+    rate: '₦20,000/hr', 
+    bio: 'Loyola Jesuit & Junior WAEC (BECE) English Specialist. Expert in Verbal Reasoning, IELTS, TOEFL, SAT Reading & Writing, and WAEC English Literature mastery.', 
+    avatar: '/tutors/victor_elendu.png' 
+  },
+  { 
+    id: '4', 
+    name: 'Chinedu Eze', 
+    subject: 'Physics & Sciences', 
+    specialty: 'Senior Secondary Science Specialist',
+    grade: 'Senior Secondary', 
+    curriculum: 'WAEC / NECO / JAMB', 
+    availability: 'Weekends', 
+    language: 'English', 
+    rating: 4.9, 
+    rate: '₦8,500/hr', 
+    bio: 'M.Sc. in Physics. Senior Secondary science educator for JAMB, WAEC & NECO exam preparation.', 
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80' 
+  }
 ]
 
 const COURSES = [
@@ -1249,7 +1301,12 @@ export default function MokaforPlatform() {
                     <div className="flex-grow space-y-4">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                          <h3 className="text-xl font-bold flex items-center gap-2">{t.name} <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] px-2.5 py-0.5 rounded-full font-bold">Vetted Partner</span></h3>
+                          <h3 className="text-xl font-bold flex flex-wrap items-center gap-2">
+                            {t.name} 
+                            <span className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-indigo-500/20">
+                              {t.specialty || 'Loyola Jesuit & Junior WAEC Specialist'}
+                            </span>
+                          </h3>
                           <p className="text-xs text-slate-500 font-semibold">{t.subject} • {t.grade} ({t.curriculum} Curriculum)</p>
                         </div>
                         <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-xl text-xs font-bold">

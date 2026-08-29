@@ -279,10 +279,10 @@ async function main() {
       avatarUrl: '/founder.jpg',
       tutorProfile: {
         create: {
-          bio: 'Founder & Chief Educator. Math Specialist & Consultant passionate about simplifying complex equations.',
+          bio: 'Founder & Chief Educator. Loyola Jesuit & Junior WAEC Master Educator passionate about simplifying complex equations and guiding learners to top exam rankings.',
           subjects: ['Mathematics'],
-          levels: ['Junior Secondary', 'Senior Secondary'],
-          curricula: ['WAEC', 'IGCSE', 'JAMB'],
+          levels: ['Primary', 'Junior Secondary', 'Senior Secondary'],
+          curricula: ['Loyola Jesuit', 'Junior WAEC', 'WAEC', 'IGCSE', 'JAMB'],
           hourlyRate: 30000,
           verified: true,
           status: 'active',
@@ -308,10 +308,10 @@ async function main() {
       avatarUrl: '/tutors/jane_alabi.png',
       tutorProfile: {
         create: {
-          bio: 'Experienced Mathematics teacher. Specializes in WAEC, IGCSE, A-Levels & Problem-Solving mastery.',
+          bio: 'Loyola Jesuit Entrance & Junior WAEC (BECE) Specialist. 10+ years experience guiding students through Loyola Jesuit mock drills, Junior WAEC excellence, and IGCSE Mathematics mastery.',
           subjects: ['Mathematics', 'Physics'],
-          levels: ['Senior Secondary'],
-          curricula: ['IGCSE', 'A Levels', 'WAEC'],
+          levels: ['Junior Secondary', 'Senior Secondary'],
+          curricula: ['Loyola Jesuit', 'Junior WAEC', 'IGCSE', 'A Levels', 'WAEC'],
           hourlyRate: 20000,
           verified: true,
           status: 'active',
@@ -334,10 +334,10 @@ async function main() {
       avatarUrl: '/tutors/victor_elendu.png',
       tutorProfile: {
         create: {
-          bio: 'Experienced English Language & Literature teacher. Specializes in IELTS, TOEFL & SAT prep.',
+          bio: 'Loyola Jesuit & Junior WAEC (BECE) English Specialist. Expert in Verbal Reasoning, IELTS, TOEFL, SAT Reading & Writing, and WAEC English Literature mastery.',
           subjects: ['English Language', 'Literature'],
-          levels: ['Senior Secondary'],
-          curricula: ['SAT', 'IELTS', 'WAEC'],
+          levels: ['Junior Secondary', 'Senior Secondary'],
+          curricula: ['Loyola Jesuit', 'Junior WAEC', 'SAT', 'IELTS', 'WAEC'],
           hourlyRate: 20000,
           verified: true,
           status: 'active',
