@@ -4,14 +4,15 @@ import { db } from '@/lib/db'
 // GET /api/courses/[slug] - Get course detail, modules, videos & enrollment check
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  context: { params: { slug: string } | Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params
+    const resolvedParams = await context.params
+    const slug = resolvedParams.slug
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
 
-    const course = await db.course.findUnique({
+    const courseObj = await db.course.findUnique({
       where: { slug },
       include: {
         modules: {
@@ -28,12 +29,14 @@ export async function GET(
       }
     })
 
-    if (!course) {
+    if (!courseObj) {
       return NextResponse.json({ success: false, error: 'Course not found' }, { status: 404 })
     }
 
+    const course: any = courseObj
+
     let isEnrolled = false
-    if (userId) {
+    if (userId && course.id) {
       const enrollment = await db.courseEnrollment.findFirst({
         where: {
           courseId: course.id,
@@ -44,9 +47,10 @@ export async function GET(
     }
 
     // Process syllabus: if user is not enrolled, sanitize full video stream URLs except for free snippets
-    const sanitizedModules = (course.modules || []).map((moduleItem: any) => ({
+    const rawModules = Array.isArray(course.modules) ? course.modules : []
+    const sanitizedModules = rawModules.map((moduleItem: any) => ({
       ...moduleItem,
-      videos: (moduleItem.videos || []).map((video: any) => {
+      videos: (Array.isArray(moduleItem.videos) ? moduleItem.videos : []).map((video: any) => {
         if (isEnrolled || video.isSnippet) {
           return video
         }

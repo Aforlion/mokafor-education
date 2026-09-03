@@ -68,7 +68,7 @@ export async function GET(request: Request) {
         include: { profile: true }
       })
 
-      formattedTutors = tutors.map((t) => ({
+      formattedTutors = tutors.map((t: any) => ({
         id: t.id,
         name: t.profile ? `${t.profile.firstName} ${t.profile.lastName}` : 'Tutor',
         specialty: 'Loyola Jesuit & Junior WAEC Specialist',

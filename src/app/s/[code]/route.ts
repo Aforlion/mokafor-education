@@ -4,10 +4,11 @@ import { db } from '@/lib/db'
 // GET /s/[code] - Shortlink redirect handler with click counter
 export async function GET(
   request: Request,
-  { params }: { params: { code: string } }
+  context: { params: { code: string } | Promise<{ code: string }> }
 ) {
   try {
-    const { code } = params
+    const resolvedParams = await context.params
+    const code = resolvedParams.code
 
     const shortLink = await db.shortLink.findUnique({
       where: { code: code.toLowerCase() }
@@ -22,7 +23,7 @@ export async function GET(
     db.shortLink.update({
       where: { id: shortLink.id },
       data: { clicks: { increment: 1 } }
-    }).catch(err => console.error('Failed to increment shortlink clicks:', err))
+    }).catch((err: any) => console.error('Failed to increment shortlink clicks:', err))
 
     // Determine target redirect URL
     let targetUrl = shortLink.targetUrl

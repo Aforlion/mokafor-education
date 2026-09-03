@@ -63,7 +63,7 @@ export async function GET(request: Request) {
         orderBy: { createdAt: 'desc' }
       })
 
-      formatted = profiles.map(p => ({
+      formatted = profiles.map((p: any) => ({
         id: p.id,
         name: `${p.firstName} ${p.lastName}`,
         email: p.email,
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
         role: p.role || 'parent',
         avatar: p.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
         createdAt: p.createdAt,
-        totalSpent: Array.isArray(p.transactions) ? p.transactions.reduce((acc, t) => acc + (t.amount || 0), 0) : 0,
+        totalSpent: Array.isArray(p.transactions) ? p.transactions.reduce((acc: number, t: any) => acc + (t.amount || 0), 0) : 0,
         wardCount: Array.isArray(p.students) ? p.students.length : 0,
         isTutorVerified: p.tutorProfile?.verified || false,
         tutorStatus: p.tutorProfile?.status || 'N/A'

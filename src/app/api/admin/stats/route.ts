@@ -44,7 +44,7 @@ export async function GET() {
       transactionsCount = Math.max(transactionsCount, allTxs.length)
       const calculatedSum = allTxs.reduce((sum: number, t: any) => sum + (t.amount || 0), 0)
       if (calculatedSum > 0) totalRevenue = calculatedSum
-      recentTransactions = allTxs.slice(0, 5).map(t => ({
+      recentTransactions = allTxs.slice(0, 5).map((t: any) => ({
         id: t.id || t.paystackReference,
         reference: t.paystackReference || t.id,
         parentName: t.parentName || 'Parent',
@@ -56,7 +56,7 @@ export async function GET() {
 
     if (allAssessments.length > 0) {
       pendingAssessmentsCount = Math.max(pendingAssessmentsCount, allAssessments.length)
-      recentAssessments = allAssessments.slice(0, 5).map(a => ({
+      recentAssessments = allAssessments.slice(0, 5).map((a: any) => ({
         id: a.id,
         parentName: a.parentName || 'Parent',
         studentName: a.studentName || 'Student',

@@ -74,7 +74,7 @@ export async function GET(request: Request) {
         orderBy: { rating: 'desc' }
       })
 
-      tutors = dbTutors.map(t => ({
+      tutors = dbTutors.map((t: any) => ({
         id: t.id,
         profileId: t.profile?.id || t.id,
         name: t.profile ? `${t.profile.firstName} ${t.profile.lastName}` : 'Tutor',

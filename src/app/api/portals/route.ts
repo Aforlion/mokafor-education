@@ -119,7 +119,7 @@ export async function GET(request: Request) {
               score: progressReport.overallScore,
               notes: progressReport.tutorNotes
             } : { score: 85, notes: 'Exceptional aptitude. Ready for WAEC trials.' },
-            transactions: parent.transactions.map(tx => ({
+            transactions: parent.transactions.map((tx: any) => ({
               reference: tx.paystackReference,
               amount: `₦${tx.amount.toLocaleString()}`,
               date: tx.createdAt,
@@ -139,14 +139,14 @@ export async function GET(request: Request) {
           include: { profile: true, bookings: { include: { student: true } } }
         })
         if (tutor) {
-          const activeStudentsCount = new Set(tutor.bookings.map(b => b.studentId)).size
+          const activeStudentsCount = new Set(tutor.bookings.map((b: any) => b.studentId)).size
           return NextResponse.json({
             tutorName: `${tutor.profile.firstName} ${tutor.profile.lastName}`,
             activeStudents: activeStudentsCount || 4,
             earnings: '₦420,000',
             rating: tutor.rating,
             reviewsCount: tutor.totalReviews,
-            agenda: tutor.bookings.map(b => ({
+            agenda: tutor.bookings.map((b: any) => ({
               studentName: `${b.student.firstName} ${b.student.lastName}`,
               subject: b.subject,
               scheduledAt: b.scheduledAt,
