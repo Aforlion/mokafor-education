@@ -199,7 +199,7 @@ export async function getAllAssessments() {
       orderBy: { scheduledAt: 'desc' }
     })
 
-    dbAssessments = bookings.map(b => ({
+    dbAssessments = bookings.map((b: any) => ({
       id: b.id,
       parentName: b.student?.parent ? `${b.student.parent.firstName} ${b.student.parent.lastName}` : 'Parent',
       parentEmail: b.student?.parent?.email || 'N/A',
@@ -262,7 +262,7 @@ export async function saveTransaction(data: {
   // Memory & Local save
   inMemoryStore.transactions.unshift(record)
   const store = getLocalStore()
-  const existingIdx = store.transactions.findIndex(t => t && t.paystackReference === paystackRef)
+  const existingIdx = store.transactions.findIndex((t: any) => t && t.paystackReference === paystackRef)
   if (existingIdx >= 0) {
     store.transactions[existingIdx] = record
   } else {
@@ -319,7 +319,7 @@ export async function getAllTransactions() {
       orderBy: { createdAt: 'desc' }
     })
 
-    dbTxs = transactions.map(t => ({
+    dbTxs = transactions.map((t: any) => ({
       id: t.id,
       parentName: t.parent ? `${t.parent.firstName} ${t.parent.lastName}` : 'Parent',
       parentEmail: t.parent?.email || 'N/A',
