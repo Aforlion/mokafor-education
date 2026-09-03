@@ -67,7 +67,7 @@ export async function POST(request: Request) {
         description: `Enrollment in course: ${course.title}`,
         metadata: { courseId, courseSlug: course.slug }
       }
-    }).catch(err => console.error('Transaction log notice:', err))
+    }).catch((err: any) => console.error('Transaction log notice:', err))
 
     return NextResponse.json({
       success: true,
