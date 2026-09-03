@@ -28,6 +28,7 @@ model Profile {
   transactions    Transaction[]
   notifications   Notification[]
   subscriptions   Subscription[]
+  courseEnrollments CourseEnrollment[]
 }
 
 model TutorProfile {
@@ -243,5 +244,76 @@ model Program {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Course {
+  id            String             @id @default(uuid())
+  slug          String             @unique
+  title         String
+  subtitle      String?
+  description   String
+  thumbnailUrl  String?
+  level         String             @default("General") // 'Primary', 'JSCE', 'WAEC', 'IGCSE', 'JAMB', 'A-Levels'
+  category      String             @default("Mathematics") // 'Mathematics', 'Sciences', 'Exam Mastery'
+  price         Int                // Price in Naira
+  discountPrice Int?               // Discounted price in Naira
+  isPublished   Boolean            @default(true)
+  featured      Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  modules       CourseModule[]
+  enrollments   CourseEnrollment[]
+  shortLinks    ShortLink[]
+}
+
+model CourseModule {
+  id          String        @id @default(uuid())
+  courseId    String
+  course      Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  order       Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  videos      CourseVideo[]
+}
+
+model CourseVideo {
+  id              String       @id @default(uuid())
+  moduleId        String
+  module          CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  videoUrl        String       // Full video stream/embed URL
+  snippetUrl      String?      // Teaser / preview snippet video URL
+  durationSeconds Int          @default(0)
+  isSnippet       Boolean      @default(false) // True if snippet video or free teaser available
+  order           Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model CourseEnrollment {
+  id                String   @id @default(uuid())
+  courseId          String
+  course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId            String
+  user              Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amountPaid        Int
+  paystackReference String   @unique
+  enrolledAt        DateTime @default(now())
+}
+
+model ShortLink {
+  id        String   @id @default(uuid())
+  code      String   @unique // e.g. "waec2026", "math-flash", "x9k2p"
+  courseId  String?
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  targetUrl String
+  campaign  String?  // e.g. "facebook_ad", "whatsapp_group", "instagram"
+  clicks    Int      @default(0)
+  createdAt DateTime @default(now())
 }
 
