@@ -465,14 +465,14 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
           <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-indigo-950 p-6 md:p-8 rounded-[32px] border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="mesh-bg opacity-30"></div>
             <div className="space-y-2 relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-extrabold text-xs border border-emerald-500/20">
-                <ShieldCheck size={13} /> Authenticated: {adminUser?.name || 'Super Admin'} ({adminUser?.email || 'aforlion007@gmail.com'})
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 text-emerald-300 font-black text-xs border border-emerald-500/40 shadow-sm">
+                <ShieldCheck size={14} className="text-emerald-400" /> Authenticated: {adminUser?.name || 'Super Admin'} ({adminUser?.email || 'idconsultingltd@gmail.com'})
               </div>
               <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3">
                 Mokafor Global Executive Portal
               </h1>
-              <p className="text-slate-400 text-xs md:text-sm max-w-xl">
-                Real-time control center for educational programs, vetted tutors, academic placement consultations, Paystack transactions, and platform users.
+              <p className="text-slate-300 text-xs md:text-sm max-w-xl font-medium">
+                Real-time control center for educational programs, vetted tutors, academic placement consultations, Paystack transactions, recorded video courses, and platform users.
               </p>
             </div>
 
@@ -480,13 +480,13 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
               <button 
                 onClick={fetchDashboardData} 
                 disabled={loading}
-                className="btn btn-outline btn-sm border-slate-700 text-slate-300 hover:bg-slate-800 gap-2 font-bold"
+                className="btn btn-outline btn-sm border-slate-600 text-white hover:bg-slate-800 gap-2 font-bold"
               >
                 <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Database
               </button>
               <button 
                 onClick={handleAdminLogout}
-                className="btn btn-outline btn-sm border-rose-900/60 text-rose-400 hover:bg-rose-950/40 gap-1.5 font-bold"
+                className="btn btn-outline btn-sm border-rose-800 text-rose-300 hover:bg-rose-950/60 gap-1.5 font-bold"
               >
                 Sign Out
               </button>
@@ -520,14 +520,21 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
           { id: 'overview', label: '📊 Overview & KPIs' },
           { id: 'programs', label: '📚 Programmes (' + (programs || []).length + ')' },
           { id: 'tutors', label: '👨‍🏫 Tutor Network (' + (tutors || []).length + ')' },
+          { id: 'courses', label: '🎬 Video Courses & Shortlinks' },
           { id: 'assessments', label: '📅 Consultations (' + (assessments || []).length + ')' },
           { id: 'transactions', label: '💳 Revenue Ledger (' + (transactions || []).length + ')' },
           { id: 'users', label: '👥 User Directory (' + (users || []).length + ')' }
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-emerald-600 text-white shadow-md' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'}`}
+            onClick={() => {
+              if (tab.id === 'courses') {
+                window.location.href = '/admin/courses'
+              } else {
+                setActiveTab(tab.id as any)
+              }
+            }}
+            className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-900 text-slate-200 hover:bg-slate-800 border border-slate-700'}`}
           >
             {tab.label}
           </button>
@@ -604,6 +611,10 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
               </h3>
 
               <div className="space-y-3">
+                <a href="/admin/courses" className="w-full p-3.5 rounded-2xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-left transition-all flex items-center justify-between text-xs font-extrabold text-amber-300">
+                  <span className="flex items-center gap-2.5"><Layers size={16} className="text-amber-400" /> Video Courses & Shortlink Marketing</span>
+                  <ChevronRight size={16} className="text-slate-400" />
+                </a>
                 <button onClick={() => setActiveTab('programs')} className="w-full p-3.5 rounded-2xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-200">
                   <span className="flex items-center gap-2.5"><BookOpen size={16} className="text-emerald-400" /> Edit Educational Programmes</span>
                   <ChevronRight size={16} className="text-slate-500" />

@@ -18,7 +18,12 @@ import {
   Layers,
   ArrowRight,
   ExternalLink,
-  BookOpen
+  BookOpen,
+  ShieldCheck,
+  ArrowLeft,
+  AlertCircle,
+  Lock,
+  ChevronRight
 } from 'lucide-react'
 
 interface VideoItem {
@@ -108,9 +113,55 @@ export default function AdminCoursesPage() {
     campaign: 'WhatsApp Broadcast'
   })
 
+  // Superadmin Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [adminUser, setAdminUser] = useState<any>(null)
+  const [loginEmail, setLoginEmail] = useState<string>('')
+  const [loginPassword, setLoginPassword] = useState<string>('')
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [authenticating, setAuthenticating] = useState<boolean>(false)
+
   useEffect(() => {
+    const saved = localStorage.getItem('mokafor_admin_session')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        if (parsed.email) {
+          setIsAuthenticated(true)
+          setAdminUser(parsed)
+        }
+      } catch (e) {}
+    }
     fetchAdminData()
   }, [])
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthenticating(true)
+    setLoginError(null)
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword })
+      })
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setIsAuthenticated(true)
+        setAdminUser(data.user)
+        localStorage.setItem('mokafor_admin_session', JSON.stringify(data.user))
+        fetchAdminData()
+      } else {
+        setLoginError(data.error || 'Invalid credentials. Please verify your email and password.')
+      }
+    } catch (err) {
+      setLoginError('Failed to connect to authentication server.')
+    } finally {
+      setAuthenticating(false)
+    }
+  }
 
   const fetchAdminData = async () => {
     try {
@@ -277,30 +328,99 @@ export default function AdminCoursesPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header Title */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <div>
-            <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider">
-              <Video className="w-4 h-4" /> Admin Operations Center
+      {!isAuthenticated ? (
+        <div className="max-w-md mx-auto py-12">
+          <div className="p-8 rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl space-y-6">
+            <div className="text-center space-y-3">
+              <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mx-auto flex items-center justify-center shadow-md">
+                <ShieldCheck size={36} />
+              </div>
+              <h2 className="text-2xl font-black text-white">Executive Portal Authentication</h2>
+              <p className="text-xs text-slate-400 font-medium">Log in with your Superadmin credentials to access Video Courses & Marketing Shortlinks.</p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
-              Video Courses & Shortlink Marketing Manager
-            </h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Manage recorded video series, set regular and discount prices, upload teaser snippets, and track ad campaign shortlink clicks.
-            </p>
-          </div>
 
-          <Link
-            href="/courses"
-            target="_blank"
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition-colors flex items-center gap-2"
-          >
-            <span>View Public Storefront</span>
-            <ExternalLink className="w-4 h-4" />
-          </Link>
+            {loginError && (
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAdminLogin} className="space-y-5 text-xs">
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-slate-300 uppercase text-[10px]">Superadmin Email</label>
+                <input
+                  type="email"
+                  required
+                  value={loginEmail}
+                  onChange={e => setLoginEmail(e.target.value)}
+                  placeholder="Enter admin email..."
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-slate-300 uppercase text-[10px]">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={loginPassword}
+                  onChange={e => setLoginPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={authenticating}
+                className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm justify-center shadow-lg shadow-emerald-500/20 gap-2 rounded-xl transition-all cursor-pointer flex items-center"
+              >
+                {authenticating ? 'Verifying Credentials...' : 'Sign In as Superadmin'} <ChevronRight size={16} />
+              </button>
+            </form>
+
+            <div className="text-center pt-2">
+              <Link href="/admin" className="text-xs text-slate-400 hover:text-emerald-400 font-bold inline-flex items-center gap-1.5">
+                <ArrowLeft size={14} /> Return to Main Admin Dashboard
+              </Link>
+            </div>
+          </div>
         </div>
+      ) : (
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header Title */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+            <div>
+              <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" /> Authenticated: {adminUser?.email || 'Executive Superadmin'}
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
+                Video Courses & Shortlink Marketing Manager
+              </h1>
+              <p className="text-slate-400 text-sm mt-1">
+                Manage recorded video series, set regular and discount prices, upload teaser snippets, and track ad campaign shortlink clicks.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Link
+                href="/admin"
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors flex items-center gap-2 border border-slate-700"
+              >
+                <ArrowLeft size={14} />
+                <span>Executive Dashboard</span>
+              </Link>
+              <Link
+                href="/courses"
+                target="_blank"
+                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors flex items-center gap-2 shadow-lg shadow-indigo-600/30"
+              >
+                <span>View Public Storefront</span>
+                <ExternalLink className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
 
         {/* Tab Navigation */}
         <div className="flex items-center gap-2 border-b border-slate-800 pb-1">
@@ -721,9 +841,9 @@ export default function AdminCoursesPage() {
                 </h3>
                 <form onSubmit={handleCreateShortlink} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Custom Short Code / Alias</label>
+                    <label className="block text-xs font-black text-slate-100 uppercase tracking-wider mb-1.5">Custom Short Code / Alias</label>
                     <div className="flex items-center">
-                      <span className="bg-slate-950 border border-r-0 border-slate-800 text-slate-400 text-xs px-3 py-2.5 rounded-l-xl">
+                      <span className="bg-slate-800 border border-r-0 border-slate-600 text-slate-100 font-mono font-bold text-xs px-3.5 py-2.5 rounded-l-xl shrink-0">
                         mokafor.com/s/
                       </span>
                       <input
@@ -731,29 +851,29 @@ export default function AdminCoursesPage() {
                         placeholder="e.g. waec2026"
                         value={newShortLink.code}
                         onChange={e => setNewShortLink({ ...newShortLink, code: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-r-xl px-3 py-2 text-sm text-amber-400 font-bold focus:outline-none focus:border-amber-400"
+                        className="w-full bg-slate-950 border border-slate-600 rounded-r-xl px-3.5 py-2.5 text-sm text-amber-300 font-bold placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Destination Target URL</label>
+                    <label className="block text-xs font-black text-slate-100 uppercase tracking-wider mb-1.5">Destination Target URL</label>
                     <input
                       type="text"
                       required
                       placeholder="/courses/waec-mathematics-complete-series"
                       value={newShortLink.targetUrl}
                       onChange={e => setNewShortLink({ ...newShortLink, targetUrl: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-slate-950 border border-slate-600 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Campaign Tag / Platform</label>
+                    <label className="block text-xs font-black text-slate-100 uppercase tracking-wider mb-1.5">Campaign Tag / Platform</label>
                     <select
                       value={newShortLink.campaign}
                       onChange={e => setNewShortLink({ ...newShortLink, campaign: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-slate-950 border border-slate-600 rounded-xl px-3.5 py-2.5 text-sm text-white font-medium focus:outline-none focus:border-indigo-400"
                     >
                       <option value="WhatsApp Broadcast">WhatsApp Broadcast</option>
                       <option value="Facebook Ad">Facebook Ad</option>
@@ -765,7 +885,7 @@ export default function AdminCoursesPage() {
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/20 transition-all cursor-pointer"
                   >
                     Generate Shortlink
                   </button>
@@ -830,6 +950,7 @@ export default function AdminCoursesPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   )
 }
