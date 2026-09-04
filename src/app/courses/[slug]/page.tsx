@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Navbar from '../../components/Navbar'
+import Footer from '../../components/Footer'
 import { useParams } from 'next/navigation'
 import {
   Play,
@@ -179,6 +181,8 @@ export default function CourseDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-24">
+      <Navbar />
+
       {/* Navigation Top Bar */}
       <div className="bg-slate-900/80 border-b border-slate-800 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
@@ -487,6 +491,7 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

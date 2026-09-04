@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import AdminDashboard from '@/app/components/AdminDashboard'
 import { 
   BookOpen, 
@@ -623,7 +624,7 @@ export default function MokaforPlatform() {
           <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'about' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('about')}>About Us</button>
           <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'programs' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('programs')}>Programmes</button>
           <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'tutors' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('tutors')}>Find a Tutor</button>
-          <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'courses' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('courses')}>Courses</button>
+          <Link href="/courses" className="hover:text-emerald-500 transition-colors">Courses</Link>
           <button className={`hover:text-emerald-500 transition-colors ${activeTab === 'faq' ? 'text-emerald-500 font-bold border-b-2 border-emerald-500 pb-1' : ''}`} onClick={() => setActiveTab('faq')}>FAQ</button>
         </nav>
 
@@ -675,10 +676,10 @@ export default function MokaforPlatform() {
                 <span>Find a Tutor</span>
                 <ChevronRight size={16} className={activeTab === 'tutors' ? 'opacity-100' : 'opacity-40'} />
               </button>
-              <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'courses' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('courses'); setIsMobileMenuOpen(false); }}>
-                <span>Courses</span>
-                <ChevronRight size={16} className={activeTab === 'courses' ? 'opacity-100' : 'opacity-40'} />
-              </button>
+              <Link href="/courses" onClick={() => setIsMobileMenuOpen(false)} className="py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                <span>Recorded Video Courses</span>
+                <ChevronRight size={16} className="opacity-40" />
+              </Link>
               <button className={`text-left py-3 px-4 rounded-xl text-base font-bold transition-all flex items-center justify-between ${activeTab === 'faq' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} onClick={() => { setActiveTab('faq'); setIsMobileMenuOpen(false); }}>
                 <span>FAQ</span>
                 <ChevronRight size={16} className={activeTab === 'faq' ? 'opacity-100' : 'opacity-40'} />
@@ -1334,120 +1335,26 @@ export default function MokaforPlatform() {
           </section>
         )}
 
-        {/* ==================== PAGE: COURSES ==================== */}
+        {/* ==================== PAGE: COURSES REDIRECT BANNER ==================== */}
         {activeTab === 'courses' && (
-          <section className="space-y-8 page-container">
-            <div className="text-center max-w-xl mx-auto space-y-2">
-              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Online Courses</h2>
-              <p className="text-sm text-slate-500">Self-paced digital classes featuring interactive video, quizzes, and digital certifications.</p>
-            </div>
-
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Sidebar */}
-              <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
-                <h3 className="font-extrabold text-[10px] uppercase text-slate-400">Available Courses</h3>
-                {COURSES.map(course => (
-                  <button 
-                    key={course.id}
-                    onClick={() => selectCourse(course.id)}
-                    className={`w-full text-left p-4 rounded-2xl border transition-all flex flex-col gap-1.5 ${selectedCourse.id === course.id ? 'border-emerald-500 bg-emerald-500/5' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}
-                  >
-                    <span className="font-bold text-sm">{course.title}</span>
-                    <span className="text-[10px] text-slate-500">Instructor: {course.tutor}</span>
-                  </button>
-                ))}
+          <section className="space-y-8 page-container py-12 text-center">
+            <div className="max-w-2xl mx-auto space-y-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 md:p-12 rounded-3xl border border-indigo-500/30 shadow-2xl">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 text-indigo-400 mx-auto flex items-center justify-center border border-indigo-500/30 shadow-lg">
+                <BookOpen size={32} />
               </div>
-
-              {/* Main Content */}
-              <div className="flex-grow space-y-6">
-                <div className="bg-slate-950 aspect-video rounded-3xl overflow-hidden border border-slate-800 flex items-center justify-center relative shadow-lg">
-                  <video src={currentLesson.video} controls className="w-full h-full object-cover" />
-                  <div className="absolute top-4 left-4 bg-slate-900/90 text-white text-[10px] font-bold px-3 py-1 rounded-full border border-white/10">
-                    Playing: {currentLesson.title}
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Lesson Selector */}
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl space-y-3 shadow-sm">
-                    <h3 className="font-bold text-sm">Course Syllabus</h3>
-                    <div className="space-y-2">
-                      {selectedCourse.lessons.map(lesson => (
-                        <button 
-                          key={lesson.id} 
-                          onClick={() => setCurrentLesson(lesson)}
-                          className={`w-full text-left px-4 py-3.5 rounded-xl border text-xs font-bold flex justify-between items-center transition-colors ${currentLesson.id === lesson.id ? 'border-emerald-500 bg-emerald-500/5' : 'border-slate-200 dark:border-slate-800'}`}
-                        >
-                          {lesson.title}
-                          <Clock size={14} className="text-slate-400" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Quiz */}
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl space-y-4 shadow-sm">
-                    <h3 className="font-bold text-sm flex items-center gap-2"><Award size={18} className="text-emerald-500" /> Quiz & Certification</h3>
-                    
-                    {!quizSubmitted ? (
-                      <div className="space-y-4">
-                        <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{selectedCourse.quiz.question}</p>
-                        <div className="space-y-2">
-                          {selectedCourse.quiz.options.map(opt => (
-                            <label key={opt} className="flex items-center gap-2 text-xs font-semibold cursor-pointer bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 transition-colors">
-                              <input 
-                                type="radio" 
-                                name="quiz-options" 
-                                value={opt} 
-                                checked={quizAnswer === opt}
-                                onChange={(e) => setQuizAnswer(e.target.value)}
-                                className="custom-radio"
-                              />
-                              {opt}
-                            </label>
-                          ))}
-                        </div>
-                        <button onClick={handleQuizSubmit} className="btn btn-primary btn-sm w-full py-3">Submit Quiz</button>
-                      </div>
-                    ) : (
-                      <div className="space-y-4 text-center py-4">
-                        {quizPassed ? (
-                          <div className="space-y-4">
-                            <CheckCircle size={44} className="mx-auto text-emerald-500" />
-                            <div>
-                              <h4 className="font-bold text-sm">Perfect Score! Passed</h4>
-                              <p className="text-[10px] text-slate-500">Your digital certificate is generated successfully.</p>
-                            </div>
-                            <button 
-                              onClick={() => {
-                                const certContent = `Mokafor Certificate of Completion\n\nRecipient: Student\nCourse: ${selectedCourse.title}\nIssuer: Mokafor Global Education`
-                                const blob = new Blob([certContent], { type: 'text/plain' })
-                                const url = URL.createObjectURL(blob)
-                                const a = document.createElement('a')
-                                a.href = url
-                                a.download = `certificate_${selectedCourse.id}.txt`
-                                a.click()
-                              }}
-                              className="btn btn-accent btn-sm w-full py-3"
-                            >
-                              Download Certificate
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            <Award size={44} className="mx-auto text-rose-500" />
-                            <div>
-                              <h4 className="font-bold text-sm">Incorrect Answers</h4>
-                              <p className="text-[10px] text-slate-500">Correct Answer: {selectedCourse.quiz.answer}</p>
-                            </div>
-                            <button onClick={() => { setQuizSubmitted(false); setQuizAnswer('') }} className="btn btn-outline btn-sm w-full py-3">Try Again</button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black text-white">Recorded Video Course Storefront</h2>
+                <p className="text-slate-300 text-sm max-w-lg mx-auto">
+                  Browse our complete e-commerce catalog of recorded video courses, free teaser preview snippets, WAEC/IGCSE/JAMB series, and lifetime instant access.
+                </p>
               </div>
+              <Link 
+                href="/courses" 
+                className="btn btn-accent px-8 py-4 font-black text-sm rounded-xl inline-flex items-center gap-2 shadow-xl"
+              >
+                <span>Browse All Video Courses</span>
+                <ChevronRight size={18} />
+              </Link>
             </div>
           </section>
         )}
@@ -2043,7 +1950,7 @@ export default function MokaforPlatform() {
               <li><button onClick={() => setActiveTab('about')} className="hover:text-emerald-500">About Us</button></li>
               <li><button onClick={() => setActiveTab('programs')} className="hover:text-emerald-500">Our Programmes</button></li>
               <li><button onClick={() => setActiveTab('tutors')} className="hover:text-emerald-500">Find a Tutor</button></li>
-              <li><button onClick={() => setActiveTab('courses')} className="hover:text-emerald-500">Self-Paced Courses</button></li>
+              <li><Link href="/courses" className="hover:text-emerald-500 font-bold text-emerald-400">Self-Paced Recorded Courses</Link></li>
             </ul>
           </div>
 

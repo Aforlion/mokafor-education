@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import {
   Play,
   Lock,
@@ -260,6 +262,8 @@ export default function CoursesPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-20">
+      <Navbar />
+
       {/* Top Banner Header */}
       <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 border-b border-indigo-800/50 py-16 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
@@ -576,6 +580,8 @@ export default function CoursesPage() {
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   )
 }
