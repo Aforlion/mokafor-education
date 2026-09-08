@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Sparkles, Video, Lock, AlertCircle, RefreshCw } from 'lucide-react'
+import { Sparkles, Video, Lock, AlertCircle, RefreshCw, Clock } from 'lucide-react'
 
 interface UniversalVideoPlayerProps {
   videoUrl: string
@@ -25,11 +25,39 @@ export default function UniversalVideoPlayer({
   onUnlockClick
 }: UniversalVideoPlayerProps) {
   const [previewEnded, setPreviewEnded] = useState(false)
+  const [timerSeconds, setTimerSeconds] = useState(50)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  // Use dedicated snippet URL if available; otherwise use main videoUrl with 50s cutoff
-  const activeVideoSource = isSnippet && snippetUrl ? snippetUrl : videoUrl
-  const isCapped50s = isSnippet && !snippetUrl
+  // A video is capped at 50s if in snippet preview mode AND (no snippetUrl provided OR snippetUrl is identical to full videoUrl)
+  const isCapped50s = Boolean(
+    isSnippet && (!snippetUrl || snippetUrl.trim() === '' || snippetUrl === videoUrl)
+  )
+
+  const activeVideoSource = isSnippet && snippetUrl && snippetUrl !== videoUrl ? snippetUrl : videoUrl
+
+  // Reset timer when active video or isSnippet changes
+  useEffect(() => {
+    setPreviewEnded(false)
+    setTimerSeconds(50)
+  }, [videoUrl, snippetUrl, isSnippet])
+
+  // Run 50-second countdown timer when in capped snippet mode
+  useEffect(() => {
+    if (!isCapped50s || previewEnded) return
+
+    const interval = setInterval(() => {
+      setTimerSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          setPreviewEnded(true)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isCapped50s, previewEnded, videoUrl])
 
   if (!videoUrl && !snippetUrl) {
     return (
@@ -41,7 +69,7 @@ export default function UniversalVideoPlayer({
     )
   }
 
-  // Parse YouTube URLs to embed URL with end=50 for capped snippet mode
+  // Parse YouTube URLs to embed URL
   const getYouTubeEmbedUrl = (url: string): string | null => {
     try {
       let embed = ''
@@ -57,14 +85,16 @@ export default function UniversalVideoPlayer({
       }
 
       if (embed) {
+        const cleanBase = embed.split('?')[0]
         const params = new URLSearchParams()
         params.set('autoplay', autoPlay ? '1' : '0')
         params.set('rel', '0')
+        params.set('enablejsapi', '1')
         if (isCapped50s) {
           params.set('start', '0')
           params.set('end', '50')
         }
-        return `${embed}?${params.toString()}`
+        return `${cleanBase}?${params.toString()}`
       }
     } catch (e) {
       console.error('Error parsing YouTube URL:', e)
@@ -87,6 +117,7 @@ export default function UniversalVideoPlayer({
   }
 
   const handleReplayPreview = () => {
+    setTimerSeconds(50)
     setPreviewEnded(false)
     if (videoRef.current) {
       videoRef.current.currentTime = 0
@@ -108,6 +139,15 @@ export default function UniversalVideoPlayer({
           </span>
         )}
       </div>
+
+      {/* Top Right Live Countdown Badge for 50s Teaser */}
+      {isCapped50s && !previewEnded && (
+        <div className="absolute top-3 right-3 z-20">
+          <span className="bg-slate-900/90 border border-amber-500/50 text-amber-400 text-xs font-mono font-bold px-3 py-1 rounded-lg shadow-lg backdrop-blur-md flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 animate-spin" /> {timerSeconds}s Cutoff
+          </span>
+        </div>
+      )}
 
       {/* Video Content Container */}
       <div className="aspect-video bg-black relative flex items-center justify-center overflow-hidden">
