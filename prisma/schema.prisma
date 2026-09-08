@@ -261,6 +261,7 @@ model Course {
   discountPercent Int?               @default(0) // Discount rate in percentage set by Admin (e.g. 15, 20, 30)
   isPublished     Boolean            @default(true)
   featured        Boolean            @default(false)
+  order           Int                @default(0)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 

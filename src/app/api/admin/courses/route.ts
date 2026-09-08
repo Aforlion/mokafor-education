@@ -19,7 +19,7 @@ export async function GET() {
           select: { enrollments: true }
         }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }]
     })
 
     return NextResponse.json({ success: true, courses })
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
 
     // 3. Action: update_course
     if (action === 'update_course') {
-      const { courseId, title, subtitle, description, category, level, price, discountPrice, discountPercent, thumbnailUrl, isPublished, featured } = body
+      const { courseId, title, subtitle, description, category, level, price, discountPrice, discountPercent, thumbnailUrl, isPublished, featured, order } = body
       if (!courseId) {
         return NextResponse.json({ success: false, error: 'Course ID required' }, { status: 400 })
       }
@@ -152,13 +152,39 @@ export async function POST(request: Request) {
           discountPercent: discountPercent !== undefined ? Number(discountPercent) : undefined,
           thumbnailUrl: thumbnailUrl !== undefined ? thumbnailUrl : undefined,
           isPublished: isPublished !== undefined ? Boolean(isPublished) : undefined,
-          featured: featured !== undefined ? Boolean(featured) : undefined
+          featured: featured !== undefined ? Boolean(featured) : undefined,
+          order: order !== undefined ? Number(order) : undefined
         }
       })
       return NextResponse.json({ success: true, course: updated })
     }
 
-    // 3b. Action: delete_course
+    // 3b. Action: reorder_courses
+    if (action === 'reorder_courses') {
+      const { courseId, direction } = body
+      if (!courseId || !direction) {
+        return NextResponse.json({ success: false, error: 'Course ID and direction required' }, { status: 400 })
+      }
+      const allCourses = await db.course.findMany({
+        orderBy: [{ order: 'asc' }, { createdAt: 'desc' }]
+      })
+      const index = allCourses.findIndex((c: any) => c.id === courseId)
+      if (index === -1) {
+        return NextResponse.json({ success: false, error: 'Course not found' }, { status: 404 })
+      }
+      const targetIndex = direction === 'up' ? index - 1 : index + 1
+      if (targetIndex >= 0 && targetIndex < allCourses.length) {
+        const currentCourse = allCourses[index]
+        const targetCourse = allCourses[targetIndex]
+        await db.$transaction([
+          db.course.update({ where: { id: currentCourse.id }, data: { order: targetIndex } }),
+          db.course.update({ where: { id: targetCourse.id }, data: { order: index } })
+        ])
+      }
+      return NextResponse.json({ success: true, message: 'Courses reordered successfully' })
+    }
+
+    // 3c. Action: delete_course
     if (action === 'delete_course') {
       const { courseId } = body
       if (!courseId) {

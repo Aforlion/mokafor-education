@@ -40,7 +40,7 @@ export async function GET(request: Request) {
           select: { enrollments: true }
         }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }]
     })
 
     // Compute dynamic base price (sum of lessons) and discounted package price

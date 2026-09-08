@@ -24,6 +24,10 @@ import {
   AlertCircle,
   Lock,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  Upload,
+  Image as ImageIcon,
   X,
   Save,
   Trash2
@@ -59,6 +63,7 @@ interface CourseItem {
   price: number
   discountPrice?: number | null
   discountPercent?: number | null
+  order?: number
   isPublished: boolean
   featured: boolean
   modules: ModuleItem[]
@@ -130,6 +135,56 @@ export default function AdminCoursesPage() {
   const [loginPassword, setLoginPassword] = useState<string>('')
   const [loginError, setLoginError] = useState<string | null>(null)
   const [authenticating, setAuthenticating] = useState<boolean>(false)
+
+  // Uploading state
+  const [uploadingImage, setUploadingImage] = useState<boolean>(false)
+
+  const handleImageUpload = async (file: File, isEditMode: boolean = false) => {
+    try {
+      setUploadingImage(true)
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await res.json()
+
+      if (data.success && data.url) {
+        if (isEditMode && editingCourse) {
+          setEditingCourse(prev => prev ? { ...prev, thumbnailUrl: data.url } : null)
+        } else {
+          setNewCourse(prev => ({ ...prev, thumbnailUrl: data.url }))
+        }
+      } else {
+        alert(data.error || 'Failed to upload thumbnail image')
+      }
+    } catch (err) {
+      console.error('Error uploading image:', err)
+      alert('Failed to upload image.')
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const handleReorderCourse = async (courseId: string, direction: 'up' | 'down') => {
+    try {
+      const res = await fetch('/api/admin/courses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reorder_courses', courseId, direction })
+      })
+      const data = await res.json()
+      if (data.success) {
+        fetchAdminData()
+      } else {
+        alert(data.error || 'Failed to reorder course')
+      }
+    } catch (err) {
+      console.error('Error reordering course:', err)
+    }
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem('mokafor_admin_session')
@@ -707,14 +762,40 @@ export default function AdminCoursesPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Thumbnail URL</label>
-                    <input
-                      type="text"
-                      placeholder="https://images.unsplash.com/..."
-                      value={newCourse.thumbnailUrl}
-                      onChange={e => setNewCourse({ ...newCourse, thumbnailUrl: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
-                    />
+                    <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Course Thumbnail Picture</label>
+                    <div className="space-y-2">
+                      <label className="flex items-center justify-center gap-2 bg-slate-950 border border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-3 text-center cursor-pointer transition-colors group">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={e => {
+                            if (e.target.files && e.target.files[0]) {
+                              handleImageUpload(e.target.files[0], false)
+                            }
+                          }}
+                        />
+                        <Upload className="w-4 h-4 text-indigo-400" />
+                        <span className="text-xs font-bold text-slate-300 group-hover:text-indigo-400">
+                          {uploadingImage ? 'Uploading Image...' : 'Click to Upload Thumbnail Image'}
+                        </span>
+                      </label>
+
+                      {newCourse.thumbnailUrl && (
+                        <div className="relative w-full h-24 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                          <img src={newCourse.thumbnailUrl} alt="Thumbnail Preview" className="w-full h-full object-cover" />
+                          <span className="absolute bottom-1 right-1 text-[10px] bg-slate-900/80 text-emerald-400 px-2 py-0.5 rounded font-bold">Preview Ready</span>
+                        </div>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="Or paste image URL (https://...)"
+                        value={newCourse.thumbnailUrl}
+                        onChange={e => setNewCourse({ ...newCourse, thumbnailUrl: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -746,7 +827,7 @@ export default function AdminCoursesPage() {
                 </h3>
 
                 <div className="space-y-4">
-                  {courses.map(c => {
+                  {courses.map((c, index) => {
                     const totalVids = c.modules.reduce((acc: number, m: ModuleItem) => acc + m.videos.length, 0)
                     const calculatedBasePrice = c.modules.reduce((sum, m) => sum + m.videos.reduce((vSum, v) => vSum + (v.price || 0), 0), 0)
                     const discountPercent = c.discountPercent ?? 0
@@ -780,6 +861,26 @@ export default function AdminCoursesPage() {
                         </div>
 
                         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-slate-800">
+                          {/* Reorder Buttons */}
+                          <div className="flex flex-col gap-1 mr-1">
+                            <button
+                              onClick={() => handleReorderCourse(c.id, 'up')}
+                              disabled={index === 0}
+                              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-20 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                              title="Move Course Up"
+                            >
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleReorderCourse(c.id, 'down')}
+                              disabled={index === courses.length - 1}
+                              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-20 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                              title="Move Course Down"
+                            >
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
                           <div className="text-right mr-2">
                             <div className="text-lg font-black text-amber-400">
                               {formatNaira(calculatedDiscountPrice)}
@@ -1322,13 +1423,40 @@ export default function AdminCoursesPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-300 uppercase mb-1">Thumbnail URL</label>
-                <input
-                  type="text"
-                  value={editingCourse.thumbnailUrl || ''}
-                  onChange={e => setEditingCourse({ ...editingCourse, thumbnailUrl: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
-                />
+                <label className="block font-bold text-slate-300 uppercase mb-1">Course Thumbnail Picture</label>
+                <div className="space-y-2">
+                  <label className="flex items-center justify-center gap-2 bg-slate-950 border border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-3 text-center cursor-pointer transition-colors group">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={e => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleImageUpload(e.target.files[0], true)
+                        }
+                      }}
+                    />
+                    <Upload className="w-4 h-4 text-indigo-400" />
+                    <span className="text-xs font-bold text-slate-300 group-hover:text-indigo-400">
+                      {uploadingImage ? 'Uploading Image...' : 'Click to Upload New Image File'}
+                    </span>
+                  </label>
+
+                  {editingCourse.thumbnailUrl && (
+                    <div className="relative w-full h-24 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                      <img src={editingCourse.thumbnailUrl} alt="Thumbnail Preview" className="w-full h-full object-cover" />
+                      <span className="absolute bottom-1 right-1 text-[10px] bg-slate-900/80 text-emerald-400 px-2 py-0.5 rounded font-bold">Preview Ready</span>
+                    </div>
+                  )}
+
+                  <input
+                    type="text"
+                    value={editingCourse.thumbnailUrl || ''}
+                    onChange={e => setEditingCourse({ ...editingCourse, thumbnailUrl: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white"
+                    placeholder="Or paste image URL..."
+                  />
+                </div>
               </div>
 
               <div>
