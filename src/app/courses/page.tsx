@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import UniversalVideoPlayer from '../components/UniversalVideoPlayer'
 import {
   Play,
   Lock,
@@ -537,15 +538,12 @@ export default function CoursesPage() {
               </button>
             </div>
 
-            {/* Video Player */}
-            <div className="aspect-video bg-black relative">
-              <video
-                src={activeSnippet.videoUrl}
-                controls
-                autoPlay
-                className="w-full h-full object-contain"
-              ></video>
-            </div>
+            {/* Universal Video Player */}
+            <UniversalVideoPlayer
+              videoUrl={activeSnippet.videoUrl}
+              title={activeSnippet.videoTitle}
+              isSnippet={true}
+            />
 
             {/* Modal Footer CTA */}
             <div className="p-4 sm:p-6 bg-slate-900/90 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-800">

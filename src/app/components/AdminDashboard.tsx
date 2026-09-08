@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { 
   BarChart3, 
   BookOpen, 
@@ -391,7 +392,21 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
 
   return (
     <div className="space-y-8 animate-fade-in text-slate-900 dark:text-slate-100">
-      
+      {/* Top Admin Brand Navigation */}
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <Link href="/" className="flex items-center gap-3 cursor-pointer group">
+          <img src="/logo.png" alt="Mokafor Logo" className="h-9 object-contain dark:hidden group-hover:opacity-90 transition-opacity" />
+          <img src="/logo_dark.png" alt="Mokafor Logo" className="h-9 object-contain hidden dark:block group-hover:opacity-90 transition-opacity" />
+        </Link>
+        <Link
+          href="/"
+          className="text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-emerald-500 transition-colors flex items-center gap-1"
+        >
+          <span>View Public Website</span>
+          <ChevronRight size={14} />
+        </Link>
+      </div>
+
       {/* Toast Notification Banner */}
       {toastMessage && (
         <div className="fixed top-20 right-6 z-50 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-400/40 animate-bounce">

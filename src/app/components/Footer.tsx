@@ -10,9 +10,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
         {/* Brand & Mission */}
         <div className="space-y-4">
-          <div className="h-10 flex items-center">
-            <img src="/logo_dark.png" alt="Mokafor Logo" className="h-9 object-contain" />
-          </div>
+          <Link href="/" className="h-10 flex items-center inline-block">
+            <img src="/logo_dark.png" alt="Mokafor Logo" className="h-9 object-contain hover:opacity-90 transition-opacity" />
+          </Link>
           <p className="text-xs leading-relaxed max-w-xs">
             Providing exceptional academic instruction, certified curricula (WAEC, SAT, IGCSE), and modern digital learning tools globally.
           </p>
@@ -27,8 +27,8 @@ export default function Footer() {
           <ul className="space-y-2 text-xs">
             <li><Link href="/?tab=about" className="hover:text-emerald-500 transition-colors">About Us</Link></li>
             <li><Link href="/?tab=programs" className="hover:text-emerald-500 transition-colors">Our Programmes</Link></li>
-            <li><Link href="/tutors" className="hover:text-emerald-500 transition-colors">Find a Tutor</Link></li>
-            <li><Link href="/courses" className="hover:text-emerald-500 transition-colors font-bold text-emerald-400">Self-Paced Recorded Courses</Link></li>
+            <li><Link href="/tutors" className="hover:text-emerald-500 transition-colors font-semibold text-emerald-400">Find a Vetted Tutor</Link></li>
+            <li><Link href="/courses" className="hover:text-emerald-500 transition-colors font-bold text-amber-400">Recorded Video Courses</Link></li>
           </ul>
         </div>
 
@@ -36,10 +36,10 @@ export default function Footer() {
         <div>
           <h4 className="text-sm font-bold text-white mb-4">Legal & Policies</h4>
           <ul className="space-y-2 text-xs">
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Terms & Conditions</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Refund Policy</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Safeguarding & Child Protection</a></li>
+            <li><Link href="/privacy" className="hover:text-emerald-500 transition-colors">Privacy Policy & Data Protection</Link></li>
+            <li><Link href="/terms" className="hover:text-emerald-500 transition-colors">Terms of Service</Link></li>
+            <li><Link href="/terms#refunds" className="hover:text-emerald-500 transition-colors">Refund & Cancellation Policy</Link></li>
+            <li><Link href="/terms#safeguarding" className="hover:text-emerald-500 transition-colors">Safeguarding & Child Protection</Link></li>
           </ul>
         </div>
 
@@ -53,18 +53,32 @@ export default function Footer() {
             </li>
             <li className="flex items-center gap-2">
               <Phone size={14} className="text-emerald-500 shrink-0" />
-              <a 
-                href="https://wa.me/2349078013408" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-emerald-500 font-bold transition-colors"
-              >
-                WhatsApp: +234 907 801 3408
-              </a>
+              <div className="flex items-center gap-2">
+                <a 
+                  href="tel:+2349078013408" 
+                  className="hover:text-emerald-500 font-bold transition-colors"
+                >
+                  +234 907 801 3408
+                </a>
+                <span className="text-slate-600">|</span>
+                <a 
+                  href="https://wa.me/2349078013408" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors underline text-[11px]"
+                >
+                  WhatsApp
+                </a>
+              </div>
             </li>
             <li className="flex items-center gap-2">
               <Mail size={14} className="text-emerald-500 shrink-0" />
-              <span>support@mokafor.com</span>
+              <a 
+                href="mailto:support@mokafor.com" 
+                className="hover:text-emerald-500 font-semibold transition-colors"
+              >
+                support@mokafor.com
+              </a>
             </li>
             <li className="flex items-center gap-2">
               <Clock size={14} className="text-emerald-500 shrink-0" />

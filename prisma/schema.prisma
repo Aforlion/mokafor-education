@@ -298,8 +298,9 @@ model CourseVideo {
 
 model CourseEnrollment {
   id                String   @id @default(uuid())
-  courseId          String
-  course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId          String?
+  course            Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  videoId           String?  // Optional ID for individual video lesson purchases
   userId            String
   user              Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
   amountPaid        Int
