@@ -58,6 +58,7 @@ interface CourseItem {
   category: string
   price: number
   discountPrice?: number | null
+  discountPercent?: number | null
   isPublished: boolean
   featured: boolean
   modules: ModuleItem[]
@@ -89,8 +90,7 @@ export default function AdminCoursesPage() {
     thumbnailUrl: '',
     level: 'WAEC',
     category: 'Mathematics',
-    price: '20000',
-    discountPrice: '14000',
+    discountPercent: '20',
     featured: true
   })
 
@@ -220,8 +220,7 @@ export default function AdminCoursesPage() {
           thumbnailUrl: '',
           level: 'WAEC',
           category: 'Mathematics',
-          price: '20000',
-          discountPrice: '14000',
+          discountPercent: '20',
           featured: true
         })
         fetchAdminData()
@@ -249,8 +248,7 @@ export default function AdminCoursesPage() {
           description: editingCourse.description,
           category: editingCourse.category,
           level: editingCourse.level,
-          price: Number(editingCourse.price),
-          discountPrice: editingCourse.discountPrice !== null && editingCourse.discountPrice !== undefined && (editingCourse.discountPrice as any) !== '' ? Number(editingCourse.discountPrice) : null,
+          discountPercent: editingCourse.discountPercent !== null && editingCourse.discountPercent !== undefined && (editingCourse.discountPercent as any) !== '' ? Number(editingCourse.discountPercent) : 0,
           thumbnailUrl: editingCourse.thumbnailUrl,
           isPublished: editingCourse.isPublished,
           featured: editingCourse.featured
@@ -667,16 +665,15 @@ export default function AdminCoursesPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Subject</label>
-                      <select
+                      <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Subject / Program</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Mathematics, English, Exam Prep"
                         value={newCourse.category}
                         onChange={e => setNewCourse({ ...newCourse, category: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
-                      >
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Sciences">Sciences</option>
-                        <option value="Exam Mastery">Exam Mastery</option>
-                      </select>
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                      />
                     </div>
 
                     <div>
@@ -695,29 +692,18 @@ export default function AdminCoursesPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Regular Price (₦)</label>
-                      <input
-                        type="number"
-                        required
-                        placeholder="20000"
-                        value={newCourse.price}
-                        onChange={e => setNewCourse({ ...newCourse, price: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Discount Price (₦)</label>
-                      <input
-                        type="number"
-                        placeholder="14000"
-                        value={newCourse.discountPrice}
-                        onChange={e => setNewCourse({ ...newCourse, discountPrice: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-amber-400 font-bold focus:outline-none focus:border-indigo-500"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Discount Rate (%)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      placeholder="e.g. 20 for 20% discount"
+                      value={newCourse.discountPercent}
+                      onChange={e => setNewCourse({ ...newCourse, discountPercent: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-amber-400 font-bold focus:outline-none focus:border-indigo-500"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">Course price is automatically calculated as the sum of its video lessons.</p>
                   </div>
 
                   <div>
@@ -762,6 +748,9 @@ export default function AdminCoursesPage() {
                 <div className="space-y-4">
                   {courses.map(c => {
                     const totalVids = c.modules.reduce((acc: number, m: ModuleItem) => acc + m.videos.length, 0)
+                    const calculatedBasePrice = c.modules.reduce((sum, m) => sum + m.videos.reduce((vSum, v) => vSum + (v.price || 0), 0), 0)
+                    const discountPercent = c.discountPercent ?? 0
+                    const calculatedDiscountPrice = discountPercent > 0 ? Math.round(calculatedBasePrice * (1 - discountPercent / 100)) : calculatedBasePrice
 
                     return (
                       <div
@@ -793,11 +782,11 @@ export default function AdminCoursesPage() {
                         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-slate-800">
                           <div className="text-right mr-2">
                             <div className="text-lg font-black text-amber-400">
-                              {formatNaira(c.discountPrice || c.price)}
+                              {formatNaira(calculatedDiscountPrice)}
                             </div>
-                            {c.discountPrice && (
+                            {discountPercent > 0 && calculatedBasePrice > 0 && (
                               <div className="text-xs text-slate-500 line-through">
-                                {formatNaira(c.price)}
+                                {formatNaira(calculatedBasePrice)} ({discountPercent}% OFF)
                               </div>
                             )}
                           </div>
@@ -1292,16 +1281,15 @@ export default function AdminCoursesPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-300 uppercase mb-1">Subject</label>
-                  <select
+                  <label className="block font-bold text-slate-300 uppercase mb-1">Subject / Program</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Mathematics"
                     value={editingCourse.category}
                     onChange={e => setEditingCourse({ ...editingCourse, category: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
-                  >
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Sciences">Sciences</option>
-                    <option value="Exam Mastery">Exam Mastery</option>
-                  </select>
+                  />
                 </div>
 
                 <div>
@@ -1320,26 +1308,17 @@ export default function AdminCoursesPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-300 uppercase mb-1">Base Price (₦)</label>
-                  <input
-                    type="number"
-                    value={editingCourse.price}
-                    onChange={e => setEditingCourse({ ...editingCourse, price: Number(e.target.value) })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-300 uppercase mb-1">Discount Price (₦)</label>
-                  <input
-                    type="number"
-                    value={editingCourse.discountPrice || ''}
-                    onChange={e => setEditingCourse({ ...editingCourse, discountPrice: e.target.value ? Number(e.target.value) : null })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-amber-400 font-bold"
-                  />
-                </div>
+              <div>
+                <label className="block font-bold text-slate-300 uppercase mb-1">Discount Rate (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={editingCourse.discountPercent ?? 0}
+                  onChange={e => setEditingCourse({ ...editingCourse, discountPercent: Number(e.target.value) })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-amber-400 font-bold"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">Course price is calculated dynamically from video lessons.</p>
               </div>
 
               <div>

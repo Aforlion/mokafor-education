@@ -29,6 +29,7 @@ interface VideoItem {
   description?: string
   videoUrl: string
   snippetUrl?: string
+  price?: number
   durationSeconds: number
   isSnippet: boolean
 }
@@ -451,62 +452,72 @@ export default function CoursesPage() {
                     </div>
 
                     {/* Pricing & CTA Section */}
-                    <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-                      {/* Pricing Display */}
-                      <div>
-                        {course.discountPrice ? (
-                          <div>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-black text-amber-400">
-                                {formatNaira(course.discountPrice)}
-                              </span>
-                              <span className="text-sm font-semibold text-slate-500 line-through">
-                                {formatNaira(course.price)}
-                              </span>
-                            </div>
-                            <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
-                              Special Discount Price
-                            </span>
-                          </div>
-                        ) : (
-                          <div>
-                            <span className="text-2xl font-black text-white">
-                              {formatNaira(course.price)}
-                            </span>
-                            <span className="block text-[10px] text-slate-400">One-time payment</span>
-                          </div>
-                        )}
-                      </div>
+                    {(() => {
+                      const allVideos = course.modules.flatMap((m: ModuleItem) => m.videos)
+                      const sumOfLessons = allVideos.reduce((sum, v) => sum + (v.price || 2000), 0)
+                      const calculatedBasePrice = (course as any).computedBasePrice || (sumOfLessons > 0 ? sumOfLessons : (course.price > 0 ? course.price : 2000))
+                      const discountPercent = (course as any).computedDiscountPercent || (course as any).discountPercent || (course.discountPrice && course.discountPrice < calculatedBasePrice ? Math.round(((calculatedBasePrice - course.discountPrice) / calculatedBasePrice) * 100) : 0)
+                      const calculatedPackagePrice = (course as any).computedDiscountPrice || (discountPercent > 0 ? Math.round(calculatedBasePrice * (1 - discountPercent / 100)) : (course.discountPrice || calculatedBasePrice))
 
-                      {/* Action Buttons */}
-                      <div className="flex items-center gap-2">
-                        {snippetVideo && (
-                          <button
-                            onClick={() =>
-                              setActiveSnippet({
-                                videoTitle: snippetVideo.title,
-                                videoUrl: snippetVideo.snippetUrl || snippetVideo.videoUrl,
-                                courseTitle: course.title,
-                                courseSlug: course.slug,
-                                discountPrice: course.discountPrice,
-                                price: course.price
-                              })
-                            }
-                            className="p-2.5 rounded-xl bg-slate-800 text-amber-400 hover:bg-slate-700 transition-colors"
-                            title="Watch Free Sample Snippet"
-                          >
-                            <Play className="w-4 h-4 fill-current" />
-                          </button>
-                        )}
-                        <Link
-                          href={`/courses/${course.slug}`}
-                          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-1"
-                        >
-                          <span>View Course</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </Link>
-                      </div>
-                    </div>
+                      return (
+                        <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                          {/* Pricing Display */}
+                          <div>
+                            {discountPercent > 0 && calculatedPackagePrice < calculatedBasePrice ? (
+                              <div>
+                                <div className="flex items-baseline gap-2">
+                                  <span className="text-2xl font-black text-amber-400">
+                                    {formatNaira(calculatedPackagePrice)}
+                                  </span>
+                                  <span className="text-sm font-semibold text-slate-500 line-through">
+                                    {formatNaira(calculatedBasePrice)}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
+                                  SAVE {discountPercent}% PACKAGE DEAL
+                                </span>
+                              </div>
+                            ) : (
+                              <div>
+                                <span className="text-2xl font-black text-amber-400">
+                                  {formatNaira(calculatedPackagePrice)}
+                                </span>
+                                <span className="block text-[10px] text-slate-400 font-semibold">Full course bundle</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2">
+                            {snippetVideo && (
+                              <button
+                                onClick={() =>
+                                  setActiveSnippet({
+                                    videoTitle: snippetVideo.title,
+                                    videoUrl: snippetVideo.snippetUrl || snippetVideo.videoUrl,
+                                    courseTitle: course.title,
+                                    courseSlug: course.slug,
+                                    price: calculatedPackagePrice
+                                  })
+                                }
+                                className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition-colors"
+                                title="Watch Free Teaser Snippet"
+                              >
+                                <Sparkles className="w-4 h-4" />
+                              </button>
+                            )}
+
+                            <Link
+                              href={`/courses/${course.slug}`}
+                              className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-1.5"
+                            >
+                              <span>View Course</span>
+                              <ChevronRight className="w-4 h-4" />
+                            </Link>
+                          </div>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
               )

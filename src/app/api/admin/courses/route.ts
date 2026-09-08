@@ -135,7 +135,7 @@ export async function POST(request: Request) {
 
     // 3. Action: update_course
     if (action === 'update_course') {
-      const { courseId, title, subtitle, description, category, level, price, discountPrice, thumbnailUrl, isPublished, featured } = body
+      const { courseId, title, subtitle, description, category, level, price, discountPrice, discountPercent, thumbnailUrl, isPublished, featured } = body
       if (!courseId) {
         return NextResponse.json({ success: false, error: 'Course ID required' }, { status: 400 })
       }
@@ -149,6 +149,7 @@ export async function POST(request: Request) {
           level: level || undefined,
           price: price !== undefined ? Number(price) : undefined,
           discountPrice: discountPrice !== undefined ? (discountPrice !== null && discountPrice !== '' ? Number(discountPrice) : null) : undefined,
+          discountPercent: discountPercent !== undefined ? Number(discountPercent) : undefined,
           thumbnailUrl: thumbnailUrl !== undefined ? thumbnailUrl : undefined,
           isPublished: isPublished !== undefined ? Boolean(isPublished) : undefined,
           featured: featured !== undefined ? Boolean(featured) : undefined

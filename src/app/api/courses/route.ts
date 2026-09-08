@@ -43,7 +43,23 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' }
     })
 
-    return NextResponse.json({ success: true, courses })
+    // Compute dynamic base price (sum of lessons) and discounted package price
+    const enrichedCourses = courses.map((c: any) => {
+      const allVideos = c.modules.flatMap((m: any) => m.videos)
+      const sumOfLessons = allVideos.reduce((sum: number, v: any) => sum + (v.price || 2000), 0)
+      const basePrice = sumOfLessons > 0 ? sumOfLessons : (c.price > 0 ? c.price : 2000)
+      const discountPercent = c.discountPercent || (c.discountPrice && c.discountPrice < basePrice ? Math.round(((basePrice - c.discountPrice) / basePrice) * 100) : 0)
+      const computedDiscountPrice = discountPercent > 0 ? Math.round(basePrice * (1 - discountPercent / 100)) : (c.discountPrice || basePrice)
+
+      return {
+        ...c,
+        computedBasePrice: basePrice,
+        computedDiscountPrice: computedDiscountPrice,
+        computedDiscountPercent: discountPercent
+      }
+    })
+
+    return NextResponse.json({ success: true, courses: enrichedCourses })
   } catch (error: any) {
     console.error('Error fetching courses:', error)
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
@@ -54,10 +70,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { title, subtitle, description, thumbnailUrl, level, category, price, discountPrice, featured } = body
+    const { title, subtitle, description, thumbnailUrl, level, category, discountPercent, featured } = body
 
-    if (!title || !description || price === undefined) {
-      return NextResponse.json({ success: false, error: 'Title, description, and price are required' }, { status: 400 })
+    if (!title || !description) {
+      return NextResponse.json({ success: false, error: 'Title and description are required' }, { status: 400 })
     }
 
     const slug = title
@@ -73,9 +89,9 @@ export async function POST(request: Request) {
         description,
         thumbnailUrl: thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
         level: level || 'General',
-        category: category || 'Mathematics',
-        price: Number(price),
-        discountPrice: discountPrice ? Number(discountPrice) : null,
+        category: category || 'General',
+        price: 0,
+        discountPercent: discountPercent ? Number(discountPercent) : 0,
         featured: featured || false,
         isPublished: true
       }

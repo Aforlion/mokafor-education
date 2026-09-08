@@ -248,24 +248,25 @@ model Program {
 }
 
 model Course {
-  id            String             @id @default(uuid())
-  slug          String             @unique
-  title         String
-  subtitle      String?
-  description   String
-  thumbnailUrl  String?
-  level         String             @default("General") // 'Primary', 'JSCE', 'WAEC', 'IGCSE', 'JAMB', 'A-Levels'
-  category      String             @default("Mathematics") // 'Mathematics', 'Sciences', 'Exam Mastery'
-  price         Int                // Price in Naira
-  discountPrice Int?               // Discounted price in Naira
-  isPublished   Boolean            @default(true)
-  featured      Boolean            @default(false)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id              String             @id @default(uuid())
+  slug            String             @unique
+  title           String
+  subtitle        String?
+  description     String
+  thumbnailUrl    String?
+  level           String             @default("General") // 'Primary', 'JSCE', 'WAEC', 'IGCSE', 'JAMB', 'A-Levels'
+  category        String             @default("Mathematics") // Subject name e.g. Mathematics, Physics, English
+  price           Int                @default(0) // Total base price in Naira (computed from sum of lessons)
+  discountPrice   Int?               // Calculated discounted price in Naira
+  discountPercent Int?               @default(0) // Discount rate in percentage set by Admin (e.g. 15, 20, 30)
+  isPublished     Boolean            @default(true)
+  featured        Boolean            @default(false)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
-  modules       CourseModule[]
-  enrollments   CourseEnrollment[]
-  shortLinks    ShortLink[]
+  modules         CourseModule[]
+  enrollments     CourseEnrollment[]
+  shortLinks      ShortLink[]
 }
 
 model CourseModule {
