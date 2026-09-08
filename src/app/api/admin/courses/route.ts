@@ -52,6 +52,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, module: moduleItem })
     }
 
+    // 1b. Action: update_module
+    if (action === 'update_module') {
+      const { moduleId, title, description, order } = body
+      if (!moduleId) {
+        return NextResponse.json({ success: false, error: 'Module ID is required' }, { status: 400 })
+      }
+      const updatedModule = await db.courseModule.update({
+        where: { id: moduleId },
+        data: {
+          title: title || undefined,
+          description: description !== undefined ? description : undefined,
+          order: order !== undefined ? Number(order) : undefined
+        }
+      })
+      return NextResponse.json({ success: true, module: updatedModule })
+    }
+
+    // 1c. Action: delete_module
+    if (action === 'delete_module') {
+      const { moduleId } = body
+      if (!moduleId) {
+        return NextResponse.json({ success: false, error: 'Module ID is required' }, { status: 400 })
+      }
+      await db.courseModule.delete({ where: { id: moduleId } })
+      return NextResponse.json({ success: true, message: 'Module deleted successfully' })
+    }
+
     // 2. Action: create_video
     if (action === 'create_video') {
       const { moduleId, title, description, videoUrl, snippetUrl, price, durationSeconds, isSnippet, order } = body
@@ -76,7 +103,7 @@ export async function POST(request: Request) {
 
     // 2b. Action: update_video
     if (action === 'update_video') {
-      const { videoId, title, price, isSnippet } = body
+      const { videoId, title, description, videoUrl, snippetUrl, price, durationSeconds, isSnippet, order } = body
       if (!videoId) {
         return NextResponse.json({ success: false, error: 'Video ID is required' }, { status: 400 })
       }
@@ -84,29 +111,60 @@ export async function POST(request: Request) {
         where: { id: videoId },
         data: {
           title: title || undefined,
+          description: description !== undefined ? description : undefined,
+          videoUrl: videoUrl || undefined,
+          snippetUrl: snippetUrl !== undefined ? (snippetUrl || null) : undefined,
           price: price !== undefined ? Number(price) : undefined,
-          isSnippet: isSnippet !== undefined ? Boolean(isSnippet) : undefined
+          durationSeconds: durationSeconds !== undefined ? Number(durationSeconds) : undefined,
+          isSnippet: isSnippet !== undefined ? Boolean(isSnippet) : undefined,
+          order: order !== undefined ? Number(order) : undefined
         }
       })
       return NextResponse.json({ success: true, video: updatedVideo })
     }
 
-    // 3. Action: update_course_pricing
-    if (action === 'update_course_pricing') {
-      const { courseId, price, discountPrice, isPublished, featured } = body
-      if (!courseId || price === undefined) {
-        return NextResponse.json({ success: false, error: 'Course ID and price required' }, { status: 400 })
+    // 2c. Action: delete_video
+    if (action === 'delete_video') {
+      const { videoId } = body
+      if (!videoId) {
+        return NextResponse.json({ success: false, error: 'Video ID is required' }, { status: 400 })
+      }
+      await db.courseVideo.delete({ where: { id: videoId } })
+      return NextResponse.json({ success: true, message: 'Video deleted successfully' })
+    }
+
+    // 3. Action: update_course
+    if (action === 'update_course') {
+      const { courseId, title, subtitle, description, category, level, price, discountPrice, thumbnailUrl, isPublished, featured } = body
+      if (!courseId) {
+        return NextResponse.json({ success: false, error: 'Course ID required' }, { status: 400 })
       }
       const updated = await db.course.update({
         where: { id: courseId },
         data: {
-          price: Number(price),
-          discountPrice: discountPrice !== null && discountPrice !== '' ? Number(discountPrice) : null,
-          isPublished: isPublished !== undefined ? Boolean(isPublished) : true,
-          featured: featured !== undefined ? Boolean(featured) : false
+          title: title || undefined,
+          subtitle: subtitle !== undefined ? subtitle : undefined,
+          description: description || undefined,
+          category: category || undefined,
+          level: level || undefined,
+          price: price !== undefined ? Number(price) : undefined,
+          discountPrice: discountPrice !== undefined ? (discountPrice !== null && discountPrice !== '' ? Number(discountPrice) : null) : undefined,
+          thumbnailUrl: thumbnailUrl !== undefined ? thumbnailUrl : undefined,
+          isPublished: isPublished !== undefined ? Boolean(isPublished) : undefined,
+          featured: featured !== undefined ? Boolean(featured) : undefined
         }
       })
       return NextResponse.json({ success: true, course: updated })
+    }
+
+    // 3b. Action: delete_course
+    if (action === 'delete_course') {
+      const { courseId } = body
+      if (!courseId) {
+        return NextResponse.json({ success: false, error: 'Course ID required' }, { status: 400 })
+      }
+      await db.course.delete({ where: { id: courseId } })
+      return NextResponse.json({ success: true, message: 'Course deleted successfully' })
     }
 
     return NextResponse.json({ success: false, error: 'Invalid admin action' }, { status: 400 })
