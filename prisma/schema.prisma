@@ -289,6 +289,7 @@ model CourseVideo {
   description     String?
   videoUrl        String       // Full video stream/embed URL
   snippetUrl      String?      // Teaser / preview snippet video URL
+  price           Int          @default(2000) // Price in Naira for this individual video lesson
   durationSeconds Int          @default(0)
   isSnippet       Boolean      @default(false) // True if snippet video or free teaser available
   order           Int          @default(0)

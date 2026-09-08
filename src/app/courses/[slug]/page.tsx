@@ -32,6 +32,7 @@ interface VideoItem {
   description?: string
   videoUrl: string
   snippetUrl?: string
+  price?: number
   durationSeconds: number
   isSnippet: boolean
 }
@@ -67,6 +68,7 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<CourseDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null)
+  const [isTeaserPreview, setIsTeaserPreview] = useState(false)
   const [openModules, setOpenModules] = useState<{ [key: string]: boolean }>({})
   const [enrolledFullCourse, setEnrolledFullCourse] = useState(false)
   const [unlockedVideoIds, setUnlockedVideoIds] = useState<string[]>([])
@@ -95,14 +97,12 @@ export default function CourseDetailPage() {
           // Open first module
           setOpenModules({ [data.course.modules[0].id]: true })
           
-          // Auto set active video to first snippet
-          const firstSnippet = data.course.modules
-            .flatMap((m: ModuleItem) => m.videos)
-            .find((v: VideoItem) => v.isSnippet || v.snippetUrl)
-          if (firstSnippet) {
-            setActiveVideo(firstSnippet)
-          } else if (data.course.modules[0].videos.length > 0) {
-            setActiveVideo(data.course.modules[0].videos[0])
+          // Auto set active video to first video in course
+          const allVideos = data.course.modules.flatMap((m: ModuleItem) => m.videos)
+          if (allVideos.length > 0) {
+            setActiveVideo(allVideos[0])
+            // Do NOT autoplay or enter teaser mode by default
+            setIsTeaserPreview(false)
           }
         }
       }
@@ -166,10 +166,22 @@ export default function CourseDetailPage() {
     )
   }
 
-  const totalVideos = course.modules.reduce((acc: number, m: ModuleItem) => acc + m.videos.length, 0)
-  const discountPercent = course.discountPrice && course.discountPrice < course.price
-    ? Math.round(((course.price - course.discountPrice) / course.price) * 100)
+  const allVideos = course.modules.flatMap((m: ModuleItem) => m.videos)
+  const totalVideos = allVideos.length
+  
+  // Calculate total course undiscounted value as sum of all video lesson prices
+  const sumOfLessonPrices = allVideos.reduce((acc, v) => acc + (v.price || 2000), 0)
+  const calculatedBasePrice = sumOfLessonPrices > 0 ? sumOfLessonPrices : course.price
+  const bundleDiscountPrice = course.discountPrice && course.discountPrice < calculatedBasePrice ? course.discountPrice : calculatedBasePrice
+
+  const discountPercent = course.discountPrice && course.discountPrice < calculatedBasePrice
+    ? Math.round(((calculatedBasePrice - course.discountPrice) / calculatedBasePrice) * 100)
     : null
+
+  const firstLockedLesson = allVideos.find(v => !enrolledFullCourse && !unlockedVideoIds.includes(v.id)) || allVideos[0]
+  const minLessonPrice = allVideos.length > 0
+    ? Math.min(...allVideos.map(v => v.price || 2000))
+    : 2000
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-24">
@@ -245,44 +257,64 @@ export default function CourseDetailPage() {
             </div>
           </div>
 
-          {/* Right Pricing Card (Dual-Tier Pricing) */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+          {/* Right Pricing Card */}
+          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
             <div>
-              <span className="text-xs uppercase font-bold tracking-wider text-amber-400 block mb-1">Dual Monetization Options</span>
-              <h3 className="text-lg font-bold text-white">Unlock Single Lessons or Full Bundle</h3>
+              <h3 className="text-lg font-bold text-white">Choose How You Want to Pay</h3>
             </div>
 
-            {/* Pricing Tiers Comparison */}
+            {/* Pricing Tiers Comparison Cards */}
             <div className="space-y-3">
-              <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+              {/* Option A: Single Lesson */}
+              <div
+                onClick={() => {
+                  if (firstLockedLesson) {
+                    setCheckoutVideoTarget(firstLockedLesson)
+                    setIsCheckoutOpen(true)
+                  }
+                }}
+                className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all flex items-center justify-between group"
+              >
                 <div>
-                  <span className="text-xs font-bold text-slate-300 block">Single Lesson Unlock</span>
-                  <span className="text-[11px] text-slate-400">Pay only for the topic you need</span>
+                  <span className="text-xs font-bold text-slate-200 block group-hover:text-amber-400 transition-colors">
+                    Single Lesson Purchase
+                  </span>
+                  <span className="text-[11px] text-slate-400">Pay per video topic as you learn</span>
                 </div>
-                <span className="text-base font-black text-amber-400">₦2,000</span>
+                <div className="text-right">
+                  <span className="text-base font-black text-amber-400">{formatNaira(minLessonPrice)}</span>
+                  <span className="block text-[10px] text-slate-500">per lesson</span>
+                </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-gradient-to-r from-indigo-950 to-purple-950 border border-indigo-500/50 flex items-center justify-between">
+              {/* Option B: Full Course Bundle */}
+              <div
+                onClick={() => {
+                  setCheckoutVideoTarget(null)
+                  setIsCheckoutOpen(true)
+                }}
+                className="p-4 rounded-xl bg-gradient-to-r from-indigo-950 to-purple-950 border border-indigo-500/50 hover:border-indigo-400 cursor-pointer transition-all flex items-center justify-between group"
+              >
                 <div>
-                  <span className="text-xs font-bold text-white block flex items-center gap-1">
+                  <span className="text-xs font-bold text-white block flex items-center gap-1 group-hover:text-emerald-300 transition-colors">
                     <Zap className="w-3.5 h-3.5 text-emerald-400" /> Full Course Package
                   </span>
                   <span className="text-[11px] text-emerald-300 font-semibold">Unlocks ALL {totalVideos} Video Lessons</span>
                 </div>
                 <div className="text-right">
                   <span className="text-xl font-black text-emerald-400">
-                    {formatNaira(course.discountPrice || course.price)}
+                    {formatNaira(bundleDiscountPrice)}
                   </span>
                   {discountPercent && (
                     <span className="block text-[10px] text-slate-500 line-through">
-                      {formatNaira(course.price)}
+                      {formatNaira(calculatedBasePrice)}
                     </span>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Primary Action Button */}
+            {/* Dual CTA Buttons */}
             {enrolledFullCourse ? (
               <div className="bg-emerald-950/60 border border-emerald-700/60 rounded-xl p-4 text-center">
                 <CheckCircle className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
@@ -290,16 +322,33 @@ export default function CourseDetailPage() {
                 <p className="text-xs text-emerald-300 mt-1">All {totalVideos} video lessons are available below.</p>
               </div>
             ) : (
-              <button
-                onClick={() => {
-                  setCheckoutVideoTarget(null)
-                  setIsCheckoutOpen(true)
-                }}
-                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-base transition-all shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <CreditCard className="w-5 h-5" />
-                <span>Unlock Full Course ({formatNaira(course.discountPrice || course.price)})</span>
-              </button>
+              <div className="space-y-2.5 pt-1">
+                {/* Button 1: Buy Single Lesson */}
+                <button
+                  onClick={() => {
+                    if (firstLockedLesson) {
+                      setCheckoutVideoTarget(firstLockedLesson)
+                      setIsCheckoutOpen(true)
+                    }
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/40 font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Unlock className="w-4 h-4" />
+                  <span>Unlock Single Lesson ({formatNaira(minLessonPrice)})</span>
+                </button>
+
+                {/* Button 2: Buy Full Course Bundle */}
+                <button
+                  onClick={() => {
+                    setCheckoutVideoTarget(null)
+                    setIsCheckoutOpen(true)
+                  }}
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm transition-all shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Unlock Full Course Bundle ({formatNaira(bundleDiscountPrice)})</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -312,16 +361,23 @@ export default function CourseDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {activeVideo ? (
               <UniversalVideoPlayer
-                videoUrl={activeVideo.videoUrl || activeVideo.snippetUrl || ''}
+                videoUrl={activeVideo.videoUrl}
+                snippetUrl={activeVideo.snippetUrl}
                 title={activeVideo.title}
-                isSnippet={activeVideo.isSnippet}
+                isSnippet={isTeaserPreview || activeVideo.isSnippet}
+                autoPlay={false}
+                lessonPrice={activeVideo.price || 2000}
+                onUnlockClick={() => {
+                  setCheckoutVideoTarget(activeVideo)
+                  setIsCheckoutOpen(true)
+                }}
               />
             ) : (
               <div className="bg-slate-900 border border-slate-800 rounded-2xl aspect-video flex flex-col items-center justify-center p-8 text-center">
                 <Play className="w-16 h-16 text-indigo-500 opacity-60 mb-4" />
                 <h3 className="text-xl font-bold text-white">Select a Lesson Video to Stream</h3>
                 <p className="text-sm text-slate-400 max-w-md mt-2">
-                  Click any free teaser snippet or lesson from the syllabus on the right to start watching.
+                  Click any 50s preview teaser or lesson from the syllabus on the right to start watching.
                 </p>
               </div>
             )}
@@ -367,19 +423,23 @@ export default function CourseDetailPage() {
                     {isOpen && (
                       <div className="divide-y divide-slate-800/60 border-t border-slate-800/60">
                         {module.videos.map((video, vIdx) => {
-                          const isUnlocked = enrolledFullCourse || video.isSnippet || unlockedVideoIds.includes(video.id)
+                          const isUnlocked = enrolledFullCourse || unlockedVideoIds.includes(video.id)
                           const isActive = activeVideo?.id === video.id
+                          const videoPrice = video.price || 2000
 
                           return (
                             <div
                               key={video.id}
-                              className={`p-3.5 flex items-center justify-between gap-3 transition-colors ${
+                              className={`p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
                                 isActive ? 'bg-indigo-600/20 border-l-4 border-indigo-500' : 'hover:bg-slate-800/40'
                               }`}
                             >
                               <div
                                 onClick={() => {
-                                  if (isUnlocked) setActiveVideo(video)
+                                  if (isUnlocked) {
+                                    setIsTeaserPreview(false)
+                                    setActiveVideo(video)
+                                  }
                                 }}
                                 className={`flex items-center gap-3 flex-1 ${isUnlocked ? 'cursor-pointer' : ''}`}
                               >
@@ -398,23 +458,46 @@ export default function CourseDetailPage() {
                                     <span>{vIdx + 1}. {video.title}</span>
                                     {video.isSnippet && (
                                       <span className="bg-amber-400/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded">
-                                        FREE PREVIEW
+                                        FREE TEASER
                                       </span>
                                     )}
                                   </div>
-                                  <span className="text-xs text-slate-500 block mt-0.5">
-                                    {Math.round(video.durationSeconds / 60)} mins
-                                  </span>
+                                  <div className="flex items-center gap-3 mt-0.5">
+                                    <span className="text-xs text-slate-500">
+                                      {Math.round(video.durationSeconds / 60)} mins
+                                    </span>
+                                    <span className="text-xs font-bold text-amber-400">
+                                      ₦{videoPrice.toLocaleString()}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
 
-                              <div>
+                              {/* Lesson Action Buttons */}
+                              <div className="flex items-center gap-2 shrink-0">
+                                {!isUnlocked && (
+                                  <button
+                                    onClick={() => {
+                                      setIsTeaserPreview(true)
+                                      setActiveVideo(video)
+                                    }}
+                                    className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center gap-1"
+                                    title="Watch 50-second teaser snippet"
+                                  >
+                                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                                    <span>50s Preview</span>
+                                  </button>
+                                )}
+
                                 {isUnlocked ? (
                                   <button
-                                    onClick={() => setActiveVideo(video)}
+                                    onClick={() => {
+                                      setIsTeaserPreview(false)
+                                      setActiveVideo(video)
+                                    }}
                                     className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 text-xs font-bold transition-colors"
                                   >
-                                    Watch
+                                    Watch Full
                                   </button>
                                 ) : (
                                   <button
@@ -425,7 +508,7 @@ export default function CourseDetailPage() {
                                     className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 text-xs font-bold transition-colors flex items-center gap-1"
                                   >
                                     <Unlock className="w-3 h-3" />
-                                    <span>Unlock ₦2,000</span>
+                                    <span>Unlock ₦{videoPrice.toLocaleString()}</span>
                                   </button>
                                 )}
                               </div>
@@ -450,9 +533,9 @@ export default function CourseDetailPage() {
         courseId={course.id}
         videoId={checkoutVideoTarget?.id}
         videoTitle={checkoutVideoTarget?.title}
-        lessonPrice={2000}
-        fullCoursePrice={course.price}
-        discountPrice={course.discountPrice}
+        lessonPrice={checkoutVideoTarget?.price || minLessonPrice}
+        fullCoursePrice={calculatedBasePrice}
+        discountPrice={bundleDiscountPrice}
         onSuccess={handleCheckoutSuccess}
       />
 

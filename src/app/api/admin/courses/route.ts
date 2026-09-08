@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
     // 2. Action: create_video
     if (action === 'create_video') {
-      const { moduleId, title, description, videoUrl, snippetUrl, durationSeconds, isSnippet, order } = body
+      const { moduleId, title, description, videoUrl, snippetUrl, price, durationSeconds, isSnippet, order } = body
       if (!moduleId || !title || !videoUrl) {
         return NextResponse.json({ success: false, error: 'Module ID, title, and video URL required' }, { status: 400 })
       }
@@ -64,13 +64,31 @@ export async function POST(request: Request) {
           title,
           description: description || null,
           videoUrl,
-          snippetUrl: snippetUrl || videoUrl, // Fallback to main video URL if snippet URL not provided
+          snippetUrl: snippetUrl || null,
+          price: price ? Number(price) : 2000,
           durationSeconds: durationSeconds ? Number(durationSeconds) : 0,
           isSnippet: isSnippet !== undefined ? Boolean(isSnippet) : true,
           order: order || 0
         }
       })
       return NextResponse.json({ success: true, video })
+    }
+
+    // 2b. Action: update_video
+    if (action === 'update_video') {
+      const { videoId, title, price, isSnippet } = body
+      if (!videoId) {
+        return NextResponse.json({ success: false, error: 'Video ID is required' }, { status: 400 })
+      }
+      const updatedVideo = await db.courseVideo.update({
+        where: { id: videoId },
+        data: {
+          title: title || undefined,
+          price: price !== undefined ? Number(price) : undefined,
+          isSnippet: isSnippet !== undefined ? Boolean(isSnippet) : undefined
+        }
+      })
+      return NextResponse.json({ success: true, video: updatedVideo })
     }
 
     // 3. Action: update_course_pricing

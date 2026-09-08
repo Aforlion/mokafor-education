@@ -543,6 +543,7 @@ export default function CoursesPage() {
               videoUrl={activeSnippet.videoUrl}
               title={activeSnippet.videoTitle}
               isSnippet={true}
+              autoPlay={false}
             />
 
             {/* Modal Footer CTA */}
