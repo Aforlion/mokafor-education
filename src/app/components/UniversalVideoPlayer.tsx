@@ -90,6 +90,11 @@ export default function UniversalVideoPlayer({
         params.set('autoplay', autoPlay ? '1' : '0')
         params.set('rel', '0')
         params.set('enablejsapi', '1')
+        params.set('modestbranding', '1')
+        params.set('iv_load_policy', '3')
+        if (typeof window !== 'undefined') {
+          params.set('origin', window.location.origin)
+        }
         if (isCapped50s) {
           params.set('start', '0')
           params.set('end', '50')
@@ -180,13 +185,35 @@ export default function UniversalVideoPlayer({
             </div>
           </div>
         ) : youtubeEmbedUrl ? (
-          <iframe
-            src={youtubeEmbedUrl}
-            title={title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full border-0"
-          ></iframe>
+          <div className="relative w-full h-full">
+            <iframe
+              src={youtubeEmbedUrl}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full border-0"
+            ></iframe>
+
+            {/* Bottom-right corner overlay guard: prevents clicking 'Watch on YouTube' / YouTube logo */}
+            <div 
+              className="absolute bottom-0 right-0 w-52 h-16 z-20 bg-transparent cursor-default select-none"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+              title="External playback disabled to protect course content"
+            />
+
+            {/* Top-bar overlay guard: prevents clicking video title / channel avatar / share link */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-14 z-20 bg-transparent cursor-default select-none"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+              title="External playback disabled to protect course content"
+            />
+          </div>
         ) : (
           <video
             ref={videoRef}
