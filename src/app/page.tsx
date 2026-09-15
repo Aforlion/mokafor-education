@@ -551,6 +551,20 @@ export default function MokaforPlatform() {
   }
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const tabParam = params.get('tab')
+      const consultationParam = params.get('consultation')
+      if (tabParam) {
+        setActiveTab(tabParam)
+      }
+      if (consultationParam === 'open') {
+        setShowConsultationModal(true)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     if (theme === 'dark') {
       document.documentElement.classList.add('dark')
@@ -790,7 +804,7 @@ export default function MokaforPlatform() {
                   <p className="text-xs text-slate-600 dark:text-slate-450 leading-relaxed">
                     Book a free dynamic placement assessment to map your child's learning strengths, curricular speed, and specific subject target goals.
                   </p>
-                  <button onClick={() => setActiveTab('assessment')} className="text-xs font-bold text-emerald-500 hover:underline flex items-center gap-1">
+                  <button onClick={() => openConsultationModal('Academic Placement Assessment')} className="text-xs font-bold text-emerald-500 hover:underline flex items-center gap-1">
                     Book assessment now <ChevronRight size={14} />
                   </button>
                 </div>
@@ -1026,7 +1040,7 @@ export default function MokaforPlatform() {
                     Helping Every Child Reach Their Full Academic Potential
                   </p>
                 </div>
-                <button onClick={() => setActiveTab('assessment')} className="btn btn-accent font-bold text-xs shadow-lg">
+                <button onClick={() => openConsultationModal('Mokafor Global Improvement Programme (MGIP)')} className="btn btn-accent font-bold text-xs shadow-lg">
                   Book Placement Consultation <ArrowRight size={14} />
                 </button>
               </div>
