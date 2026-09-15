@@ -136,30 +136,35 @@ export async function sendAdminConsultationAlertEmail(data: {
   time: string
   bookingRef: string
 }) {
+  const adminRecipient = process.env.ADMIN_EMAIL || ADMIN_EMAIL
+
   const html = getEmailTemplateWrapper(
     'New Placement Consultation Request',
     `
       <span class="badge" style="background:#6366f1;">New Lead Alert</span>
-      <h2 class="heading">New Placement Consultation Submitted</h2>
-      <p>A new consultation request has been placed on the website and recorded in the Executive Admin Portal.</p>
+      <h2 class="heading">🚨 New Placement Consultation Submitted</h2>
+      <p>A new consultation request has been submitted on the website and recorded in the Executive Admin Portal.</p>
       
       <div class="card">
-        <p><strong>Booking Ref:</strong> ${data.bookingRef}</p>
+        <p><strong>Booking Ref:</strong> <span style="color:#6366f1; font-family:monospace; font-weight:bold;">${data.bookingRef}</span></p>
         <p><strong>Parent Name:</strong> ${data.parentName}</p>
-        <p><strong>Parent Email:</strong> ${data.parentEmail}</p>
-        <p><strong>Phone Number:</strong> ${data.parentPhone}</p>
+        <p><strong>Parent Email:</strong> <a href="mailto:${data.parentEmail}">${data.parentEmail}</a></p>
+        <p><strong>Phone Number:</strong> <a href="tel:${data.parentPhone}" style="color:#10b981; font-weight:bold; font-size:15px;">${data.parentPhone}</a></p>
         <p><strong>Student Name:</strong> ${data.studentName} (${data.grade})</p>
         <p><strong>Target Track:</strong> ${data.curriculum}</p>
-        <p><strong>Requested Time:</strong> ${data.date} at ${data.time}</p>
+        <p><strong>Requested Date & Time:</strong> ${data.date} at ${data.time}</p>
       </div>
 
-      <a href="https://www.mokafor.com/admin" class="button">Open Admin Control Center</a>
+      <div style="margin: 20px 0;">
+        <a href="tel:${data.parentPhone}" class="button" style="background:#10b981; display:inline-block; margin-right:10px;">📞 Call Parent Now (${data.parentPhone})</a>
+        <a href="https://www.mokafor.com/admin" class="button" style="background:#4f46e5; display:inline-block;">Open Admin Control Center</a>
+      </div>
     `
   )
 
   return safeSendEmail({
-    to: ADMIN_EMAIL,
-    subject: `🚨 New Consultation: ${data.parentName} - ${data.studentName}`,
+    to: adminRecipient,
+    subject: `🚨 New Consultation Lead: ${data.parentName} (${data.parentPhone})`,
     html
   })
 }
