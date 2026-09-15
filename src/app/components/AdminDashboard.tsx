@@ -28,7 +28,8 @@ import {
   UserCheck,
   CreditCard,
   Layers,
-  AlertCircle
+  AlertCircle,
+  Phone
 } from 'lucide-react'
 
 interface AdminStats {
@@ -897,6 +898,12 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                       <td className="py-4">
                         <p className="font-bold text-white">{b.parentName}</p>
                         <p className="text-[10px] text-slate-400">{b.parentEmail}</p>
+                        {b.parentPhone && b.parentPhone !== 'N/A' && (
+                          <a href={`tel:${b.parentPhone}`} className="text-xs font-mono font-bold text-emerald-400 hover:underline inline-flex items-center gap-1 mt-1">
+                            <Phone size={12} className="shrink-0" />
+                            <span>{b.parentPhone}</span>
+                          </a>
+                        )}
                       </td>
                       <td className="py-4">
                         <p className="font-bold text-slate-200">{b.studentName}</p>
@@ -912,6 +919,16 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                         </span>
                       </td>
                       <td className="py-4 text-right space-x-2">
+                        {b.parentPhone && b.parentPhone !== 'N/A' && (
+                          <a
+                            href={`tel:${b.parentPhone}`}
+                            className="btn bg-emerald-600 hover:bg-emerald-500 text-white btn-sm text-[11px] font-bold inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl shadow-md border-none"
+                            title={`Call ${b.parentName} at ${b.parentPhone}`}
+                          >
+                            <Phone size={12} />
+                            <span>Call Parent</span>
+                          </a>
+                        )}
                         {b.status === 'scheduled' && (
                           <button
                             onClick={() => handleUpdateAssessmentStatus(b.id, 'completed')}
@@ -919,11 +936,6 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                           >
                             Mark Completed
                           </button>
-                        )}
-                        {b.meetingLink && (
-                          <a href={b.meetingLink} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm text-[11px] font-bold inline-flex items-center gap-1">
-                            Join Call <ExternalLink size={12} />
-                          </a>
                         )}
                       </td>
                     </tr>

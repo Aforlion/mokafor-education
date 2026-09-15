@@ -109,12 +109,11 @@ export async function sendConsultationConfirmationEmail(data: {
         <p><strong>Student Name:</strong> ${data.studentName} (${data.grade})</p>
         <p><strong>Target Curriculum/Track:</strong> ${data.curriculum}</p>
         <p><strong>Scheduled Date & Time:</strong> ${data.date} at ${data.time}</p>
-        <p><strong>Consultation Link:</strong> <a href="${data.meetingLink || 'https://meet.google.com/mock-mokafor-consultation'}" style="color:#10b981;">Join Google Meet Call</a></p>
+        <p><strong>Consultation Method:</strong> Direct Phone Call (Our specialist will call you directly)</p>
       </div>
 
-      <p>Our lead educator will guide you through your child's academic roadmap, diagnostic assessment requirements, and tailored tutor matching.</p>
-      <a href="${data.meetingLink || 'https://meet.google.com/mock-mokafor-consultation'}" class="button">Join Virtual Consultation Room</a>
-      <p style="font-size:12px; color:#64748b;">If you need to adjust your scheduled time, please reply directly to this email or contact us at <a href="mailto:notifications@mokafor.com">notifications@mokafor.com</a>.</p>
+      <p>Our lead education specialist will reach out to you directly by phone at your scheduled time (<strong>${data.date} at ${data.time}</strong>) to discuss your child's academic roadmap, diagnostic assessment requirements, and tailored tutor matching.</p>
+      <p style="font-size:12px; color:#64748b;">If you need to adjust your scheduled time or update your phone number, please reply directly to this email or contact us at <a href="mailto:notifications@mokafor.com">notifications@mokafor.com</a>.</p>
     `
   )
 
