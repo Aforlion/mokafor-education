@@ -6,7 +6,7 @@ const resend = new Resend(resendApiKey)
 // Sender Email Address
 const FROM_EMAIL = 'Mokafor Global Education <notifications@mokafor.com>'
 const FALLBACK_FROM_EMAIL = 'Mokafor Global Education <onboarding@resend.dev>'
-const ADMIN_EMAIL = 'idconsultingltd@gmail.com'
+const ADMIN_EMAIL = 'notifications@mokafor.com'
 
 /**
  * Shared HTML Email Layout Wrapper
