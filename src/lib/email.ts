@@ -66,6 +66,16 @@ async function safeSendEmail(params: { to: string; subject: string; html: string
       subject: params.subject,
       html: params.html
     })
+    if (res.error) {
+      console.warn('Sending via primary domain failed with error, attempting fallback sender:', res.error)
+      const fallbackRes = await resend.emails.send({
+        from: FALLBACK_FROM_EMAIL,
+        to: params.to,
+        subject: params.subject,
+        html: params.html
+      })
+      return fallbackRes
+    }
     return res
   } catch (err: any) {
     console.warn('Sending via primary domain failed, attempting fallback sender:', err?.message)
@@ -310,3 +320,63 @@ export async function sendProgressReportEmail(data: {
     html
   })
 }
+
+// ==================== TEMPLATE 7: COURSE ACCESS & INSTRUCTIONS ====================
+export async function sendCourseAccessEmail(data: {
+  userName: string
+  userEmail: string
+  courseTitle: string
+  courseSlug: string
+  accessUrl: string
+  paystackRef?: string
+  amountPaid?: string
+}) {
+  const html = getEmailTemplateWrapper(
+    `Your Course Access: ${data.courseTitle}`,
+    `
+      <span class="badge" style="background:#10b981;">Access Unlocked</span>
+      <h2 class="heading">Welcome, ${data.userName}!</h2>
+      <p>Thank you for enrolling in <strong>${data.courseTitle}</strong>. Your payment has been confirmed, and full course access is now active.</p>
+
+      <div class="card">
+        <p><strong>Course:</strong> ${data.courseTitle}</p>
+        <p><strong>Enrolled Account:</strong> <span style="color:#10b981; font-weight:bold;">${data.userEmail}</span></p>
+        ${data.amountPaid ? `<p><strong>Amount Paid:</strong> ${data.amountPaid}</p>` : ''}
+        ${data.paystackRef ? `<p><strong>Order Reference:</strong> <span style="font-family:monospace;">${data.paystackRef}</span></p>` : ''}
+        <p><strong>Access Duration:</strong> Lifetime Access</p>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${data.accessUrl}" class="button" style="font-size: 15px; padding: 16px 36px; display: inline-block;">
+          👉 Start Learning Now (Direct Access)
+        </a>
+      </div>
+
+      <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 24px; margin-bottom: 8px;">How to Access Your Lessons:</h3>
+      <ol style="padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.7;">
+        <li style="margin-bottom: 12px;">
+          <strong>Direct 1-Click Access:</strong> Click the green button above or visit your direct link:<br/>
+          <a href="${data.accessUrl}" style="color: #10b981; word-break: break-all; font-weight: 600;">${data.accessUrl}</a><br/>
+          Your browser will automatically recognize your email (<code>${data.userEmail}</code>) and unlock every lesson and solution immediately.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong>Switching Devices (No Password Required):</strong> If you ever switch to a different computer, tablet, or phone, simply open the course page, click the <strong>"Already purchased? Restore Access"</strong> button at the top, and enter your email (<code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:12px;">${data.userEmail}</code>). All lessons will unlock on that device instantly.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong>Lifetime Access:</strong> You can rewatch lessons, review problem-solving walk-throughs, and practice at your child's pace anytime.
+        </li>
+      </ol>
+
+      <div style="background: #f8fafc; border-left: 4px solid #10b981; padding: 16px; border-radius: 8px; margin: 24px 0; font-size: 13px; color: #475569;">
+        <strong>Need Assistance?</strong> If you have any questions or need learning support, our team is right here to assist. Simply reply to this email or contact us at <a href="mailto:notifications@mokafor.com" style="color: #10b981; font-weight: 600;">notifications@mokafor.com</a>.
+      </div>
+    `
+  )
+
+  return safeSendEmail({
+    to: data.userEmail,
+    subject: `Your Course Access is Ready: ${data.courseTitle}`,
+    html
+  })
+}
+

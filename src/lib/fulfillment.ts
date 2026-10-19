@@ -219,20 +219,37 @@ export async function fulfillPaymentEntitlements(input: FulfillmentInput): Promi
 
     // 5. Send confirmation emails safely
     try {
-      const { sendEnrollmentReceiptEmail, sendAdminRevenueAlertEmail } = await import('@/lib/email')
+      const { sendEnrollmentReceiptEmail, sendAdminRevenueAlertEmail, sendCourseAccessEmail } = await import('@/lib/email')
       const formattedAmount = `₦${amountInNaira.toLocaleString()}`
       const studentNameDisplay = studentFullName || `${firstName}'s Student`
       const programDisplay = planDescription
 
-      await sendEnrollmentReceiptEmail({
-        parentName: rawParentName,
-        parentEmail: cleanEmail,
-        studentName: studentNameDisplay,
-        programTitle: programDisplay,
-        amountPaid: formattedAmount,
-        paystackRef: reference,
-        date: new Date().toLocaleDateString()
-      }).catch(err => console.warn('Enrollment receipt email notice:', err))
+      // If course or lesson purchase, send dedicated Course Access Email with magic link
+      if (targetCourseId || metadata.courseSlug) {
+        const courseSlug = metadata.courseSlug || 'common-entrance-loyola-jesuit-entrance-exam-preparation-7123'
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mokafor.com'
+        const directAccessUrl = `${baseUrl}/courses/${courseSlug}?email=${encodeURIComponent(cleanEmail)}`
+
+        await sendCourseAccessEmail({
+          userName: rawParentName,
+          userEmail: cleanEmail,
+          courseTitle: planDescription,
+          courseSlug,
+          accessUrl: directAccessUrl,
+          paystackRef: reference,
+          amountPaid: formattedAmount
+        }).catch(err => console.warn('Course access email notice:', err))
+      } else {
+        await sendEnrollmentReceiptEmail({
+          parentName: rawParentName,
+          parentEmail: cleanEmail,
+          studentName: studentNameDisplay,
+          programTitle: programDisplay,
+          amountPaid: formattedAmount,
+          paystackRef: reference,
+          date: new Date().toLocaleDateString()
+        }).catch(err => console.warn('Enrollment receipt email notice:', err))
+      }
 
       await sendAdminRevenueAlertEmail({
         parentName: rawParentName,
