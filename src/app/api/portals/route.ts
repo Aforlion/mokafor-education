@@ -59,16 +59,43 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const role = searchParams.get('role') || 'student'
+    let email = searchParams.get('email')
+
+    if (!email) {
+      const cookieHeader = request.headers.get('cookie') || ''
+      const match = cookieHeader.match(/mokafor_user_email=([^;]+)/)
+      if (match && match[1]) {
+        email = decodeURIComponent(match[1])
+      }
+    }
+
+    const cleanEmail = email ? email.toLowerCase().trim() : null
 
     if (role === 'student') {
       try {
-        const student = await db.student.findFirst({
-          include: {
-            bookings: { include: { tutor: { include: { profile: true } } } },
-            progressReports: true,
-            submissions: true
-          }
-        })
+        let student = null
+        if (cleanEmail) {
+          student = await db.student.findFirst({
+            where: {
+              parent: { email: cleanEmail }
+            },
+            include: {
+              bookings: { include: { tutor: { include: { profile: true } } } },
+              progressReports: true,
+              submissions: true
+            }
+          })
+        }
+
+        if (!student) {
+          student = await db.student.findFirst({
+            include: {
+              bookings: { include: { tutor: { include: { profile: true } } } },
+              progressReports: true,
+              submissions: true
+            }
+          })
+        }
         const assignment = await db.assignment.findFirst({ orderBy: { createdAt: 'desc' } })
 
         if (student) {
@@ -102,10 +129,21 @@ export async function GET(request: Request) {
 
     if (role === 'parent') {
       try {
-        const parent = await db.profile.findFirst({
-          where: { role: 'parent' },
-          include: { students: true, transactions: true }
-        })
+        let parent = null
+        if (cleanEmail) {
+          parent = await db.profile.findFirst({
+            where: { email: cleanEmail },
+            include: { students: true, transactions: { orderBy: { createdAt: 'desc' } } }
+          })
+        }
+
+        if (!parent) {
+          parent = await db.profile.findFirst({
+            where: { role: 'parent' },
+            include: { students: true, transactions: { orderBy: { createdAt: 'desc' } } }
+          })
+        }
+
         if (parent) {
           const student = parent.students[0]
           let progressReport = null
@@ -114,11 +152,12 @@ export async function GET(request: Request) {
           }
           return NextResponse.json({
             parentName: `${parent.firstName} ${parent.lastName}`,
-            wardName: student ? `${student.firstName} ${student.lastName}` : 'N/A',
+            parentEmail: parent.email,
+            wardName: student ? `${student.firstName} ${student.lastName}` : 'No ward registered yet',
             progress: progressReport ? {
               score: progressReport.overallScore,
               notes: progressReport.tutorNotes
-            } : { score: 85, notes: 'Exceptional aptitude. Ready for WAEC trials.' },
+            } : { score: 85, notes: 'Enrolled & Verified. Schedule active.' },
             transactions: parent.transactions.map((tx: any) => ({
               reference: tx.paystackReference,
               amount: `₦${tx.amount.toLocaleString()}`,

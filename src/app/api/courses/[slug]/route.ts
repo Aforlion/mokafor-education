@@ -10,7 +10,16 @@ export async function GET(
     const resolvedParams = await context.params
     const slug = resolvedParams.slug
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
+
+    // Parse email or userId from query params or cookie
+    let userParam = searchParams.get('email') || searchParams.get('userId')
+    if (!userParam) {
+      const cookieHeader = request.headers.get('cookie') || ''
+      const match = cookieHeader.match(/mokafor_user_email=([^;]+)/)
+      if (match && match[1]) {
+        userParam = decodeURIComponent(match[1])
+      }
+    }
 
     const courseObj = await db.course.findUnique({
       where: { slug },
@@ -36,28 +45,61 @@ export async function GET(
     const course: any = courseObj
 
     let isEnrolled = false
-    if (userId && course.id) {
-      const enrollment = await db.courseEnrollment.findFirst({
+    let unlockedVideoIds: string[] = []
+
+    if (userParam && course.id) {
+      const cleanParam = userParam.trim()
+      const profile = await db.profile.findFirst({
         where: {
-          courseId: course.id,
-          userId
+          OR: [
+            { id: cleanParam },
+            { email: cleanParam.toLowerCase() },
+            { clerkId: cleanParam }
+          ]
         }
       })
-      isEnrolled = !!enrollment
+
+      const candidateUserIds = Array.from(new Set([
+        cleanParam,
+        cleanParam.toLowerCase(),
+        ...(profile ? [profile.id, profile.email] : [])
+      ])).filter(Boolean)
+
+      // 1. Check full course bundle purchase
+      const bundleEnrollment = await db.courseEnrollment.findFirst({
+        where: {
+          courseId: course.id,
+          videoId: null,
+          userId: { in: candidateUserIds }
+        }
+      })
+
+      if (bundleEnrollment) {
+        isEnrolled = true
+      }
+
+      // 2. Check individual lesson unlocks
+      const lessonEnrollments = await db.courseEnrollment.findMany({
+        where: {
+          videoId: { not: null },
+          userId: { in: candidateUserIds }
+        },
+        select: { videoId: true }
+      })
+
+      unlockedVideoIds = lessonEnrollments.map((e: any) => e.videoId).filter(Boolean)
     }
 
-    // Process syllabus: if user is not enrolled, sanitize full video stream URLs except for free snippets
+    // Process syllabus: if user is not enrolled and lesson not unlocked, sanitize full video stream URLs except for free snippets
     const rawModules = Array.isArray(course.modules) ? course.modules : []
     const sanitizedModules = rawModules.map((moduleItem: any) => ({
       ...moduleItem,
       videos: (Array.isArray(moduleItem.videos) ? moduleItem.videos : []).map((video: any) => {
-        if (isEnrolled || video.isSnippet) {
-          return video
-        }
-        // Mask full video URL for non-enrolled users unless it's a snippet preview
+        const isVideoUnlocked = isEnrolled || unlockedVideoIds.includes(video.id) || video.isSnippet
         return {
           ...video,
-          videoUrl: '' // Full stream URL locked until enrollment
+          isUnlocked: isVideoUnlocked,
+          videoUrl: isVideoUnlocked ? video.videoUrl : '' // Full stream URL locked until enrollment
         }
       })
     }))
@@ -67,7 +109,8 @@ export async function GET(
       course: {
         ...course,
         modules: sanitizedModules,
-        isEnrolled
+        isEnrolled,
+        unlockedVideoIds
       }
     })
   } catch (error: any) {

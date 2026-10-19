@@ -441,16 +441,23 @@ export default function MokaforPlatform() {
     e.preventDefault()
     setSubmittingEnroll(true)
     try {
+      const cleanEmail = enrollForm.parentEmail.toLowerCase().trim()
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mokafor_user_email', cleanEmail)
+        localStorage.setItem('mokafor_user_name', enrollForm.parentName)
+      }
+
       const res = await fetch('/api/payments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: enrollForm.parentName,
-          email: enrollForm.parentEmail,
+          email: cleanEmail,
           amount: enrollForm.fee,
           plan: enrollForm.programTitle,
           studentName: enrollForm.studentName,
-          grade: enrollForm.grade
+          grade: enrollForm.grade,
+          type: 'subscription'
         })
       })
       const data = await res.json()
@@ -480,6 +487,7 @@ export default function MokaforPlatform() {
   const [portalRole, setPortalRole] = useState('student')
   const [homeworkStatus, setHomeworkStatus] = useState('Pending')
   const [uploadedFile, setUploadedFile] = useState<string | null>(null)
+  const [paymentBanner, setPaymentBanner] = useState<boolean>(false)
 
   // Fetch Tutors from DB
   useEffect(() => {
@@ -526,7 +534,9 @@ export default function MokaforPlatform() {
     async function loadPortalData() {
       setLoadingPortal(true)
       try {
-        const res = await fetch(`/api/portals?role=${portalRole}`)
+        const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('mokafor_user_email') : ''
+        const query = savedEmail ? `&email=${encodeURIComponent(savedEmail)}` : ''
+        const res = await fetch(`/api/portals?role=${portalRole}${query}`)
         const data = await res.json()
         if (!data.error) {
           setPortalData(data)
@@ -538,7 +548,7 @@ export default function MokaforPlatform() {
       }
     }
     loadPortalData()
-  }, [portalRole, homeworkStatus])
+  }, [portalRole, homeworkStatus, paymentBanner])
 
   // Mouse Glow Effect Coordinator
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -555,9 +565,23 @@ export default function MokaforPlatform() {
       const params = new URLSearchParams(window.location.search)
       const tabParam = params.get('tab')
       const consultationParam = params.get('consultation')
-      if (tabParam) {
+      const paymentParam = params.get('payment')
+      const emailParam = params.get('email')
+      const refParam = params.get('ref')
+
+      if (emailParam) {
+        localStorage.setItem('mokafor_user_email', emailParam.toLowerCase().trim())
+      }
+
+      if (paymentParam === 'success') {
+        setPaymentBanner(true)
+        if (refParam) setEnrollRef(refParam)
+        setActiveTab(tabParam || 'portals')
+        setTimeout(() => setPaymentBanner(false), 10000)
+      } else if (tabParam) {
         setActiveTab(tabParam)
       }
+
       if (consultationParam === 'open') {
         setShowConsultationModal(true)
       }
@@ -619,8 +643,16 @@ export default function MokaforPlatform() {
       {/* Background Mesh Gradients */}
       <div className="mesh-bg"></div>
 
+      {/* Payment Success Notification Banner */}
+      {paymentBanner && (
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 px-4 text-center font-bold text-sm shadow-xl flex items-center justify-center gap-2 sticky top-0 z-50 animate-in slide-in-from-top-4 duration-300">
+          <CheckCircle size={18} className="text-emerald-200" />
+          <span>Payment Verified Successfully! Your enrollment and portal access have been activated.</span>
+        </div>
+      )}
+
       {/* ==================== STUNNING NAVBAR ==================== */}
-      <header className="glass sticky top-0 z-50 transition-all border-b border-white/5 py-4 px-6 md:px-12 flex justify-between items-center shadow-lg">
+      <header className="glass sticky top-0 z-40 transition-all border-b border-white/5 py-4 px-6 md:px-12 flex justify-between items-center shadow-lg">
         {/* Branding (Conspicuous Logo) */}
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => { setActiveTab('home'); setIsMobileMenuOpen(false); }}>
           <div className="h-14 md:h-20 flex items-center">

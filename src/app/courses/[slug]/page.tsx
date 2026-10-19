@@ -23,7 +23,10 @@ import {
   Video,
   ShieldCheck,
   Zap,
-  CreditCard
+  CreditCard,
+  KeyRound,
+  X,
+  ArrowRight
 } from 'lucide-react'
 
 interface VideoItem {
@@ -73,25 +76,65 @@ export default function CourseDetailPage() {
   const [enrolledFullCourse, setEnrolledFullCourse] = useState(false)
   const [unlockedVideoIds, setUnlockedVideoIds] = useState<string[]>([])
   const [copiedLink, setCopiedLink] = useState(false)
+  const [userEmail, setUserEmail] = useState<string>('')
+  const [paymentSuccessToast, setPaymentSuccessToast] = useState<boolean>(false)
 
   // Paystack Modal State
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [checkoutVideoTarget, setCheckoutVideoTarget] = useState<VideoItem | null>(null)
 
+  // Restore Access Modal State
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false)
+  const [restoreEmail, setRestoreEmail] = useState('')
+  const [restoring, setRestoring] = useState(false)
+  const [restoreError, setRestoreError] = useState<string | null>(null)
+
   useEffect(() => {
+    let effectiveEmail = ''
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const emailParam = params.get('email')
+      const paymentParam = params.get('payment')
+      const savedEmail = localStorage.getItem('mokafor_user_email') || ''
+
+      effectiveEmail = emailParam || savedEmail
+      if (effectiveEmail) {
+        setUserEmail(effectiveEmail)
+        localStorage.setItem('mokafor_user_email', effectiveEmail)
+      }
+
+      if (paymentParam === 'success') {
+        setPaymentSuccessToast(true)
+        setTimeout(() => setPaymentSuccessToast(false), 8000)
+      }
+    }
+
     if (slug) {
-      fetchCourseDetail()
+      fetchCourseDetail(effectiveEmail)
     }
   }, [slug])
 
-  const fetchCourseDetail = async () => {
+  const fetchCourseDetail = async (emailOverride?: string) => {
     try {
       setLoading(true)
-      const res = await fetch(`/api/courses/${slug}?userId=parent-demo-user`)
+      let activeEmail = emailOverride || userEmail
+      if (!activeEmail && typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search)
+        activeEmail = params.get('email') || localStorage.getItem('mokafor_user_email') || ''
+      }
+
+      const queryUrl = activeEmail
+        ? `/api/courses/${slug}?email=${encodeURIComponent(activeEmail)}`
+        : `/api/courses/${slug}`
+
+      const res = await fetch(queryUrl)
       const data = await res.json()
       if (data.success && data.course) {
         setCourse(data.course)
         setEnrolledFullCourse(data.course.isEnrolled || false)
+        if (Array.isArray(data.course.unlockedVideoIds)) {
+          setUnlockedVideoIds(data.course.unlockedVideoIds)
+        }
 
         if (data.course.modules && data.course.modules.length > 0) {
           // Open first module
@@ -129,13 +172,59 @@ export default function CourseDetailPage() {
     }
   }
 
-  const handleCheckoutSuccess = (type: 'lesson' | 'course', id: string) => {
+  const handleCheckoutSuccess = (type: 'lesson' | 'course', id: string, email?: string) => {
+    const activeEmail = email || userEmail
+    if (activeEmail) {
+      setUserEmail(activeEmail)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mokafor_user_email', activeEmail)
+      }
+    }
     if (type === 'course') {
       setEnrolledFullCourse(true)
     } else {
-      setUnlockedVideoIds(prev => [...prev, id])
+      setUnlockedVideoIds(prev => Array.from(new Set([...prev, id])))
     }
-    fetchCourseDetail()
+    fetchCourseDetail(activeEmail)
+  }
+
+  const handleRestoreAccess = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!restoreEmail) return
+
+    setRestoring(true)
+    setRestoreError(null)
+
+    try {
+      const cleanEmail = restoreEmail.toLowerCase().trim()
+      const res = await fetch('/api/courses/restore-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          courseSlug: slug
+        })
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setUserEmail(cleanEmail)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('mokafor_user_email', cleanEmail)
+        }
+        setIsRestoreModalOpen(false)
+        setPaymentSuccessToast(true)
+        setTimeout(() => setPaymentSuccessToast(false), 8000)
+        fetchCourseDetail(cleanEmail)
+      } else {
+        setRestoreError(data.error || 'No active purchase was found for this email address. Please check your spelling or contact support.')
+      }
+    } catch (err: any) {
+      setRestoreError('Failed to verify access. Please check your internet connection.')
+    } finally {
+      setRestoring(false)
+    }
   }
 
   if (loading) {
@@ -207,6 +296,14 @@ export default function CourseDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* Payment Success Toast Banner */}
+      {paymentSuccessToast && (
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 px-4 text-center font-bold text-sm shadow-xl flex items-center justify-center gap-2 animate-in slide-in-from-top-4 duration-300 sticky top-0 z-50">
+          <CheckCircle className="w-5 h-5 text-emerald-200" />
+          <span>Payment Verified! Your masterclass and video lessons are now completely unlocked. Enjoy your learning!</span>
+        </div>
+      )}
 
       {/* Main Course Header Hero */}
       <div className="bg-slate-900 border-b border-slate-800 py-10 px-4 sm:px-6 lg:px-8">
@@ -348,6 +445,22 @@ export default function CourseDetailPage() {
                   <CreditCard className="w-4 h-4" />
                   <span>Unlock Full Course Bundle ({formatNaira(bundleDiscountPrice)})</span>
                 </button>
+
+                {/* Already Purchased / Restore Access Action */}
+                <div className="pt-3 text-center border-t border-slate-800/80 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRestoreEmail(userEmail || '')
+                      setRestoreError(null)
+                      setIsRestoreModalOpen(true)
+                    }}
+                    className="w-full py-2.5 px-3 rounded-xl bg-indigo-950/40 hover:bg-indigo-900/50 text-indigo-300 hover:text-white border border-indigo-500/30 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm group"
+                  >
+                    <KeyRound className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+                    <span>Already purchased? Restore Access</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -531,6 +644,7 @@ export default function CourseDetailPage() {
         onClose={() => setIsCheckoutOpen(false)}
         courseTitle={course.title}
         courseId={course.id}
+        courseSlug={course.slug}
         videoId={checkoutVideoTarget?.id}
         videoTitle={checkoutVideoTarget?.title}
         lessonPrice={checkoutVideoTarget?.price || minLessonPrice}
@@ -538,6 +652,71 @@ export default function CourseDetailPage() {
         discountPrice={bundleDiscountPrice}
         onSuccess={handleCheckoutSuccess}
       />
+
+      {/* Restore Access Modal */}
+      {isRestoreModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white leading-tight">Restore Course Access</h3>
+                  <p className="text-xs text-slate-400">Instant device synchronization</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsRestoreModalOpen(false)}
+                className="p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRestoreAccess} className="p-6 space-y-5">
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Switched devices or cleared your browser? Enter the email address you used during payment to instantly verify your purchase and unlock your stream on this device.
+              </p>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">Your Purchase Email</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. parent@gmail.com"
+                  value={restoreEmail}
+                  onChange={e => setRestoreEmail(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              {restoreError && (
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold leading-relaxed">
+                  {restoreError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={restoring}
+                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {restoring ? (
+                  <span>Verifying purchase...</span>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Verify & Unlock My Access</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

@@ -6,7 +6,7 @@ import { saveTransaction } from '@/lib/storage'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, email, amount, plan, callbackUrl, studentName, grade } = body
+    const { name, email, amount, plan, callbackUrl, studentName, grade, courseId, courseSlug, videoId, type } = body
 
     if (!name || !email || !amount || !plan) {
       return NextResponse.json({ error: 'Parent Name, Email, Amount, and Programme Title are required' }, { status: 400 })
@@ -26,7 +26,11 @@ export async function POST(request: Request) {
     ).trim()
 
     const origin = request.headers.get('origin') || 'https://www.mokafor.com'
-    const redirectUrl = callbackUrl || `${origin}/api/payments/verify`
+    const redirectUrl = callbackUrl || (
+      courseSlug 
+        ? `${origin}/api/payments/verify?courseSlug=${encodeURIComponent(courseSlug)}`
+        : `${origin}/api/payments/verify`
+    )
 
     // Mandate Official Paystack Live Checkout Initialization
     try {
@@ -45,7 +49,11 @@ export async function POST(request: Request) {
             parentName: name,
             studentName: studentName || 'Student',
             grade: grade || 'General',
-            planTitle: plan
+            planTitle: plan,
+            courseId: courseId || null,
+            courseSlug: courseSlug || null,
+            videoId: videoId || null,
+            type: type || (courseId || videoId ? 'course' : 'subscription')
           }
         })
       })

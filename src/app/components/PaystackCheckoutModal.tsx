@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Lock,
@@ -19,12 +19,13 @@ interface PaystackCheckoutModalProps {
   onClose: () => void
   courseTitle: string
   courseId: string
+  courseSlug?: string
   videoId?: string
   videoTitle?: string
   lessonPrice?: number
   fullCoursePrice: number
   discountPrice?: number | null
-  onSuccess: (type: 'lesson' | 'course', id: string) => void
+  onSuccess: (type: 'lesson' | 'course', id: string, email?: string) => void
 }
 
 export default function PaystackCheckoutModal({
@@ -32,6 +33,7 @@ export default function PaystackCheckoutModal({
   onClose,
   courseTitle,
   courseId,
+  courseSlug,
   videoId,
   videoTitle,
   lessonPrice = 2000,
@@ -44,6 +46,16 @@ export default function PaystackCheckoutModal({
   const [selectedTier, setSelectedTier] = useState<'lesson' | 'course'>(videoId ? 'lesson' : 'course')
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  // Prepopulate email from localStorage if available
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedEmail = localStorage.getItem('mokafor_user_email')
+      if (savedEmail && !email) {
+        setEmail(savedEmail)
+      }
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -61,9 +73,17 @@ export default function PaystackCheckoutModal({
       return
     }
 
+    const cleanEmail = email.toLowerCase().trim()
+
     try {
       setSubmitting(true)
       setErrorMsg(null)
+
+      // Persist identity in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mokafor_user_email', cleanEmail)
+        localStorage.setItem('mokafor_user_name', parentName)
+      }
 
       // 1. Initialize Paystack Transaction via API
       const planTitle = selectedTier === 'lesson'
@@ -75,37 +95,37 @@ export default function PaystackCheckoutModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: parentName,
-          email,
+          email: cleanEmail,
           amount: activeAmount,
           plan: planTitle,
           studentName: parentName,
-          grade: 'General'
+          grade: 'General',
+          courseId,
+          courseSlug,
+          videoId: selectedTier === 'lesson' ? videoId : undefined,
+          type: selectedTier === 'lesson' ? 'lesson' : 'course'
         })
       })
 
       const data = await res.json()
 
       if (data.success && data.paystackUrl) {
-        // Record database enrollment
+        // Record database enrollment immediately
         await fetch('/api/payments/checkout-course', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             courseId,
             videoId: selectedTier === 'lesson' ? videoId : undefined,
-            userId: email.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-            userEmail: email,
+            userId: cleanEmail,
+            userEmail: cleanEmail,
             paystackReference: data.reference,
             amount: activeAmount
           })
         }).catch(err => console.error('Enrollment notice:', err))
 
-        // Open Paystack Payment Page
-        window.open(data.paystackUrl, '_blank')
-
-        // Trigger success callback locally
-        onSuccess(selectedTier, selectedTier === 'lesson' ? (videoId || '') : courseId)
-        onClose()
+        // Redirect to Paystack Live Checkout
+        window.location.href = data.paystackUrl
       } else {
         // Fallback checkout if Paystack API fails or is testing
         const checkoutRes = await fetch('/api/payments/checkout-course', {
@@ -114,14 +134,14 @@ export default function PaystackCheckoutModal({
           body: JSON.stringify({
             courseId,
             videoId: selectedTier === 'lesson' ? videoId : undefined,
-            userId: email.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-            userEmail: email,
+            userId: cleanEmail,
+            userEmail: cleanEmail,
             amount: activeAmount
           })
         })
         const checkoutData = await checkoutRes.json()
         if (checkoutData.success) {
-          onSuccess(selectedTier, selectedTier === 'lesson' ? (videoId || '') : courseId)
+          onSuccess(selectedTier, selectedTier === 'lesson' ? (videoId || '') : courseId, cleanEmail)
           onClose()
         } else {
           setErrorMsg(checkoutData.error || 'Unable to process checkout. Please try again.')

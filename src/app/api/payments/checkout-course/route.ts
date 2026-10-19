@@ -35,9 +35,14 @@ export async function POST(request: Request) {
 
     // Check existing enrollment
     const existingEnrollment = await db.courseEnrollment.findFirst({
-      where: videoId
-        ? { videoId, userId: targetUserId }
-        : { courseId, userId: targetUserId, videoId: null }
+      where: {
+        OR: [
+          { paystackReference: reference },
+          videoId
+            ? { videoId, userId: targetUserId }
+            : { courseId, userId: targetUserId, videoId: null }
+        ]
+      }
     })
 
     if (existingEnrollment) {
@@ -59,9 +64,15 @@ export async function POST(request: Request) {
       }
     })
 
-    // Log transaction
-    await db.transaction.create({
-      data: {
+    // Log transaction idempotently
+    await db.transaction.upsert({
+      where: { paystackReference: reference },
+      update: {
+        paystackStatus: 'success',
+        amount: amount || 2000,
+        metadata: { courseId, videoId }
+      },
+      create: {
         parentId: targetUserId,
         amount: amount || 2000,
         currency: 'NGN',
