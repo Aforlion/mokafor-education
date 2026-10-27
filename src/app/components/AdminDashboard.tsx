@@ -152,6 +152,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
   // Modals & Forms State
   const [showProgramModal, setShowProgramModal] = useState(false)
   const [editingProgram, setEditingProgram] = useState<ProgramItem | null>(null)
+  const [savingProgram, setSavingProgram] = useState(false)
   const [programForm, setProgramForm] = useState({
     title: '',
     category: 'Exam Prep',
@@ -267,6 +268,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
   // Program Handlers
   const handleSaveProgram = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSavingProgram(true)
     try {
       const payload = {
         ...programForm,
@@ -279,11 +281,14 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: editingProgram.id, ...payload })
         })
+        const data = await res.json().catch(() => ({}))
         if (res.ok) {
           triggerToast('Programme updated successfully!')
           setShowProgramModal(false)
           setEditingProgram(null)
           fetchDashboardData()
+        } else {
+          triggerToast(data.error || 'Failed to update programme.')
         }
       } else {
         const res = await fetch('/api/admin/programs', {
@@ -291,14 +296,19 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         })
+        const data = await res.json().catch(() => ({}))
         if (res.ok) {
           triggerToast('New Programme published!')
           setShowProgramModal(false)
           fetchDashboardData()
+        } else {
+          triggerToast(data.error || 'Failed to publish programme.')
         }
       }
-    } catch (err) {
-      triggerToast('Failed to save programme.')
+    } catch (err: any) {
+      triggerToast(err.message || 'Failed to save programme.')
+    } finally {
+      setSavingProgram(false)
     }
   }
 
@@ -306,9 +316,12 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
     if (!confirm('Are you sure you want to delete this programme?')) return
     try {
       const res = await fetch(`/api/admin/programs?id=${id}`, { method: 'DELETE' })
+      const data = await res.json().catch(() => ({}))
       if (res.ok) {
         triggerToast('Programme deleted.')
         fetchDashboardData()
+      } else {
+        triggerToast(data.error || 'Failed to delete programme.')
       }
     } catch (err) {
       triggerToast('Failed to delete programme.')
@@ -1191,8 +1204,13 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary btn-sm font-bold px-6">
-                  {editingProgram ? 'Save Changes' : 'Publish Programme'}
+                <button
+                  type="submit"
+                  disabled={savingProgram}
+                  className="btn btn-primary btn-sm font-bold px-6 flex items-center gap-2 disabled:opacity-50"
+                >
+                  {savingProgram && <RefreshCw size={14} className="animate-spin" />}
+                  <span>{savingProgram ? 'Saving...' : (editingProgram ? 'Save Changes' : 'Publish Programme')}</span>
                 </button>
               </div>
             </form>

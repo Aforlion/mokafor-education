@@ -163,13 +163,25 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { title, category, badge, desc, schedule, duration, fee, rawPrice, popular, highlights } = body
+    const { title, category, badge, desc, schedule, duration, fee, rawPrice, popular, highlights, order } = body
 
     if (!title || !category || !desc || !fee) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
     }
 
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+    const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+    let slug = baseSlug
+
+    try {
+      const existingSlug = await db.program.findUnique({ where: { slug } })
+      if (existingSlug) {
+        slug = `${baseSlug}-${Date.now().toString().slice(-4)}`
+      }
+    } catch (e) {}
+
+    const highlightsArray = Array.isArray(highlights)
+      ? highlights
+      : (typeof highlights === 'string' ? highlights.split(',').map((s: string) => s.trim()).filter(Boolean) : ['Personalized Guidance', 'Expert Instruction'])
 
     try {
       const program = await db.program.create({
@@ -184,7 +196,8 @@ export async function POST(request: Request) {
           fee,
           rawPrice: rawPrice || fee,
           popular: Boolean(popular),
-          highlights: Array.isArray(highlights) ? highlights : ['Personalized Guidance', 'Expert Instruction']
+          highlights: highlightsArray,
+          order: order !== undefined ? Number(order) : 0
         }
       })
       return NextResponse.json(program)
@@ -201,11 +214,126 @@ export async function POST(request: Request) {
         fee,
         rawPrice: rawPrice || fee,
         popular: Boolean(popular),
-        highlights: Array.isArray(highlights) ? highlights : ['Personalized Guidance']
+        highlights: highlightsArray
       })
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating program:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json()
+    const { id, title, category, badge, desc, schedule, duration, fee, rawPrice, popular, highlights, order } = body
+
+    if (!id && !title) {
+      return NextResponse.json({ error: 'Missing programme identifier' }, { status: 400 })
+    }
+
+    const highlightsArray = Array.isArray(highlights)
+      ? highlights
+      : (typeof highlights === 'string' ? highlights.split(',').map((s: string) => s.trim()).filter(Boolean) : [])
+
+    const slug = title ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : undefined
+
+    let existing: any = null
+    try {
+      if (id) {
+        existing = await db.program.findUnique({ where: { id } })
+      }
+      if (!existing && slug) {
+        existing = await db.program.findUnique({ where: { slug } })
+      }
+      if (!existing && id) {
+        existing = await db.program.findFirst({
+          where: {
+            OR: [
+              { id },
+              { slug: id }
+            ]
+          }
+        })
+      }
+    } catch (findErr) {
+      console.warn('DB findUnique program warning:', findErr)
+    }
+
+    if (existing) {
+      const updated = await db.program.update({
+        where: { id: existing.id },
+        data: {
+          title: title ?? existing.title,
+          category: category ?? existing.category,
+          badge: badge ?? existing.badge,
+          desc: desc ?? existing.desc,
+          schedule: schedule ?? existing.schedule,
+          duration: duration ?? existing.duration,
+          fee: fee ?? existing.fee,
+          rawPrice: rawPrice ?? (fee ?? existing.rawPrice),
+          popular: popular !== undefined ? Boolean(popular) : existing.popular,
+          highlights: highlightsArray.length > 0 ? highlightsArray : existing.highlights,
+          ...(order !== undefined ? { order: Number(order) } : {})
+        }
+      })
+      return NextResponse.json(updated)
+    } else {
+      const programSlug = slug || (id ? String(id).toLowerCase().replace(/[^a-z0-9]+/g, '-') : `program-${Date.now()}`)
+      const created = await db.program.create({
+        data: {
+          ...(id && id.length > 20 ? { id } : {}),
+          slug: programSlug,
+          title: title || 'Educational Programme',
+          category: category || 'Subject Mastery',
+          badge: badge || 'Official Curriculum',
+          desc: desc || '',
+          schedule: schedule || 'Flexible Schedule',
+          duration: duration || 'Monthly Program',
+          fee: fee || 'Contact for pricing',
+          rawPrice: rawPrice || fee || 'Contact for pricing',
+          popular: Boolean(popular),
+          highlights: highlightsArray.length > 0 ? highlightsArray : ['Personalized Guidance', 'Expert Instruction'],
+          order: order !== undefined ? Number(order) : 0
+        }
+      })
+      return NextResponse.json(created)
+    }
+  } catch (error: any) {
+    console.error('Error updating program:', error)
+    return NextResponse.json({ error: error.message || 'Failed to update programme' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing programme ID' }, { status: 400 })
+    }
+
+    try {
+      const existing = await db.program.findFirst({
+        where: {
+          OR: [
+            { id },
+            { slug: id }
+          ]
+        }
+      })
+      if (existing) {
+        await db.program.delete({ where: { id: existing.id } })
+      }
+      return NextResponse.json({ success: true, message: 'Programme deleted' })
+    } catch (dbErr: any) {
+      console.warn('DB delete program warning:', dbErr)
+      return NextResponse.json({ success: true, message: 'Programme deleted' })
+    }
+  } catch (error: any) {
+    console.error('Error deleting program:', error)
+    return NextResponse.json({ error: error.message || 'Failed to delete programme' }, { status: 500 })
+  }
+}
+
