@@ -563,7 +563,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                 setActiveTab(tab.id as any)
               }
             }}
-            className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-900 text-slate-200 hover:bg-slate-800 border border-slate-700'}`}
+            className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-emerald-600 text-white shadow-md' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm'}`}
           >
             {tab.label}
           </button>
@@ -575,57 +575,57 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
         <div className="space-y-8">
           {/* Bento KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md space-y-4">
+            <div className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Total Platform Revenue</span>
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+                <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Total Platform Revenue</span>
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                   <DollarSign size={20} />
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl md:text-3xl font-extrabold text-white">{stats?.totalRevenue || '₦1,480,000'}</h3>
-                <p className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
+                <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">{stats?.totalRevenue || '₦1,480,000'}</h3>
+                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center gap-1">
                   <ArrowUpRight size={14} /> +18.4% this month (Paystack)
                 </p>
               </div>
             </div>
 
-            <div className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md space-y-4">
+            <div className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Active Learners</span>
-                <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
+                <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Active Learners</span>
+                <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
                   <Users size={20} />
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl md:text-3xl font-extrabold text-white">{stats?.activeStudents || 18} Students</h3>
-                <p className="text-[11px] text-slate-400 font-semibold mt-1">Enrolled in live & private tracks</p>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">{stats?.activeStudents || 18} Students</h3>
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 font-semibold mt-1">Enrolled in live & private tracks</p>
               </div>
             </div>
 
-            <div className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md space-y-4">
+            <div className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Vetted Tutor Staff</span>
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+                <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Vetted Tutor Staff</span>
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
                   <UserCheck size={20} />
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl md:text-3xl font-extrabold text-white">{stats?.verifiedTutors || 6} Certified</h3>
-                <p className="text-[11px] text-amber-400 font-semibold mt-1">100% Degree & Background Verified</p>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">{stats?.verifiedTutors || 6} Certified</h3>
+                <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-1">100% Degree & Background Verified</p>
               </div>
             </div>
 
-            <div className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md space-y-4">
+            <div className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Placement Bookings</span>
-                <div className="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center font-bold">
+                <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Placement Bookings</span>
+                <div className="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold">
                   <Calendar size={20} />
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl md:text-3xl font-extrabold text-white">{stats?.pendingAssessments || 3} Consultations</h3>
-                <p className="text-[11px] text-teal-400 font-semibold mt-1">Scheduled placement reviews</p>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">{stats?.pendingAssessments || 3} Consultations</h3>
+                <p className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold mt-1">Scheduled placement reviews</p>
               </div>
             </div>
           </div>
@@ -634,40 +634,40 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
           <div className="grid lg:grid-cols-3 gap-8">
             
             {/* Quick Actions Panel */}
-            <div className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md space-y-6">
-              <h3 className="font-extrabold text-lg text-white flex items-center gap-2">
-                <Sparkles size={18} className="text-emerald-400" /> Executive Quick Actions
+            <div className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md space-y-6 shadow-sm">
+              <h3 className="font-extrabold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <Sparkles size={18} className="text-emerald-500 dark:text-emerald-400" /> Executive Quick Actions
               </h3>
 
               <div className="space-y-3">
-                <a href="/admin/courses" className="w-full p-3.5 rounded-2xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-left transition-all flex items-center justify-between text-xs font-extrabold text-amber-300">
-                  <span className="flex items-center gap-2.5"><Layers size={16} className="text-amber-400" /> Video Courses & Shortlink Marketing</span>
+                <a href="/admin/courses" className="w-full p-3.5 rounded-2xl border border-amber-200 dark:border-slate-700 bg-amber-50/50 dark:bg-slate-800/80 hover:bg-amber-100/60 dark:hover:bg-slate-700 text-left transition-all flex items-center justify-between text-xs font-extrabold text-amber-800 dark:text-amber-300 shadow-sm">
+                  <span className="flex items-center gap-2.5"><Layers size={16} className="text-amber-600 dark:text-amber-400" /> Video Courses & Shortlink Marketing</span>
                   <ChevronRight size={16} className="text-slate-400" />
                 </a>
-                <button onClick={() => setActiveTab('programs')} className="w-full p-3.5 rounded-2xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-200">
-                  <span className="flex items-center gap-2.5"><BookOpen size={16} className="text-emerald-400" /> Edit Educational Programmes</span>
-                  <ChevronRight size={16} className="text-slate-500" />
+                <button onClick={() => setActiveTab('programs')} className="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200">
+                  <span className="flex items-center gap-2.5"><BookOpen size={16} className="text-emerald-600 dark:text-emerald-400" /> Edit Educational Programmes</span>
+                  <ChevronRight size={16} className="text-slate-400 dark:text-slate-500" />
                 </button>
-                <button onClick={() => setActiveTab('tutors')} className="w-full p-3.5 rounded-2xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-200">
-                  <span className="flex items-center gap-2.5"><UserCheck size={16} className="text-indigo-400" /> Review Educator Verification</span>
-                  <ChevronRight size={16} className="text-slate-500" />
+                <button onClick={() => setActiveTab('tutors')} className="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200">
+                  <span className="flex items-center gap-2.5"><UserCheck size={16} className="text-indigo-600 dark:text-indigo-400" /> Review Educator Verification</span>
+                  <ChevronRight size={16} className="text-slate-400 dark:text-slate-500" />
                 </button>
-                <button onClick={() => setActiveTab('assessments')} className="w-full p-3.5 rounded-2xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-200">
-                  <span className="flex items-center gap-2.5"><Calendar size={16} className="text-amber-400" /> Manage Placement Requests</span>
-                  <ChevronRight size={16} className="text-slate-500" />
+                <button onClick={() => setActiveTab('assessments')} className="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200">
+                  <span className="flex items-center gap-2.5"><Calendar size={16} className="text-amber-600 dark:text-amber-400" /> Manage Placement Requests</span>
+                  <ChevronRight size={16} className="text-slate-400 dark:text-slate-500" />
                 </button>
-                <button onClick={() => setActiveTab('transactions')} className="w-full p-3.5 rounded-2xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-200">
-                  <span className="flex items-center gap-2.5"><CreditCard size={16} className="text-teal-400" /> View Paystack Revenue Logs</span>
-                  <ChevronRight size={16} className="text-slate-500" />
+                <button onClick={() => setActiveTab('transactions')} className="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition-all flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200">
+                  <span className="flex items-center gap-2.5"><CreditCard size={16} className="text-teal-600 dark:text-teal-400" /> View Paystack Revenue Logs</span>
+                  <ChevronRight size={16} className="text-slate-400 dark:text-slate-500" />
                 </button>
               </div>
             </div>
 
             {/* Recent Activity Ledger */}
-            <div className="lg:col-span-2 glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md space-y-4">
+            <div className="lg:col-span-2 glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <h3 className="font-extrabold text-lg text-white">Recent Payment Transactions</h3>
-                <button onClick={() => setActiveTab('transactions')} className="text-xs font-bold text-emerald-400 hover:underline">
+                <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">Recent Payment Transactions</h3>
+                <button onClick={() => setActiveTab('transactions')} className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline">
                   View full ledger →
                 </button>
               </div>
@@ -675,22 +675,24 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider text-[10px]">
+                    <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase font-black tracking-wider text-[10px]">
                       <th className="pb-3">Reference</th>
                       <th className="pb-3">Parent Customer</th>
                       <th className="pb-3">Amount</th>
                       <th className="pb-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                     {transactions.slice(0, 5).map(tx => (
-                      <tr key={tx.id} className="hover:bg-slate-800/30 transition-colors">
-                        <td className="py-3 font-mono font-bold text-slate-300">{tx.reference}</td>
-                        <td className="py-3 font-semibold text-white">{tx.parentName}</td>
-                        <td className="py-3 font-extrabold text-emerald-400">{tx.amount}</td>
+                      <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td className="py-3 font-mono font-bold text-slate-900 dark:text-slate-300">{tx.reference || tx.paystackReference || tx.id}</td>
+                        <td className="py-3 font-semibold text-slate-900 dark:text-white">{tx.parentName || 'Parent'}</td>
+                        <td className="py-3 font-extrabold text-emerald-600 dark:text-emerald-400">
+                          {typeof (tx.amount as any) === 'number' ? `₦${(tx.amount as any).toLocaleString()}` : tx.amount}
+                        </td>
                         <td className="py-3">
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            {tx.status}
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 font-bold">
+                            {tx.status || tx.paystackStatus || 'success'}
                           </span>
                         </td>
                       </tr>
@@ -713,7 +715,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                 <button
                   key={cat}
                   onClick={() => setProgramCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${programCategory === cat ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${programCategory === cat ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:text-white'}`}
                 >
                   {cat}
                 </button>
@@ -737,7 +739,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                 })
                 setShowProgramModal(true)
               }}
-              className="btn btn-primary btn-sm gap-2 font-bold"
+              className="btn btn-primary btn-sm gap-2 font-bold shadow-md"
             >
               <Plus size={14} /> Add Programme
             </button>
@@ -747,27 +749,27 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
             {programs
               .filter(p => programCategory === 'All' || p.category === programCategory)
               .map(p => (
-                <div key={p.id} className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md flex flex-col justify-between space-y-4">
+                <div key={p.id} className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md flex flex-col justify-between space-y-4 shadow-sm">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-black uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                      <span className="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                         {p.category}
                       </span>
-                      <span className="text-sm font-black text-emerald-400">{p.fee}</span>
+                      <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">{p.fee}</span>
                     </div>
 
                     <div>
-                      <h3 className="font-extrabold text-lg text-white">{p.title}</h3>
-                      <p className="text-xs text-slate-400 line-clamp-2 mt-1">{p.desc}</p>
+                      <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">{p.title}</h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-1">{p.desc}</p>
                     </div>
 
-                    <div className="space-y-1 text-xs text-slate-300">
-                      <p><span className="text-slate-500 font-bold">Schedule:</span> {p.schedule}</p>
-                      <p><span className="text-slate-500 font-bold">Duration:</span> {p.duration}</p>
+                    <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                      <p><span className="text-slate-500 dark:text-slate-400 font-bold">Schedule:</span> {p.schedule}</p>
+                      <p><span className="text-slate-500 dark:text-slate-400 font-bold">Duration:</span> {p.duration}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-4 border-t border-slate-800">
+                  <div className="flex items-center gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <button
                       onClick={() => {
                         setEditingProgram(p)
@@ -785,13 +787,13 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                         })
                         setShowProgramModal(true)
                       }}
-                      className="btn btn-outline btn-sm flex-1 text-xs font-bold border-slate-700 hover:bg-slate-800 gap-1.5"
+                      className="btn btn-outline btn-sm flex-1 text-xs font-bold border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 gap-1.5"
                     >
                       <Edit3 size={13} /> Edit
                     </button>
                     <button
                       onClick={() => handleDeleteProgram(p.id)}
-                      className="btn btn-outline btn-sm text-rose-400 border-rose-950 hover:bg-rose-950/40 gap-1.5"
+                      className="btn btn-outline btn-sm text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-950 hover:bg-rose-50 dark:hover:bg-rose-950/40 gap-1.5"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -811,14 +813,14 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                 <button
                   key={st}
                   onClick={() => setTutorStatusFilter(st)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all ${tutorStatusFilter === st ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all ${tutorStatusFilter === st ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:text-white'}`}
                 >
                   {st}
                 </button>
               ))}
             </div>
 
-            <button onClick={() => setShowTutorModal(true)} className="btn btn-primary btn-sm gap-2 font-bold">
+            <button onClick={() => setShowTutorModal(true)} className="btn btn-primary btn-sm gap-2 font-bold shadow-md">
               <Plus size={14} /> Add Educator
             </button>
           </div>
@@ -827,45 +829,45 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
             {tutors
               .filter(t => tutorStatusFilter === 'All' || t.status === tutorStatusFilter)
               .map(t => (
-                <div key={t.id} className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md flex flex-col justify-between space-y-4">
+                <div key={t.id} className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md flex flex-col justify-between space-y-4 shadow-sm">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-2xl object-cover border border-slate-700" />
+                      <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700" />
                       <div>
-                        <h3 className="font-extrabold text-base text-white flex items-center gap-1.5">
+                        <h3 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-1.5">
                           {t.name}
-                          {t.verified && <ShieldCheck size={16} className="text-emerald-400" />}
+                          {t.verified && <ShieldCheck size={16} className="text-emerald-500 dark:text-emerald-400" />}
                         </h3>
-                        <p className="text-xs text-slate-400">{t.email}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{t.email}</p>
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">{t.bio}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-2">{t.bio}</p>
 
                     <div className="flex flex-wrap gap-1.5">
                       {t.subjects.map(subj => (
-                        <span key={subj} className="text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md">
+                        <span key={subj} className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
                           {subj}
                         </span>
                       ))}
                     </div>
 
-                    <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
-                      <span className="text-slate-400 font-medium">Hourly Rate:</span>
-                      <span className="font-extrabold text-emerald-400">{t.fee}</span>
+                    <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">Hourly Rate:</span>
+                      <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{t.fee}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-4 border-t border-slate-800">
+                  <div className="flex items-center gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <button
                       onClick={() => handleToggleTutorStatus(t.id, t.status)}
-                      className={`btn btn-sm flex-1 font-bold text-xs ${t.status === 'active' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'}`}
+                      className={`btn btn-sm flex-1 font-bold text-xs ${t.status === 'active' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 hover:bg-rose-500/20' : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'}`}
                     >
                       {t.status === 'active' ? 'Suspend' : 'Activate'}
                     </button>
                     <button
                       onClick={() => handleToggleTutorVerified(t.id, t.verified)}
-                      className="btn btn-outline btn-sm text-xs font-bold border-slate-700 text-slate-300 hover:bg-slate-800"
+                      className="btn btn-outline btn-sm text-xs font-bold border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                     >
                       {t.verified ? 'Unverify' : 'Verify'}
                     </button>
@@ -884,17 +886,17 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
               <button
                 key={st}
                 onClick={() => setAssessmentStatusFilter(st)}
-                className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all ${assessmentStatusFilter === st ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all ${assessmentStatusFilter === st ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:text-white'}`}
               >
                 {st}
               </button>
             ))}
           </div>
 
-          <div className="glow-card p-6 rounded-3xl border border-slate-800 bg-slate-900/70 backdrop-blur-md overflow-x-auto">
+          <div className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md overflow-x-auto shadow-sm">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider text-[10px]">
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase font-black tracking-wider text-[10px]">
                   <th className="pb-3">Parent & Contact</th>
                   <th className="pb-3">Student & Grade</th>
                   <th className="pb-3">Scheduled Date</th>
@@ -903,31 +905,31 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                   <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {assessments
                   .filter(a => assessmentStatusFilter === 'All' || a.status === assessmentStatusFilter)
                   .map(b => (
-                    <tr key={b.id} className="hover:bg-slate-800/30 transition-colors">
+                    <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="py-4">
-                        <p className="font-bold text-white">{b.parentName}</p>
-                        <p className="text-[10px] text-slate-400">{b.parentEmail}</p>
+                        <p className="font-bold text-slate-900 dark:text-white">{b.parentName}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">{b.parentEmail}</p>
                         {b.parentPhone && b.parentPhone !== 'N/A' && (
-                          <a href={`tel:${b.parentPhone}`} className="text-xs font-mono font-bold text-emerald-400 hover:underline inline-flex items-center gap-1 mt-1">
+                          <a href={`tel:${b.parentPhone}`} className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 mt-1">
                             <Phone size={12} className="shrink-0" />
                             <span>{b.parentPhone}</span>
                           </a>
                         )}
                       </td>
                       <td className="py-4">
-                        <p className="font-bold text-slate-200">{b.studentName}</p>
-                        <p className="text-[10px] text-slate-400">{b.grade} ({b.curriculum})</p>
+                        <p className="font-bold text-slate-900 dark:text-slate-200">{b.studentName}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">{b.grade} ({b.curriculum})</p>
                       </td>
-                      <td className="py-4 font-mono text-slate-300">
+                      <td className="py-4 font-mono text-slate-600 dark:text-slate-300">
                         {new Date(b.scheduledAt).toLocaleString()}
                       </td>
-                      <td className="py-4 font-bold text-emerald-400">{b.tutorName}</td>
+                      <td className="py-4 font-bold text-emerald-700 dark:text-emerald-400">{b.tutorName}</td>
                       <td className="py-4">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${b.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : b.status === 'cancelled' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${b.status === 'completed' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-bold' : b.status === 'cancelled' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-bold' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 font-bold'}`}>
                           {b.status}
                         </span>
                       </td>
@@ -945,7 +947,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                         {b.status === 'scheduled' && (
                           <button
                             onClick={() => handleUpdateAssessmentStatus(b.id, 'completed')}
-                            className="btn btn-outline btn-sm text-[11px] font-bold text-emerald-400 border-emerald-950 hover:bg-emerald-950/40"
+                            className="btn btn-outline btn-sm text-[11px] font-bold text-emerald-600 dark:text-emerald-400 border-emerald-300 dark:border-emerald-950 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
                           >
                             Mark Completed
                           </button>
@@ -970,7 +972,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                 placeholder="Search reference, parent name or email..."
                 value={txSearchQuery}
                 onChange={e => setTxSearchQuery(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl pl-10 pr-4 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 shadow-sm"
               />
             </div>
           </div>
@@ -1029,7 +1031,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
               <button
                 key={r}
                 onClick={() => setUserRoleFilter(r)}
-                className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all ${userRoleFilter === r ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all ${userRoleFilter === r ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:text-white'}`}
               >
                 {r}s
               </button>
