@@ -29,7 +29,9 @@ import {
   CreditCard,
   Layers,
   AlertCircle,
-  Phone
+  Phone,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react'
 
 interface AdminStats {
@@ -61,6 +63,7 @@ interface TutorItem {
   id: string
   profileId: string
   name: string
+  specialty?: string
   email: string
   phone: string
   avatar: string
@@ -167,16 +170,23 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
   })
 
   const [showTutorModal, setShowTutorModal] = useState(false)
+  const [editingTutor, setEditingTutor] = useState<TutorItem | null>(null)
+  const [savingTutor, setSavingTutor] = useState(false)
+  const [uploadingTutorPhoto, setUploadingTutorPhoto] = useState(false)
   const [tutorForm, setTutorForm] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
+    specialty: 'Loyola Jesuit & Junior WAEC Specialist',
     email: '',
     phone: '',
+    avatar: '/founder.jpg',
     subjects: 'Mathematics, Physics',
-    levels: 'Senior Secondary',
-    curricula: 'WAEC, IGCSE',
-    hourlyRate: '15000',
-    bio: ''
+    levels: 'Primary, Junior Secondary',
+    curricula: 'Loyola Jesuit, Junior WAEC, WAEC',
+    hourlyRate: '25000',
+    rating: '5.0',
+    bio: '',
+    status: 'active',
+    verified: true
   })
 
   // Toast Notification
@@ -328,7 +338,72 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
     }
   }
 
-  // Tutor Handlers
+  // Tutor Handlers & Actions
+  const handleTutorImageUpload = async (file: File) => {
+    try {
+      setUploadingTutorPhoto(true)
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await res.json()
+      if (data.success && data.url) {
+        setTutorForm(prev => ({ ...prev, avatar: data.url }))
+        triggerToast('Profile photo uploaded!')
+      } else {
+        triggerToast(data.error || 'Failed to upload photo.')
+      }
+    } catch (err) {
+      console.error('Error uploading tutor photo:', err)
+      triggerToast('Error uploading photo.')
+    } finally {
+      setUploadingTutorPhoto(false)
+    }
+  }
+
+  const openCreateTutorModal = () => {
+    setEditingTutor(null)
+    setTutorForm({
+      name: '',
+      specialty: 'Loyola Jesuit & Junior WAEC Specialist',
+      email: '',
+      phone: '',
+      avatar: '/founder.jpg',
+      subjects: 'Mathematics, Physics',
+      levels: 'Primary, Junior Secondary',
+      curricula: 'Loyola Jesuit, Junior WAEC, WAEC',
+      hourlyRate: '25000',
+      rating: '5.0',
+      bio: '',
+      status: 'active',
+      verified: true
+    })
+    setShowTutorModal(true)
+  }
+
+  const openEditTutorModal = (tutor: TutorItem) => {
+    setEditingTutor(tutor)
+    setTutorForm({
+      name: tutor.name,
+      specialty: tutor.specialty || 'Loyola Jesuit & Junior WAEC Specialist',
+      email: tutor.email === 'N/A' ? '' : tutor.email,
+      phone: tutor.phone === 'N/A' ? '' : tutor.phone,
+      avatar: tutor.avatar || '/founder.jpg',
+      subjects: Array.isArray(tutor.subjects) ? tutor.subjects.join(', ') : (tutor.subjects || 'Mathematics'),
+      levels: Array.isArray(tutor.levels) ? tutor.levels.join(', ') : (tutor.levels || 'Primary'),
+      curricula: Array.isArray(tutor.curricula) ? tutor.curricula.join(', ') : (tutor.curricula || 'Loyola Jesuit'),
+      hourlyRate: String(tutor.hourlyRate || 25000),
+      rating: String(tutor.rating || 5.0),
+      bio: tutor.bio || '',
+      status: tutor.status || 'active',
+      verified: tutor.verified !== undefined ? tutor.verified : true
+    })
+    setShowTutorModal(true)
+  }
+
   const handleToggleTutorStatus = async (id: string, currentStatus: string) => {
     const nextStatus = currentStatus === 'active' ? 'suspended' : 'active'
     try {
@@ -362,28 +437,81 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
     }
   }
 
-  const handleCreateTutor = async (e: React.FormEvent) => {
+  const handleSaveTutor = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSavingTutor(true)
     try {
       const payload = {
-        ...tutorForm,
+        name: tutorForm.name.trim(),
+        specialty: tutorForm.specialty.trim(),
+        email: tutorForm.email.trim(),
+        phone: tutorForm.phone.trim(),
+        avatar: tutorForm.avatar || '/founder.jpg',
         subjects: tutorForm.subjects.split(',').map(s => s.trim()).filter(Boolean),
         levels: tutorForm.levels.split(',').map(s => s.trim()).filter(Boolean),
         curricula: tutorForm.curricula.split(',').map(s => s.trim()).filter(Boolean),
-        hourlyRate: parseInt(tutorForm.hourlyRate) || 15000
+        hourlyRate: parseInt(String(tutorForm.hourlyRate).replace(/[^0-9]/g, '')) || 25000,
+        rating: parseFloat(String(tutorForm.rating)) || 5.0,
+        bio: tutorForm.bio.trim(),
+        status: tutorForm.status || 'active',
+        verified: Boolean(tutorForm.verified)
       }
-      const res = await fetch('/api/admin/tutors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      if (res.ok) {
-        triggerToast('New Vetted Tutor profile created!')
-        setShowTutorModal(false)
-        fetchDashboardData()
+
+      if (editingTutor) {
+        const res = await fetch('/api/admin/tutors', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editingTutor.id, ...payload })
+        })
+        const data = await res.json().catch(() => ({}))
+        if (res.ok) {
+          triggerToast('Educator profile updated successfully!')
+          setShowTutorModal(false)
+          setEditingTutor(null)
+          fetchDashboardData()
+        } else {
+          triggerToast(data.error || 'Failed to update educator.')
+        }
+      } else {
+        const res = await fetch('/api/admin/tutors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        const data = await res.json().catch(() => ({}))
+        if (res.ok) {
+          triggerToast('New Vetted Educator profile created!')
+          setShowTutorModal(false)
+          setEditingTutor(null)
+          fetchDashboardData()
+        } else {
+          triggerToast(data.error || 'Failed to create educator.')
+        }
       }
     } catch (err) {
-      triggerToast('Failed to create tutor.')
+      triggerToast('Error saving educator profile.')
+    } finally {
+      setSavingTutor(false)
+    }
+  }
+
+  const handleDeleteTutor = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to remove educator "${name}"? This will also remove them from the public "Find a Tutor" page.`)) {
+      return
+    }
+    try {
+      const res = await fetch(`/api/admin/tutors?id=${id}`, {
+        method: 'DELETE'
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) {
+        triggerToast(`Educator "${name}" removed.`)
+        fetchDashboardData()
+      } else {
+        triggerToast(data.error || 'Failed to remove educator.')
+      }
+    } catch (err) {
+      triggerToast('Error removing educator.')
     }
   }
 
@@ -820,7 +948,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
               ))}
             </div>
 
-            <button onClick={() => setShowTutorModal(true)} className="btn btn-primary btn-sm gap-2 font-bold shadow-md">
+            <button onClick={openCreateTutorModal} className="btn btn-primary btn-sm gap-2 font-bold shadow-md">
               <Plus size={14} /> Add Educator
             </button>
           </div>
@@ -831,46 +959,90 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
               .map(t => (
                 <div key={t.id} className="glow-card p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-md flex flex-col justify-between space-y-4 shadow-sm">
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700" />
-                      <div>
-                        <h3 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-1.5">
-                          {t.name}
-                          {t.verified && <ShieldCheck size={16} className="text-emerald-500 dark:text-emerald-400" />}
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{t.email}</p>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={t.avatar || '/founder.jpg'} 
+                          alt={t.name} 
+                          className="w-14 h-14 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 bg-slate-800 shrink-0 shadow-sm" 
+                        />
+                        <div>
+                          <h3 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-1.5">
+                            {t.name}
+                            {t.verified && <ShieldCheck size={16} className="text-emerald-500 dark:text-emerald-400 shrink-0" />}
+                          </h3>
+                          <span className="inline-block mt-0.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-indigo-500/20">
+                            {t.specialty || 'Loyola Jesuit & Junior WAEC Specialist'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-amber-500 dark:text-amber-400 bg-amber-500/10 px-2 py-1 rounded-lg shrink-0">
+                        <Star size={12} className="fill-current" />
+                        <span>{t.rating ? t.rating.toFixed(1) : '5.0'}</span>
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-2">{t.bio}</p>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 space-y-0.5">
+                      <p className="truncate">{t.email}</p>
+                      {t.phone && t.phone !== 'N/A' && <p>{t.phone}</p>}
+                    </div>
 
-                    <div className="flex flex-wrap gap-1.5">
-                      {t.subjects.map(subj => (
-                        <span key={subj} className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
-                          {subj}
-                        </span>
-                      ))}
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">{t.bio}</p>
+
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap gap-1.5">
+                        {t.subjects && t.subjects.map(subj => (
+                          <span key={subj} className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
+                            {subj}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {t.levels && t.levels.map(lvl => (
+                          <span key={lvl} className="text-[9px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                            {lvl}
+                          </span>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
                       <span className="text-slate-500 dark:text-slate-400 font-medium">Hourly Rate:</span>
-                      <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{t.fee}</span>
+                      <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{t.fee || `₦${(t.hourlyRate || 25000).toLocaleString()}/hr`}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      onClick={() => handleToggleTutorStatus(t.id, t.status)}
-                      className={`btn btn-sm flex-1 font-bold text-xs ${t.status === 'active' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 hover:bg-rose-500/20' : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'}`}
-                    >
-                      {t.status === 'active' ? 'Suspend' : 'Activate'}
-                    </button>
-                    <button
-                      onClick={() => handleToggleTutorVerified(t.id, t.verified)}
-                      className="btn btn-outline btn-sm text-xs font-bold border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                    >
-                      {t.verified ? 'Unverify' : 'Verify'}
-                    </button>
+                  <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => openEditTutorModal(t)}
+                        className="btn btn-outline btn-sm flex-1 text-xs font-bold border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 gap-1.5"
+                      >
+                        <Edit3 size={13} /> Edit Profile
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTutor(t.id, t.name)}
+                        className="btn btn-outline btn-sm text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-950 hover:bg-rose-50 dark:hover:bg-rose-950/40 gap-1 px-2.5"
+                        title="Remove Educator"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleToggleTutorStatus(t.id, t.status)}
+                        className={`btn btn-sm flex-1 font-bold text-xs ${t.status === 'active' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 hover:bg-rose-500/20' : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'}`}
+                      >
+                        {t.status === 'active' ? 'Suspend' : 'Activate'}
+                      </button>
+                      <button
+                        onClick={() => handleToggleTutorVerified(t.id, t.verified)}
+                        className="btn btn-outline btn-sm text-xs font-bold border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      >
+                        {t.verified ? 'Unverify' : 'Verify'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1220,41 +1392,88 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
         </div>
       )}
 
-      {/* ==================== CREATE TUTOR MODAL ==================== */}
+      {/* ==================== CREATE / EDIT TUTOR MODAL ==================== */}
       {showTutorModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-xl w-full space-y-6 shadow-2xl relative animate-scale-up">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="font-extrabold text-lg text-white">Add Vetted Educator</h3>
-              <button onClick={() => setShowTutorModal(false)} className="text-slate-400 hover:text-white p-1">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-xl w-full space-y-6 shadow-2xl relative animate-scale-up my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
+              <h3 className="font-extrabold text-lg text-white">
+                {editingTutor ? 'Edit Educator Profile' : 'Add Vetted Educator'}
+              </h3>
+              <button 
+                onClick={() => { setShowTutorModal(false); setEditingTutor(null); }} 
+                className="text-slate-400 hover:text-white p-1"
+              >
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleCreateTutor} className="space-y-4 text-xs">
+            <form onSubmit={handleSaveTutor} className="space-y-4 text-xs">
+              {/* Photo Upload & Preview */}
+              <div className="space-y-2 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                <label className="font-bold text-slate-300 uppercase text-[10px] block">
+                  Educator Profile Picture
+                </label>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-900 border-2 border-emerald-500/40 shrink-0 shadow-md">
+                    <img 
+                      src={tutorForm.avatar || '/founder.jpg'} 
+                      alt="Tutor Avatar Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 w-full space-y-2">
+                    <label className="btn btn-outline btn-sm w-full cursor-pointer border-dashed border-emerald-500/40 hover:border-emerald-500 text-emerald-400 flex items-center justify-center gap-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            handleTutorImageUpload(e.target.files[0])
+                          }
+                        }}
+                      />
+                      <Upload size={14} />
+                      <span>{uploadingTutorPhoto ? 'Uploading Photo...' : 'Upload New Photo File'}</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Or enter image URL (/tutors/... or https://...)"
+                      value={tutorForm.avatar}
+                      onChange={e => setTutorForm({ ...tutorForm, avatar: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-[11px] focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Name & Specialty */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="font-bold text-slate-300 uppercase text-[10px]">First Name</label>
+                  <label className="font-bold text-slate-300 uppercase text-[10px]">Full Name</label>
                   <input
                     type="text"
                     required
-                    value={tutorForm.firstName}
-                    onChange={e => setTutorForm({ ...tutorForm, firstName: e.target.value })}
+                    value={tutorForm.name}
+                    onChange={e => setTutorForm({ ...tutorForm, name: e.target.value })}
+                    placeholder="e.g. Mark Okafor"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-bold text-slate-300 uppercase text-[10px]">Last Name</label>
+                  <label className="font-bold text-slate-300 uppercase text-[10px]">Role / Specialty Badge</label>
                   <input
                     type="text"
-                    required
-                    value={tutorForm.lastName}
-                    onChange={e => setTutorForm({ ...tutorForm, lastName: e.target.value })}
+                    value={tutorForm.specialty}
+                    onChange={e => setTutorForm({ ...tutorForm, specialty: e.target.value })}
+                    placeholder="e.g. Loyola Jesuit & Junior WAEC Specialist"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
               </div>
 
+              {/* Email & Phone */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="font-bold text-slate-300 uppercase text-[10px]">Email Address</label>
@@ -1263,9 +1482,24 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                     required
                     value={tutorForm.email}
                     onChange={e => setTutorForm({ ...tutorForm, email: e.target.value })}
+                    placeholder="tutor@mokafor.com"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-300 uppercase text-[10px]">Phone Number</label>
+                  <input
+                    type="text"
+                    value={tutorForm.phone}
+                    onChange={e => setTutorForm({ ...tutorForm, phone: e.target.value })}
+                    placeholder="+2348030000000"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Hourly Rate & Rating */}
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="font-bold text-slate-300 uppercase text-[10px]">Hourly Rate (₦)</label>
                   <input
@@ -1273,22 +1507,86 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
                     required
                     value={tutorForm.hourlyRate}
                     onChange={e => setTutorForm({ ...tutorForm, hourlyRate: e.target.value })}
+                    placeholder="30000"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-300 uppercase text-[10px]">Rating (★ 1.0 - 5.0)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="1.0"
+                    max="5.0"
+                    value={tutorForm.rating}
+                    onChange={e => setTutorForm({ ...tutorForm, rating: e.target.value })}
+                    placeholder="5.0"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-300 uppercase text-[10px]">Subjects (Comma separated)</label>
-                <input
-                  type="text"
-                  value={tutorForm.subjects}
-                  onChange={e => setTutorForm({ ...tutorForm, subjects: e.target.value })}
-                  placeholder="Mathematics, Physics, Chemistry"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
-                />
+              {/* Subjects & Grade Levels */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-300 uppercase text-[10px]">Subjects (Comma separated)</label>
+                  <input
+                    type="text"
+                    value={tutorForm.subjects}
+                    onChange={e => setTutorForm({ ...tutorForm, subjects: e.target.value })}
+                    placeholder="Mathematics, Physics, Chemistry"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-300 uppercase text-[10px]">Grade Levels (Comma separated)</label>
+                  <input
+                    type="text"
+                    value={tutorForm.levels}
+                    onChange={e => setTutorForm({ ...tutorForm, levels: e.target.value })}
+                    placeholder="Primary, Junior Secondary, Senior Secondary"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
               </div>
 
+              {/* Curricula & Status */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-300 uppercase text-[10px]">Curricula (Comma separated)</label>
+                  <input
+                    type="text"
+                    value={tutorForm.curricula}
+                    onChange={e => setTutorForm({ ...tutorForm, curricula: e.target.value })}
+                    placeholder="Loyola Jesuit, Junior WAEC, WAEC, IGCSE"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-300 uppercase text-[10px]">Status & Verification</label>
+                  <div className="flex items-center gap-3 pt-1">
+                    <select
+                      value={tutorForm.status}
+                      onChange={e => setTutorForm({ ...tutorForm, status: e.target.value })}
+                      className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs flex-1"
+                    >
+                      <option value="active">Active</option>
+                      <option value="suspended">Suspended</option>
+                    </select>
+                    <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer text-xs">
+                      <input
+                        type="checkbox"
+                        checked={tutorForm.verified}
+                        onChange={e => setTutorForm({ ...tutorForm, verified: e.target.checked })}
+                        className="rounded accent-emerald-500"
+                      />
+                      <span>Verified</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bio & Credentials */}
               <div className="space-y-1.5">
                 <label className="font-bold text-slate-300 uppercase text-[10px]">Bio & Credentials</label>
                 <textarea
@@ -1303,13 +1601,18 @@ export default function AdminDashboard({ onNavigate }: { onNavigate?: (tab: stri
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setShowTutorModal(false)}
+                  onClick={() => { setShowTutorModal(false); setEditingTutor(null); }}
                   className="btn btn-outline btn-sm border-slate-700 text-slate-400 hover:bg-slate-800"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary btn-sm font-bold px-6">
-                  Add Educator
+                <button 
+                  type="submit" 
+                  disabled={savingTutor || uploadingTutorPhoto} 
+                  className="btn btn-primary btn-sm font-bold px-6 flex items-center gap-1.5"
+                >
+                  {savingTutor && <RefreshCw size={14} className="animate-spin" />}
+                  <span>{savingTutor ? 'Saving...' : (editingTutor ? 'Save Changes' : 'Add Educator')}</span>
                 </button>
               </div>
             </form>

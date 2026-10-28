@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getAllTransactions, getAllAssessments } from '@/lib/storage'
+import { getAllTransactions, getAllAssessments, getAllTutors } from '@/lib/storage'
 
 export async function GET() {
   try {
@@ -64,6 +64,11 @@ export async function GET() {
         scheduledAt: a.scheduledAt,
         status: a.status || 'scheduled'
       }))
+    }
+
+    const allTutorsList = await getAllTutors()
+    if (allTutorsList && allTutorsList.length > 0) {
+      verifiedTutorsCount = allTutorsList.filter((t: any) => t.verified).length
     }
 
     return NextResponse.json({

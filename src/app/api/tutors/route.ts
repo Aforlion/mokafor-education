@@ -1,98 +1,68 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-
-const DEFAULT_TUTORS_LIST = [
-  {
-    id: 'tutor-mark-1',
-    name: 'Mark Okafor (CEO)',
-    specialty: 'Founder & Chief Educator',
-    subject: 'Mathematics',
-    grade: 'Primary, Junior & Senior',
-    curriculum: 'Loyola Jesuit / Junior WAEC / WAEC / SAT',
-    availability: 'Weekdays/Weekends',
-    language: 'English',
-    rating: 5.0,
-    rate: '₦30,000/hr',
-    bio: 'Founder & Chief Educator. Loyola Jesuit & Junior WAEC Master Educator passionate about simplifying complex equations and guiding learners to top exam rankings.',
-    avatar: '/founder.jpg'
-  },
-  {
-    id: 'tutor-jane-2',
-    name: 'Jane Alabi',
-    specialty: 'Loyola Jesuit & Junior WAEC Specialist',
-    subject: 'Mathematics',
-    grade: 'Junior & Senior Secondary',
-    curriculum: 'Loyola Jesuit / Junior WAEC / IGCSE',
-    availability: 'Weekdays',
-    language: 'English',
-    rating: 4.9,
-    rate: '₦20,000/hr',
-    bio: 'Loyola Jesuit Entrance & Junior WAEC (BECE) Specialist. 10+ years experience guiding students through Loyola Jesuit mock drills, Junior WAEC excellence, and IGCSE Mathematics mastery.',
-    avatar: '/tutors/jane_alabi.png'
-  },
-  {
-    id: 'tutor-victor-3',
-    name: 'Victor Elendu',
-    specialty: 'Loyola Jesuit & Junior WAEC Specialist',
-    subject: 'English Language & Literature',
-    grade: 'Junior & Senior Secondary',
-    curriculum: 'Loyola Jesuit / Junior WAEC / SAT / IELTS',
-    availability: 'Weekends',
-    language: 'English',
-    rating: 4.8,
-    rate: '₦20,000/hr',
-    bio: 'Loyola Jesuit & Junior WAEC (BECE) English Specialist. Expert in Verbal Reasoning, IELTS, TOEFL, SAT Reading & Writing, and WAEC English Literature mastery.',
-    avatar: '/tutors/victor_elendu.png'
-  }
-]
+import { getAllTutors } from '@/lib/storage'
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const subject = searchParams.get('subject') || ''
-    const grade = searchParams.get('grade') || ''
-    const curriculum = searchParams.get('curriculum') || ''
+    const subject = (searchParams.get('subject') || '').trim().toLowerCase()
+    const grade = (searchParams.get('grade') || '').trim().toLowerCase()
+    const curriculum = (searchParams.get('curriculum') || '').trim().toLowerCase()
 
-    let formattedTutors: any[] = []
+    const activeTutors = await getAllTutors('active')
 
-    try {
-      const whereClause: any = { status: 'active' }
-      if (subject) whereClause.subjects = { has: subject }
-      if (grade) whereClause.levels = { has: grade }
-      if (curriculum) whereClause.curricula = { has: curriculum }
+    const filtered = activeTutors.filter(t => {
+      // 1. Subject filter
+      if (subject && subject !== 'all') {
+        const primarySubj = (t.subject || '').toLowerCase()
+        const subjectsList = (t.subjects || []).map((s: string) => s.toLowerCase())
+        const matchesSubj = primarySubj.includes(subject) || subjectsList.some((s: string) => s.includes(subject))
+        if (!matchesSubj) return false
+      }
 
-      const tutors = await db.tutorProfile.findMany({
-        where: whereClause,
-        include: { profile: true }
-      })
+      // 2. Grade filter
+      if (grade && grade !== 'all') {
+        const primaryGrade = (t.grade || '').toLowerCase()
+        const levelsList = (t.levels || []).map((l: string) => l.toLowerCase())
+        const matchesGrade = primaryGrade.includes(grade) || levelsList.some((l: string) => l.includes(grade))
+        if (!matchesGrade) return false
+      }
 
-      formattedTutors = tutors.map((t: any) => ({
-        id: t.id,
-        name: t.profile ? `${t.profile.firstName} ${t.profile.lastName}` : 'Tutor',
-        specialty: 'Loyola Jesuit & Junior WAEC Specialist',
-        subject: t.subjects[0] || 'General',
-        grade: t.levels[0] || 'All Levels',
-        curriculum: t.curricula[0] || 'National',
-        availability: 'Weekdays/Weekends',
-        language: 'English',
-        rating: t.rating,
-        rate: `₦${t.hourlyRate.toLocaleString()}/hr`,
-        bio: t.bio,
-        avatar: t.profile?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
-      }))
-    } catch (e) {
-      console.warn('DB fetch tutors fallback active')
-    }
+      // 3. Curriculum filter
+      if (curriculum && curriculum !== 'all') {
+        const primaryCurr = (t.curriculum || '').toLowerCase()
+        const curriculaList = (t.curricula || []).map((c: string) => c.toLowerCase())
+        const matchesCurr = primaryCurr.includes(curriculum) || curriculaList.some((c: string) => c.includes(curriculum))
+        if (!matchesCurr) return false
+      }
 
-    if (!formattedTutors || formattedTutors.length === 0) {
-      formattedTutors = DEFAULT_TUTORS_LIST
-    }
+      return true
+    })
+
+    const formattedTutors = filtered.map(t => ({
+      id: t.id,
+      name: t.name,
+      specialty: t.specialty || 'Loyola Jesuit & Junior WAEC Specialist',
+      subject: t.subject || t.subjects?.[0] || 'Mathematics',
+      grade: t.grade || (t.levels && t.levels.length > 0 ? t.levels.join(', ') : 'Primary'),
+      curriculum: t.curriculum || (t.curricula && t.curricula.length > 0 ? t.curricula.join(' / ') : 'Loyola Jesuit'),
+      subjects: t.subjects || ['Mathematics'],
+      levels: t.levels || ['Primary'],
+      curricula: t.curricula || ['Loyola Jesuit'],
+      availability: t.availability || 'Weekdays/Weekends',
+      language: t.language || 'English',
+      rating: t.rating || 5.0,
+      rate: t.fee || `₦${(t.hourlyRate || 25000).toLocaleString()}/hr`,
+      hourlyRate: t.hourlyRate || 25000,
+      bio: t.bio || '',
+      avatar: t.avatar || '/founder.jpg',
+      verified: t.verified !== undefined ? t.verified : true
+    }))
 
     return NextResponse.json(formattedTutors)
   } catch (error) {
-    console.error('Error fetching tutors:', error)
-    return NextResponse.json(DEFAULT_TUTORS_LIST)
+    console.error('Error fetching public tutors:', error)
+    return NextResponse.json([])
   }
 }

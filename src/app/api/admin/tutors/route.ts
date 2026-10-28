@@ -1,108 +1,146 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getAllTutors, saveTutor, updateTutor, deleteTutor } from '@/lib/storage'
 
-const DEFAULT_TUTORS = [
-  {
-    id: 'tutor-mark-okafor',
-    profileId: 'prof-mark-1',
-    name: 'Mark Okafor (CEO)',
-    email: 'mark@mokafor.com',
-    phone: '+2348030000001',
-    avatar: '/founder.jpg',
-    bio: 'Founder & Chief Educator. Loyola Jesuit & Junior WAEC Master Educator passionate about simplifying complex equations.',
-    subjects: ['Mathematics', 'Physics', 'Exam Prep'],
-    levels: ['Junior Secondary', 'Senior Secondary'],
-    curricula: ['Loyola Jesuit', 'Junior WAEC', 'WAEC', 'IGCSE', 'JAMB'],
-    hourlyRate: 30000,
-    fee: '₦30,000/hr',
-    rating: 5.0,
-    totalReviews: 12,
-    verified: true,
-    status: 'active'
-  },
-  {
-    id: 'tutor-jane-alabi',
-    profileId: 'prof-jane-2',
-    name: 'Jane Alabi',
-    email: 'jane.alabi@mokafor.com',
-    phone: '+2348030000002',
-    avatar: '/tutors/jane_alabi.png',
-    bio: 'Loyola Jesuit Entrance & Junior WAEC (BECE) Specialist. 10+ years experience guiding students through Loyola Jesuit mock drills and IGCSE Mathematics mastery.',
-    subjects: ['Mathematics', 'Physics'],
-    levels: ['Junior & Senior Secondary'],
-    curricula: ['Loyola Jesuit', 'Junior WAEC', 'IGCSE', 'A Levels', 'WAEC'],
-    hourlyRate: 20000,
-    fee: '₦20,000/hr',
-    rating: 4.9,
-    totalReviews: 8,
-    verified: true,
-    status: 'active'
-  },
-  {
-    id: 'tutor-victor-elendu',
-    profileId: 'prof-victor-3',
-    name: 'Victor Elendu',
-    email: 'victor.elendu@mokafor.com',
-    phone: '+2348030000003',
-    avatar: '/tutors/victor_elendu.png',
-    bio: 'Loyola Jesuit & Junior WAEC (BECE) English Specialist. Expert in Verbal Reasoning, IELTS, TOEFL, SAT Reading & Writing, and WAEC English Literature mastery.',
-    subjects: ['English Language', 'Literature'],
-    levels: ['Junior & Senior Secondary'],
-    curricula: ['Loyola Jesuit', 'Junior WAEC', 'SAT', 'IELTS', 'WAEC'],
-    hourlyRate: 20000,
-    fee: '₦20,000/hr',
-    rating: 4.8,
-    totalReviews: 6,
-    verified: true,
-    status: 'active'
-  }
-]
-
+// GET /api/admin/tutors - Fetch all tutors with optional ?status= filter
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const status = searchParams.get('status')
-
-    let tutors: any[] = []
-    try {
-      const whereClause = status ? { status } : {}
-      const dbTutors = await db.tutorProfile.findMany({
-        where: whereClause,
-        include: { profile: true },
-        orderBy: { rating: 'desc' }
-      })
-
-      tutors = dbTutors.map((t: any) => ({
-        id: t.id,
-        profileId: t.profile?.id || t.id,
-        name: t.profile ? `${t.profile.firstName} ${t.profile.lastName}` : 'Tutor',
-        email: t.profile?.email || 'N/A',
-        phone: t.profile?.phone || 'N/A',
-        avatar: t.profile?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        bio: t.bio || 'Vetted Mokafor Educator',
-        subjects: t.subjects || ['Mathematics'],
-        levels: t.levels || ['Secondary'],
-        curricula: t.curricula || ['WAEC'],
-        hourlyRate: t.hourlyRate || 20000,
-        fee: `₦${(t.hourlyRate || 20000).toLocaleString()}/hr`,
-        rating: t.rating || 5.0,
-        totalReviews: t.totalReviews || 5,
-        verified: t.verified,
-        status: t.status || 'active'
-      }))
-    } catch (e) {
-      console.warn('DB fetch tutors fallback active')
-    }
-
-    if (!tutors || tutors.length === 0) {
-      tutors = status ? DEFAULT_TUTORS.filter(t => t.status === status) : DEFAULT_TUTORS
-    }
-
+    const status = searchParams.get('status') || undefined
+    const tutors = await getAllTutors(status)
     return NextResponse.json(tutors)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching admin tutors:', error)
-    return NextResponse.json(DEFAULT_TUTORS)
+    return NextResponse.json({ error: error.message || 'Failed to fetch tutors' }, { status: 500 })
+  }
+}
+
+// POST /api/admin/tutors - Add a new vetted educator
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    const { 
+      name, 
+      firstName, 
+      lastName, 
+      specialty, 
+      email, 
+      phone, 
+      avatar, 
+      bio, 
+      subjects, 
+      levels, 
+      curricula, 
+      hourlyRate, 
+      rating, 
+      verified, 
+      status 
+    } = body
+
+    const fullName = name || `${firstName || ''} ${lastName || ''}`.trim()
+    if (!fullName) {
+      return NextResponse.json({ error: 'Educator full name is required.' }, { status: 400 })
+    }
+
+    const subjectsArray = Array.isArray(subjects) 
+      ? subjects 
+      : (typeof subjects === 'string' ? subjects.split(',').map((s: string) => s.trim()).filter(Boolean) : ['Mathematics'])
+
+    const levelsArray = Array.isArray(levels)
+      ? levels
+      : (typeof levels === 'string' ? levels.split(',').map((s: string) => s.trim()).filter(Boolean) : ['Primary'])
+
+    const curriculaArray = Array.isArray(curricula)
+      ? curricula
+      : (typeof curricula === 'string' ? curricula.split(',').map((s: string) => s.trim()).filter(Boolean) : ['Loyola Jesuit'])
+
+    const result = await saveTutor({
+      name: fullName,
+      specialty: specialty || 'Loyola Jesuit & Junior WAEC Specialist',
+      email: email || `${fullName.toLowerCase().replace(/[^a-z0-9]/g, '')}@mokafor.com`,
+      phone: phone || '',
+      avatar: avatar || '/founder.jpg',
+      bio: bio || '',
+      subjects: subjectsArray,
+      levels: levelsArray,
+      curricula: curriculaArray,
+      hourlyRate: hourlyRate ? parseInt(String(hourlyRate).replace(/[^0-9]/g, '')) || 25000 : 25000,
+      rating: rating ? parseFloat(String(rating)) || 5.0 : 5.0,
+      verified: verified !== undefined ? Boolean(verified) : true,
+      status: status || 'active'
+    })
+
+    return NextResponse.json(result)
+  } catch (error: any) {
+    console.error('Error creating admin tutor:', error)
+    return NextResponse.json({ error: error.message || 'Failed to create tutor profile' }, { status: 500 })
+  }
+}
+
+// PUT /api/admin/tutors - Edit educator profile, picture, rate, status, or verification
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json()
+    const { id, ...data } = body
+
+    if (!id) {
+      return NextResponse.json({ error: 'Tutor ID is required for editing.' }, { status: 400 })
+    }
+
+    if (data.name === undefined && (data.firstName || data.lastName)) {
+      data.name = `${data.firstName || ''} ${data.lastName || ''}`.trim()
+    }
+
+    if (data.hourlyRate !== undefined) {
+      data.hourlyRate = parseInt(String(data.hourlyRate).replace(/[^0-9]/g, '')) || 25000
+    }
+
+    if (data.rating !== undefined) {
+      data.rating = parseFloat(String(data.rating)) || 5.0
+    }
+
+    if (data.subjects !== undefined && !Array.isArray(data.subjects)) {
+      data.subjects = String(data.subjects).split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+
+    if (data.levels !== undefined && !Array.isArray(data.levels)) {
+      data.levels = String(data.levels).split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+
+    if (data.curricula !== undefined && !Array.isArray(data.curricula)) {
+      data.curricula = String(data.curricula).split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+
+    const result = await updateTutor(id, data)
+    return NextResponse.json(result)
+  } catch (error: any) {
+    console.error('Error updating admin tutor:', error)
+    return NextResponse.json({ error: error.message || 'Failed to update tutor profile' }, { status: 500 })
+  }
+}
+
+// DELETE /api/admin/tutors - Remove educator profile
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    let id = searchParams.get('id')
+
+    if (!id) {
+      try {
+        const body = await request.json()
+        id = body.id
+      } catch (e) {}
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: 'Tutor ID is required for deletion.' }, { status: 400 })
+    }
+
+    const result = await deleteTutor(id)
+    return NextResponse.json(result)
+  } catch (error: any) {
+    console.error('Error deleting admin tutor:', error)
+    return NextResponse.json({ error: error.message || 'Failed to remove tutor' }, { status: 500 })
   }
 }

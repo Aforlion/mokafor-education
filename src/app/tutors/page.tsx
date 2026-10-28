@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -39,8 +39,9 @@ export default function TutorsPage() {
   const [selectedCurriculum, setSelectedCurriculum] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [isConsultationOpen, setIsConsultationOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const tutors: Tutor[] = [
+  const DEFAULT_TUTORS: Tutor[] = [
     {
       id: 't-mark-okafor',
       name: 'Mark Okafor',
@@ -81,6 +82,38 @@ export default function TutorsPage() {
       verified: true,
     },
   ]
+
+  const [tutors, setTutors] = useState<Tutor[]>(DEFAULT_TUTORS)
+
+  useEffect(() => {
+    async function loadTutors() {
+      try {
+        setLoading(true)
+        const res = await fetch('/api/tutors')
+        const data = await res.json()
+        if (Array.isArray(data) && data.length > 0) {
+          setTutors(data.map((t: any) => ({
+            id: t.id,
+            name: t.name,
+            title: t.specialty || t.title || 'Master Educator',
+            avatar: t.avatar || '/founder.jpg',
+            rating: t.rating || 5.0,
+            reviews: t.reviews || t.totalReviews || 8,
+            hourlyRate: t.rate || t.fee || `₦${(t.hourlyRate || 25000).toLocaleString()} / hr`,
+            subjects: t.subjects || [t.subject || 'Mathematics'],
+            curricula: t.curricula || [t.curriculum || 'Loyola Jesuit'],
+            bio: t.bio || '',
+            verified: t.verified !== undefined ? t.verified : true
+          })))
+        }
+      } catch (err) {
+        console.warn('Failed to load dynamic tutors, using default list')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadTutors()
+  }, [])
 
   const filteredTutors = tutors.filter(tutor => {
     const matchesSubject = selectedSubject === 'All' || tutor.subjects.includes(selectedSubject)

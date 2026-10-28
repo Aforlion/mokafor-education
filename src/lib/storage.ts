@@ -8,7 +8,80 @@ const FILE_PATH = path.join(DATA_DIR, 'records.json')
 interface LocalStore {
   assessments: any[]
   transactions: any[]
+  tutors: any[]
 }
+
+export const DEFAULT_STORED_TUTORS = [
+  {
+    id: 'tutor-mark-okafor',
+    profileId: 'prof-mark-1',
+    name: 'Mark Okafor',
+    specialty: 'Loyola Jesuit & Junior WAEC Specialist',
+    email: 'mark@mokafor.com',
+    phone: '+2348030000001',
+    avatar: '/founder.jpg',
+    bio: 'Founder & Chief Educator. Loyola Jesuit & Junior WAEC Master Educator passionate about simplifying complex equations and guiding learners to top exam rankings.',
+    subject: 'Mathematics',
+    grade: 'Primary',
+    curriculum: 'Loyola Jesuit',
+    subjects: ['Mathematics', 'Further Mathematics', 'Quantitative Reasoning'],
+    levels: ['Primary', 'Junior Secondary', 'Senior Secondary'],
+    curricula: ['Loyola Jesuit', 'Junior WAEC', 'WAEC', 'IGCSE', 'JAMB', 'SAT'],
+    hourlyRate: 30000,
+    fee: '₦30,000/hr',
+    rating: 5.0,
+    totalReviews: 12,
+    verified: true,
+    status: 'active',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tutor-jane-alabi',
+    profileId: 'prof-jane-2',
+    name: 'Jane Alabi',
+    specialty: 'Loyola Jesuit & Junior WAEC Specialist',
+    email: 'jane.alabi@mokafor.com',
+    phone: '+2348030000002',
+    avatar: '/tutors/jane_alabi.png',
+    bio: 'Loyola Jesuit Entrance & Junior WAEC (BECE) Specialist. 10+ years experience guiding students through Loyola Jesuit mock drills, Junior WAEC excellence, and IGCSE Mathematics mastery.',
+    subject: 'Mathematics',
+    grade: 'Junior Secondary',
+    curriculum: 'Loyola Jesuit',
+    subjects: ['Mathematics', 'Physics', 'Chemistry'],
+    levels: ['Junior Secondary', 'Senior Secondary'],
+    curricula: ['Loyola Jesuit', 'Junior WAEC', 'IGCSE', 'A Levels', 'WAEC'],
+    hourlyRate: 20000,
+    fee: '₦20,000/hr',
+    rating: 4.9,
+    totalReviews: 8,
+    verified: true,
+    status: 'active',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tutor-victor-elendu',
+    profileId: 'prof-victor-3',
+    name: 'Victor Elendu',
+    specialty: 'Loyola Jesuit & Junior WAEC Specialist',
+    email: 'victor.elendu@mokafor.com',
+    phone: '+2348030000003',
+    avatar: '/tutors/victor_elendu.png',
+    bio: 'Loyola Jesuit & Junior WAEC (BECE) English Specialist. Expert in Verbal Reasoning, IELTS, TOEFL, SAT Reading & Writing, and WAEC English Literature mastery.',
+    subject: 'English Language',
+    grade: 'Junior Secondary',
+    curriculum: 'Loyola Jesuit',
+    subjects: ['English Language', 'Verbal Reasoning', 'Literature in English'],
+    levels: ['Junior Secondary', 'Senior Secondary'],
+    curricula: ['Loyola Jesuit', 'Junior WAEC', 'SAT', 'IELTS', 'WAEC'],
+    hourlyRate: 20000,
+    fee: '₦20,000/hr',
+    rating: 4.8,
+    totalReviews: 6,
+    verified: true,
+    status: 'active',
+    createdAt: new Date().toISOString()
+  }
+]
 
 const inMemoryStore: LocalStore = {
   assessments: [
@@ -42,7 +115,8 @@ const inMemoryStore: LocalStore = {
       description: 'Payment for Common Entrance & Loyola Prep plan',
       createdAt: new Date().toISOString()
     }
-  ]
+  ],
+  tutors: [...DEFAULT_STORED_TUTORS]
 }
 
 function getLocalStore(): LocalStore {
@@ -55,7 +129,12 @@ function getLocalStore(): LocalStore {
       return inMemoryStore
     }
     const data = fs.readFileSync(FILE_PATH, 'utf-8')
-    return JSON.parse(data)
+    const parsed = JSON.parse(data)
+    if (!parsed.tutors || !Array.isArray(parsed.tutors) || parsed.tutors.length === 0) {
+      parsed.tutors = [...DEFAULT_STORED_TUTORS]
+      saveLocalStore(parsed)
+    }
+    return parsed
   } catch (e) {
     return inMemoryStore
   }
@@ -346,4 +425,272 @@ export async function getAllTransactions() {
     }
   }
   return Array.from(map.values())
+}
+
+// ------------------- VETTED EDUCATORS / TUTORS -------------------
+
+export async function getAllTutors(filterStatus?: string) {
+  const store = getLocalStore()
+  let dbTutors: any[] = []
+
+  try {
+    const tutors = await db.tutorProfile.findMany({
+      include: { profile: true },
+      orderBy: { rating: 'desc' }
+    })
+
+    dbTutors = tutors.map((t: any) => ({
+      id: t.id,
+      profileId: t.profile?.id || t.id,
+      name: t.profile ? `${t.profile.firstName} ${t.profile.lastName}`.trim() : 'Tutor',
+      specialty: t.qualifications?.specialty || 'Loyola Jesuit & Junior WAEC Specialist',
+      email: t.profile?.email || 'N/A',
+      phone: t.profile?.phone || 'N/A',
+      avatar: t.profile?.avatarUrl || '/founder.jpg',
+      bio: t.bio || '',
+      subject: t.subjects?.[0] || 'Mathematics',
+      grade: t.levels?.[0] || 'Primary',
+      curriculum: t.curricula?.[0] || 'Loyola Jesuit',
+      subjects: t.subjects || ['Mathematics'],
+      levels: t.levels || ['Primary'],
+      curricula: t.curricula || ['Loyola Jesuit'],
+      hourlyRate: t.hourlyRate || 25000,
+      fee: `₦${(t.hourlyRate || 25000).toLocaleString()}/hr`,
+      rating: t.rating || 5.0,
+      totalReviews: t.totalReviews || 1,
+      verified: t.verified !== undefined ? t.verified : true,
+      status: t.status || 'active',
+      createdAt: t.profile?.createdAt?.toISOString?.() || new Date().toISOString()
+    }))
+  } catch (e) {
+    // DB offline or unreachable, fallback to file & in-memory store
+  }
+
+  const map = new Map<string, any>()
+  for (const t of DEFAULT_STORED_TUTORS) {
+    map.set(t.id, { ...t })
+  }
+  for (const t of inMemoryStore.tutors || []) {
+    if (t && t.id) map.set(t.id, { ...t })
+  }
+  for (const t of store.tutors || []) {
+    if (t && t.id) map.set(t.id, { ...t })
+  }
+  for (const t of dbTutors) {
+    if (t && t.id) map.set(t.id, { ...t })
+  }
+
+  let result = Array.from(map.values())
+  if (filterStatus && filterStatus !== 'All') {
+    result = result.filter(t => t.status === filterStatus)
+  }
+  return result
+}
+
+export async function saveTutor(data: {
+  name: string
+  specialty?: string
+  email: string
+  phone?: string
+  avatar?: string
+  bio?: string
+  subjects?: string[]
+  levels?: string[]
+  curricula?: string[]
+  hourlyRate?: number
+  rating?: number
+  verified?: boolean
+  status?: string
+}) {
+  const tutorId = `tutor-${(data.name || 'educator').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Math.floor(1000 + Math.random() * 9000)}`
+  const hourlyRate = data.hourlyRate ? Number(data.hourlyRate) : 25000
+  const subjects = data.subjects && data.subjects.length > 0 ? data.subjects : ['Mathematics']
+  const levels = data.levels && data.levels.length > 0 ? data.levels : ['Primary']
+  const curricula = data.curricula && data.curricula.length > 0 ? data.curricula : ['Loyola Jesuit']
+  const specialty = data.specialty || 'Loyola Jesuit & Junior WAEC Specialist'
+
+  const newTutor = {
+    id: tutorId,
+    profileId: tutorId,
+    name: data.name.trim(),
+    specialty,
+    email: data.email.trim(),
+    phone: data.phone?.trim() || '',
+    avatar: data.avatar || '/founder.jpg',
+    bio: data.bio || '',
+    subject: subjects[0] || 'Mathematics',
+    grade: levels[0] || 'Primary',
+    curriculum: curricula[0] || 'Loyola Jesuit',
+    subjects,
+    levels,
+    curricula,
+    hourlyRate,
+    fee: `₦${hourlyRate.toLocaleString()}/hr`,
+    rating: data.rating !== undefined ? Number(data.rating) : 5.0,
+    totalReviews: 1,
+    verified: data.verified !== undefined ? Boolean(data.verified) : true,
+    status: data.status || 'active',
+    createdAt: new Date().toISOString()
+  }
+
+  if (!inMemoryStore.tutors) inMemoryStore.tutors = [...DEFAULT_STORED_TUTORS]
+  inMemoryStore.tutors.unshift(newTutor)
+
+  const store = getLocalStore()
+  if (!store.tutors) store.tutors = [...DEFAULT_STORED_TUTORS]
+  store.tutors.unshift(newTutor)
+  saveLocalStore(store)
+
+  try {
+    const splitName = newTutor.name.split(' ')
+    const firstName = splitName[0] || 'Tutor'
+    const lastName = splitName.slice(1).join(' ') || ''
+
+    await db.profile.create({
+      data: {
+        id: tutorId,
+        clerkId: `clerk_${tutorId}`,
+        role: 'tutor',
+        firstName,
+        lastName,
+        email: newTutor.email || `${tutorId}@mokafor.com`,
+        phone: newTutor.phone || null,
+        avatarUrl: newTutor.avatar,
+        tutorProfile: {
+          create: {
+            bio: newTutor.bio,
+            subjects: newTutor.subjects,
+            levels: newTutor.levels,
+            curricula: newTutor.curricula,
+            hourlyRate: newTutor.hourlyRate,
+            rating: newTutor.rating,
+            totalReviews: newTutor.totalReviews,
+            verified: newTutor.verified,
+            status: newTutor.status,
+            qualifications: { specialty: newTutor.specialty }
+          }
+        }
+      }
+    })
+  } catch (err) {
+    console.warn('PostgreSQL write fallback active for tutor:', err)
+  }
+
+  return { success: true, tutor: newTutor }
+}
+
+export async function updateTutor(id: string, data: any) {
+  const store = getLocalStore()
+  if (!store.tutors) store.tutors = [...DEFAULT_STORED_TUTORS]
+  if (!inMemoryStore.tutors) inMemoryStore.tutors = [...DEFAULT_STORED_TUTORS]
+
+  let existing = store.tutors.find((t: any) => t.id === id) || inMemoryStore.tutors.find((t: any) => t.id === id)
+  if (!existing) {
+    existing = DEFAULT_STORED_TUTORS.find(t => t.id === id)
+  }
+
+  const subjects = data.subjects ? (Array.isArray(data.subjects) ? data.subjects : data.subjects.split(',').map((s: string) => s.trim()).filter(Boolean)) : existing?.subjects || ['Mathematics']
+  const levels = data.levels ? (Array.isArray(data.levels) ? data.levels : data.levels.split(',').map((s: string) => s.trim()).filter(Boolean)) : existing?.levels || ['Primary']
+  const curricula = data.curricula ? (Array.isArray(data.curricula) ? data.curricula : data.curricula.split(',').map((s: string) => s.trim()).filter(Boolean)) : existing?.curricula || ['Loyola Jesuit']
+  const hourlyRate = data.hourlyRate !== undefined ? Number(data.hourlyRate) : existing?.hourlyRate || 25000
+
+  const updatedTutor = {
+    ...existing,
+    id,
+    profileId: existing?.profileId || id,
+    name: data.name !== undefined ? data.name.trim() : (existing?.name || 'Tutor'),
+    specialty: data.specialty !== undefined ? data.specialty : (existing?.specialty || 'Loyola Jesuit & Junior WAEC Specialist'),
+    email: data.email !== undefined ? data.email.trim() : (existing?.email || ''),
+    phone: data.phone !== undefined ? data.phone.trim() : (existing?.phone || ''),
+    avatar: data.avatar !== undefined ? data.avatar : (existing?.avatar || '/founder.jpg'),
+    bio: data.bio !== undefined ? data.bio : (existing?.bio || ''),
+    subject: subjects[0] || 'Mathematics',
+    grade: levels[0] || 'Primary',
+    curriculum: curricula[0] || 'Loyola Jesuit',
+    subjects,
+    levels,
+    curricula,
+    hourlyRate,
+    fee: `₦${hourlyRate.toLocaleString()}/hr`,
+    rating: data.rating !== undefined ? Number(data.rating) : (existing?.rating || 5.0),
+    totalReviews: data.totalReviews !== undefined ? Number(data.totalReviews) : (existing?.totalReviews || 1),
+    verified: data.verified !== undefined ? Boolean(data.verified) : (existing?.verified ?? true),
+    status: data.status !== undefined ? data.status : (existing?.status || 'active'),
+    updatedAt: new Date().toISOString()
+  }
+
+  const memIdx = inMemoryStore.tutors.findIndex((t: any) => t.id === id)
+  if (memIdx >= 0) inMemoryStore.tutors[memIdx] = updatedTutor
+  else inMemoryStore.tutors.unshift(updatedTutor)
+
+  const storeIdx = store.tutors.findIndex((t: any) => t.id === id)
+  if (storeIdx >= 0) store.tutors[storeIdx] = updatedTutor
+  else store.tutors.unshift(updatedTutor)
+  saveLocalStore(store)
+
+  try {
+    const splitName = (updatedTutor.name || '').split(' ')
+    const firstName = splitName[0] || 'Tutor'
+    const lastName = splitName.slice(1).join(' ') || ''
+
+    await db.profile.update({
+      where: { id: updatedTutor.profileId || id },
+      data: {
+        firstName,
+        lastName,
+        email: updatedTutor.email,
+        phone: updatedTutor.phone,
+        avatarUrl: updatedTutor.avatar,
+        tutorProfile: {
+          upsert: {
+            create: {
+              bio: updatedTutor.bio,
+              subjects: updatedTutor.subjects,
+              levels: updatedTutor.levels,
+              curricula: updatedTutor.curricula,
+              hourlyRate: updatedTutor.hourlyRate,
+              rating: updatedTutor.rating,
+              verified: updatedTutor.verified,
+              status: updatedTutor.status,
+              qualifications: { specialty: updatedTutor.specialty }
+            },
+            update: {
+              bio: updatedTutor.bio,
+              subjects: updatedTutor.subjects,
+              levels: updatedTutor.levels,
+              curricula: updatedTutor.curricula,
+              hourlyRate: updatedTutor.hourlyRate,
+              rating: updatedTutor.rating,
+              verified: updatedTutor.verified,
+              status: updatedTutor.status,
+              qualifications: { specialty: updatedTutor.specialty }
+            }
+          }
+        }
+      }
+    })
+  } catch (err) {
+    console.warn('PostgreSQL update fallback active for tutor:', err)
+  }
+
+  return { success: true, tutor: updatedTutor }
+}
+
+export async function deleteTutor(id: string) {
+  const store = getLocalStore()
+  if (!store.tutors) store.tutors = [...DEFAULT_STORED_TUTORS]
+  if (!inMemoryStore.tutors) inMemoryStore.tutors = [...DEFAULT_STORED_TUTORS]
+
+  store.tutors = store.tutors.filter((t: any) => t.id !== id)
+  inMemoryStore.tutors = inMemoryStore.tutors.filter((t: any) => t.id !== id)
+  saveLocalStore(store)
+
+  try {
+    await db.tutorProfile.delete({ where: { id } }).catch(() => {})
+    await db.profile.delete({ where: { id } }).catch(() => {})
+  } catch (err) {
+    console.warn('PostgreSQL delete fallback active for tutor:', err)
+  }
+
+  return { success: true, message: 'Tutor deleted successfully' }
 }
