@@ -104,10 +104,27 @@ export async function GET(
       })
     }))
 
+    // Compute dynamic base price and bundle discounted price based on video lessons and discountPercent
+    const allVideos = rawModules.flatMap((m: any) => m.videos || [])
+    const sumOfLessons = allVideos.reduce((sum: number, v: any) => sum + (v.price || 2000), 0)
+    const basePrice = sumOfLessons > 0 ? sumOfLessons : (course.price > 0 ? course.price : 2000)
+    const discountPercent = course.discountPercent !== null && course.discountPercent !== undefined && Number(course.discountPercent) > 0
+      ? Number(course.discountPercent)
+      : (course.discountPrice && course.discountPrice < basePrice ? Math.round(((basePrice - course.discountPrice) / basePrice) * 100) : 0)
+    const computedDiscountPrice = discountPercent > 0 
+      ? Math.round(basePrice * (1 - discountPercent / 100)) 
+      : (course.discountPrice && course.discountPrice < basePrice ? course.discountPrice : basePrice)
+
     return NextResponse.json({
       success: true,
       course: {
         ...course,
+        price: basePrice,
+        discountPercent,
+        discountPrice: discountPercent > 0 && computedDiscountPrice < basePrice ? computedDiscountPrice : (course.discountPrice && course.discountPrice < basePrice ? course.discountPrice : null),
+        computedBasePrice: basePrice,
+        computedDiscountPrice: computedDiscountPrice,
+        computedDiscountPercent: discountPercent,
         modules: sanitizedModules,
         isEnrolled,
         unlockedVideoIds

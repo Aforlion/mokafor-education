@@ -58,6 +58,10 @@ interface CourseDetail {
   category: string
   price: number
   discountPrice?: number | null
+  discountPercent?: number | null
+  computedBasePrice?: number
+  computedDiscountPrice?: number
+  computedDiscountPercent?: number
   isPublished: boolean
   featured: boolean
   modules: ModuleItem[]
@@ -260,12 +264,23 @@ export default function CourseDetailPage() {
   
   // Calculate total course undiscounted value as sum of all video lesson prices
   const sumOfLessonPrices = allVideos.reduce((acc, v) => acc + (v.price || 2000), 0)
-  const calculatedBasePrice = sumOfLessonPrices > 0 ? sumOfLessonPrices : course.price
-  const bundleDiscountPrice = course.discountPrice && course.discountPrice < calculatedBasePrice ? course.discountPrice : calculatedBasePrice
+  const calculatedBasePrice = (course as any).computedBasePrice || (sumOfLessonPrices > 0 ? sumOfLessonPrices : (course.price > 0 ? course.price : 2000))
 
-  const discountPercent = course.discountPrice && course.discountPrice < calculatedBasePrice
-    ? Math.round(((calculatedBasePrice - course.discountPrice) / calculatedBasePrice) * 100)
-    : null
+  const discountPercent = (course as any).computedDiscountPercent !== undefined && (course as any).computedDiscountPercent !== null && Number((course as any).computedDiscountPercent) > 0
+    ? Number((course as any).computedDiscountPercent)
+    : (course.discountPercent !== undefined && course.discountPercent !== null && Number(course.discountPercent) > 0
+        ? Number(course.discountPercent)
+        : (course.discountPrice && course.discountPrice < calculatedBasePrice
+            ? Math.round(((calculatedBasePrice - course.discountPrice) / calculatedBasePrice) * 100)
+            : 0))
+
+  const bundleDiscountPrice = (course as any).computedDiscountPrice && (course as any).computedDiscountPrice < calculatedBasePrice
+    ? (course as any).computedDiscountPrice
+    : (discountPercent > 0
+        ? Math.round(calculatedBasePrice * (1 - discountPercent / 100))
+        : (course.discountPrice && course.discountPrice < calculatedBasePrice ? course.discountPrice : calculatedBasePrice))
+
+  const hasDiscount = discountPercent > 0 && bundleDiscountPrice < calculatedBasePrice
 
   const firstLockedLesson = allVideos.find(v => !enrolledFullCourse && !unlockedVideoIds.includes(v.id)) || allVideos[0]
   const minLessonPrice = allVideos.length > 0
@@ -317,7 +332,7 @@ export default function CourseDetailPage() {
               <span className="bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold px-3 py-1 rounded-md">
                 {course.level} Level
               </span>
-              {discountPercent && (
+              {hasDiscount && (
                 <span className="bg-gradient-to-r from-amber-500 to-rose-500 text-white text-xs font-extrabold px-3 py-1 rounded-md shadow-md flex items-center gap-1">
                   <Tag className="w-3.5 h-3.5" /> SAVE {discountPercent}% ON FULL BUNDLE
                 </span>
@@ -402,7 +417,7 @@ export default function CourseDetailPage() {
                   <span className="text-xl font-black text-emerald-400">
                     {formatNaira(bundleDiscountPrice)}
                   </span>
-                  {discountPercent && (
+                  {hasDiscount && (
                     <span className="block text-[10px] text-slate-500 line-through">
                       {formatNaira(calculatedBasePrice)}
                     </span>
@@ -649,7 +664,7 @@ export default function CourseDetailPage() {
         videoTitle={checkoutVideoTarget?.title}
         lessonPrice={checkoutVideoTarget?.price || minLessonPrice}
         fullCoursePrice={calculatedBasePrice}
-        discountPrice={bundleDiscountPrice}
+        discountPrice={hasDiscount ? bundleDiscountPrice : null}
         onSuccess={handleCheckoutSuccess}
       />
 

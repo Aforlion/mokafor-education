@@ -248,7 +248,7 @@ export default function PaystackCheckoutModal({
               </div>
               <div className="text-right shrink-0">
                 <span className="text-lg font-black text-emerald-400">{formatNaira(effectiveCoursePrice)}</span>
-                {discountPrice && (
+                {discountPrice && discountPrice < fullCoursePrice && (
                   <span className="block text-[10px] text-slate-500 line-through">{formatNaira(fullCoursePrice)}</span>
                 )}
               </div>

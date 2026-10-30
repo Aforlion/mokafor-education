@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { saveTransaction } from '@/lib/storage'
+import { db } from '@/lib/db'
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +14,36 @@ export async function POST(request: Request) {
     }
 
     const parsedNaira = parseInt(String(amount).replace(/[^0-9]/g, '')) || 100000
-    const koboAmount = parsedNaira * 100
+    let finalNaira = parsedNaira
+
+    // Ensure user receives full discount pricing for course bundles if discount is configured
+    if ((courseId || courseSlug) && type === 'course') {
+      try {
+        const course = await db.course.findFirst({
+          where: courseId ? { id: courseId } : { slug: courseSlug },
+          include: { modules: { include: { videos: true } } }
+        })
+        if (course) {
+          const allVideos = (course.modules || []).flatMap((m: any) => m.videos || [])
+          const sumOfLessons = allVideos.reduce((sum: number, v: any) => sum + (v.price || 2000), 0)
+          const basePrice = sumOfLessons > 0 ? sumOfLessons : (course.price > 0 ? course.price : 2000)
+          const discountPercent = course.discountPercent !== null && course.discountPercent !== undefined && Number(course.discountPercent) > 0
+            ? Number(course.discountPercent)
+            : (course.discountPrice && course.discountPrice < basePrice ? Math.round(((basePrice - course.discountPrice) / basePrice) * 100) : 0)
+          const computedDiscountPrice = discountPercent > 0 
+            ? Math.round(basePrice * (1 - discountPercent / 100)) 
+            : (course.discountPrice && course.discountPrice < basePrice ? course.discountPrice : basePrice)
+
+          if (computedDiscountPrice < finalNaira) {
+            finalNaira = computedDiscountPrice
+          }
+        }
+      } catch (err) {
+        console.warn('Course pricing verification notice:', err)
+      }
+    }
+
+    const koboAmount = finalNaira * 100
     const paystackRef = 'MOK-PAY-' + Math.floor(100000 + Math.random() * 900000)
 
     const defaultEncodedKey = 'c2tfbGl2ZV83NzAyZTA5ZjQwYzQ3MjcwZDM0MWQ0OTMzMmQ3MzBlMDc1Y2ZmZWMy'
@@ -65,7 +95,7 @@ export async function POST(request: Request) {
         await saveTransaction({
           name,
           email,
-          amount: parsedNaira,
+          amount: finalNaira,
           plan,
           studentName,
           grade,

@@ -22,7 +22,25 @@ export async function GET() {
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }]
     })
 
-    return NextResponse.json({ success: true, courses })
+    const enriched = courses.map((c: any) => {
+      const allVideos = c.modules.flatMap((m: any) => m.videos)
+      const sumOfLessons = allVideos.reduce((sum: number, v: any) => sum + (v.price || 2000), 0)
+      const basePrice = sumOfLessons > 0 ? sumOfLessons : (c.price > 0 ? c.price : 2000)
+      const discountPercent = c.discountPercent ?? 0
+      const calculatedDiscountPrice = discountPercent > 0 ? Math.round(basePrice * (1 - discountPercent / 100)) : (c.discountPrice || basePrice)
+
+      return {
+        ...c,
+        price: basePrice,
+        discountPercent,
+        discountPrice: discountPercent > 0 ? calculatedDiscountPrice : null,
+        computedBasePrice: basePrice,
+        computedDiscountPrice: calculatedDiscountPrice,
+        computedDiscountPercent: discountPercent
+      }
+    })
+
+    return NextResponse.json({ success: true, courses: enriched })
   } catch (error: any) {
     console.error('Error fetching admin courses:', error)
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
@@ -139,6 +157,32 @@ export async function POST(request: Request) {
       if (!courseId) {
         return NextResponse.json({ success: false, error: 'Course ID required' }, { status: 400 })
       }
+
+      let calculatedPrice = price !== undefined ? Number(price) : undefined
+      let calculatedDiscountPrice = discountPrice !== undefined ? (discountPrice !== null && discountPrice !== '' ? Number(discountPrice) : null) : undefined
+      const parsedDiscountPercent = discountPercent !== undefined ? Number(discountPercent) : undefined
+
+      try {
+        const existingCourse = await db.course.findUnique({
+          where: { id: courseId },
+          include: { modules: { include: { videos: true } } }
+        })
+        if (existingCourse) {
+          const allVideos = existingCourse.modules.flatMap((m: any) => m.videos || [])
+          const sumOfLessons = allVideos.reduce((sum: number, v: any) => sum + (v.price || 2000), 0)
+          calculatedPrice = sumOfLessons > 0 ? sumOfLessons : (existingCourse.price > 0 ? existingCourse.price : 2000)
+
+          const pct = parsedDiscountPercent !== undefined ? parsedDiscountPercent : (existingCourse.discountPercent || 0)
+          if (calculatedPrice !== undefined && pct > 0) {
+            calculatedDiscountPrice = Math.round(calculatedPrice * (1 - pct / 100))
+          } else if (calculatedDiscountPrice === undefined) {
+            calculatedDiscountPrice = null
+          }
+        }
+      } catch (calcErr) {
+        console.warn('Could not recalculate course pricing on update:', calcErr)
+      }
+
       const updated = await db.course.update({
         where: { id: courseId },
         data: {
@@ -147,9 +191,9 @@ export async function POST(request: Request) {
           description: description || undefined,
           category: category || undefined,
           level: level || undefined,
-          price: price !== undefined ? Number(price) : undefined,
-          discountPrice: discountPrice !== undefined ? (discountPrice !== null && discountPrice !== '' ? Number(discountPrice) : null) : undefined,
-          discountPercent: discountPercent !== undefined ? Number(discountPercent) : undefined,
+          price: calculatedPrice !== undefined ? calculatedPrice : undefined,
+          discountPrice: calculatedDiscountPrice !== undefined ? calculatedDiscountPrice : undefined,
+          discountPercent: parsedDiscountPercent !== undefined ? parsedDiscountPercent : undefined,
           thumbnailUrl: thumbnailUrl !== undefined ? thumbnailUrl : undefined,
           isPublished: isPublished !== undefined ? Boolean(isPublished) : undefined,
           featured: featured !== undefined ? Boolean(featured) : undefined,

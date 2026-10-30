@@ -53,6 +53,9 @@ export async function GET(request: Request) {
 
       return {
         ...c,
+        price: basePrice,
+        discountPercent,
+        discountPrice: discountPercent > 0 && computedDiscountPrice < basePrice ? computedDiscountPrice : (c.discountPrice && c.discountPrice < basePrice ? c.discountPrice : null),
         computedBasePrice: basePrice,
         computedDiscountPrice: computedDiscountPrice,
         computedDiscountPercent: discountPercent

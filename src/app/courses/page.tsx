@@ -360,8 +360,20 @@ export default function CoursesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredCourses.map(course => {
-              const discountPercent = getDiscountPercent(course.price, course.discountPrice)
-              const totalVideos = course.modules.reduce((acc: number, m: ModuleItem) => acc + m.videos.length, 0)
+              const allVideos = course.modules.flatMap((m: ModuleItem) => m.videos)
+              const totalVideos = allVideos.length
+              const sumOfLessons = allVideos.reduce((sum, v) => sum + (v.price || 2000), 0)
+              const calculatedBasePrice = (course as any).computedBasePrice || (sumOfLessons > 0 ? sumOfLessons : (course.price > 0 ? course.price : 2000))
+              const discountPercent = (course as any).computedDiscountPercent !== undefined && (course as any).computedDiscountPercent !== null && Number((course as any).computedDiscountPercent) > 0
+                ? Number((course as any).computedDiscountPercent)
+                : ((course as any).discountPercent !== undefined && (course as any).discountPercent !== null && Number((course as any).discountPercent) > 0
+                    ? Number((course as any).discountPercent)
+                    : (course.discountPrice && course.discountPrice < calculatedBasePrice ? Math.round(((calculatedBasePrice - course.discountPrice) / calculatedBasePrice) * 100) : 0))
+              const calculatedPackagePrice = (course as any).computedDiscountPrice && (course as any).computedDiscountPrice < calculatedBasePrice
+                ? (course as any).computedDiscountPrice
+                : (discountPercent > 0 ? Math.round(calculatedBasePrice * (1 - discountPercent / 100)) : (course.discountPrice && course.discountPrice < calculatedBasePrice ? course.discountPrice : calculatedBasePrice))
+              const hasDiscount = discountPercent > 0 && calculatedPackagePrice < calculatedBasePrice
+
               const snippetVideo = course.modules
                 .flatMap(m => m.videos)
                 .find(v => v.isSnippet || v.snippetUrl)
@@ -391,7 +403,7 @@ export default function CoursesPage() {
                     </div>
 
                     {/* Discount Badge */}
-                    {discountPercent && (
+                    {hasDiscount && (
                       <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1 animate-pulse">
                         <Tag className="w-3.5 h-3.5" />
                         <span>SAVE {discountPercent}%</span>
@@ -407,8 +419,8 @@ export default function CoursesPage() {
                             videoUrl: snippetVideo.snippetUrl || snippetVideo.videoUrl,
                             courseTitle: course.title,
                             courseSlug: course.slug,
-                            discountPrice: course.discountPrice,
-                            price: course.price
+                            discountPrice: hasDiscount ? calculatedPackagePrice : null,
+                            price: calculatedBasePrice
                           })
                         }
                         className="absolute inset-0 m-auto w-14 h-14 bg-amber-500/90 hover:bg-amber-400 text-slate-950 rounded-full flex items-center justify-center shadow-xl shadow-amber-500/40 group-hover:scale-110 transition-transform cursor-pointer"
@@ -452,72 +464,62 @@ export default function CoursesPage() {
                     </div>
 
                     {/* Pricing & CTA Section */}
-                    {(() => {
-                      const allVideos = course.modules.flatMap((m: ModuleItem) => m.videos)
-                      const sumOfLessons = allVideos.reduce((sum, v) => sum + (v.price || 2000), 0)
-                      const calculatedBasePrice = (course as any).computedBasePrice || (sumOfLessons > 0 ? sumOfLessons : (course.price > 0 ? course.price : 2000))
-                      const discountPercent = (course as any).computedDiscountPercent || (course as any).discountPercent || (course.discountPrice && course.discountPrice < calculatedBasePrice ? Math.round(((calculatedBasePrice - course.discountPrice) / calculatedBasePrice) * 100) : 0)
-                      const calculatedPackagePrice = (course as any).computedDiscountPrice || (discountPercent > 0 ? Math.round(calculatedBasePrice * (1 - discountPercent / 100)) : (course.discountPrice || calculatedBasePrice))
-
-                      return (
-                        <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-                          {/* Pricing Display */}
+                    <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                      {/* Pricing Display */}
+                      <div>
+                        {hasDiscount ? (
                           <div>
-                            {discountPercent > 0 && calculatedPackagePrice < calculatedBasePrice ? (
-                              <div>
-                                <div className="flex items-baseline gap-2">
-                                  <span className="text-2xl font-black text-amber-400">
-                                    {formatNaira(calculatedPackagePrice)}
-                                  </span>
-                                  <span className="text-sm font-semibold text-slate-500 line-through">
-                                    {formatNaira(calculatedBasePrice)}
-                                  </span>
-                                </div>
-                                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
-                                  SAVE {discountPercent}% PACKAGE DEAL
-                                </span>
-                              </div>
-                            ) : (
-                              <div>
-                                <span className="text-2xl font-black text-amber-400">
-                                  {formatNaira(calculatedPackagePrice)}
-                                </span>
-                                <span className="block text-[10px] text-slate-400 font-semibold">Full course bundle</span>
-                              </div>
-                            )}
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-black text-amber-400">
+                                {formatNaira(calculatedPackagePrice)}
+                              </span>
+                              <span className="text-sm font-semibold text-slate-500 line-through">
+                                {formatNaira(calculatedBasePrice)}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
+                              SAVE {discountPercent}% PACKAGE DEAL
+                            </span>
                           </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex items-center gap-2">
-                            {snippetVideo && (
-                              <button
-                                onClick={() =>
-                                  setActiveSnippet({
-                                    videoTitle: snippetVideo.title,
-                                    videoUrl: snippetVideo.snippetUrl || snippetVideo.videoUrl,
-                                    courseTitle: course.title,
-                                    courseSlug: course.slug,
-                                    price: calculatedPackagePrice
-                                  })
-                                }
-                                className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition-colors"
-                                title="Watch Free Teaser Snippet"
-                              >
-                                <Sparkles className="w-4 h-4" />
-                              </button>
-                            )}
-
-                            <Link
-                              href={`/courses/${course.slug}`}
-                              className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-1.5"
-                            >
-                              <span>View Course</span>
-                              <ChevronRight className="w-4 h-4" />
-                            </Link>
+                        ) : (
+                          <div>
+                            <span className="text-2xl font-black text-amber-400">
+                              {formatNaira(calculatedPackagePrice)}
+                            </span>
+                            <span className="block text-[10px] text-slate-400 font-semibold">Full course bundle</span>
                           </div>
-                        </div>
-                      )
-                    })()}
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-2">
+                        {snippetVideo && (
+                          <button
+                            onClick={() =>
+                              setActiveSnippet({
+                                videoTitle: snippetVideo.title,
+                                videoUrl: snippetVideo.snippetUrl || snippetVideo.videoUrl,
+                                courseTitle: course.title,
+                                courseSlug: course.slug,
+                                price: calculatedPackagePrice
+                              })
+                            }
+                            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition-colors"
+                            title="Watch Free Teaser Snippet"
+                          >
+                            <Sparkles className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        <Link
+                          href={`/courses/${course.slug}`}
+                          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-1.5"
+                        >
+                          <span>View Course</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )
